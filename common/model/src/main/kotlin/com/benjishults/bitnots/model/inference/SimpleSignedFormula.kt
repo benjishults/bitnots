@@ -2,4 +2,6 @@ package com.benjishults.bitnots.model.inference
 
 import com.benjishults.bitnots.model.formulas.Formula
 
-abstract class SimpleSignedFormula<F : Formula>(formula: F, sign: Boolean) : SignedFormula<F>(formula, sign)
+abstract class SimpleSignedFormula<F : Formula>(formula: F, sign: Boolean) : SignedFormula<F>(formula, sign) {
+	override fun generateChildren(): List<SignedFormula<out Formula>> = emptyList()
+}

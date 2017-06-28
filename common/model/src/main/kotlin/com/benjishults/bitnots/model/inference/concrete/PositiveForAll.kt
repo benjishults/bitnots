@@ -1,8 +1,6 @@
 package com.benjishults.bitnots.model.inference.concrete
 
-import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.ForAll
-import com.benjishults.bitnots.model.inference.DeltaFormula
-import com.benjishults.bitnots.model.inference.SignedFormula
+import com.benjishults.bitnots.model.inference.GammaFormula
 
-class PositiveForAll(formula: ForAll) : DeltaFormula<ForAll>(formula, true)
+class PositiveForAll(formula: ForAll) : GammaFormula<ForAll>(formula, true)

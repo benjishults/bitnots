@@ -8,10 +8,11 @@ import com.benjishults.bitnots.model.inference.SignedFormula
 import com.benjishults.bitnots.model.util.Queue
 import com.benjishults.bitnots.model.util.TreeNode
 import com.benjishults.bitnots.model.inference.SimpleSignedFormula
+import com.benjishults.bitnots.model.unifier.BranchCloser
 
 class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mutableListOf(),
 				  parent: TableauNode?) : TreeNode<TableauNode>(parent) {
-
+	
 	// starts as proper ancestors and new oned are added after processing
 	val allFormulas = ArrayList<SignedFormula<out Formula>>().also { list ->
 		parent?.toAncestors { list.addAll(it.newFormulas.filter { it is SimpleSignedFormula<*> }) }
@@ -62,7 +63,7 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mut
 		}
 		return pos.any { p -> neg.any { it === p } }
 	}
-
+	
 	fun isClosed(): Boolean {
 		if (closed ||
 				(children.isNotEmpty() && children.all { (it).isClosed() })) {

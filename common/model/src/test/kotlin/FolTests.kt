@@ -45,19 +45,7 @@ class FolTests {
 
 	@Test
 	fun testValid() {
-		print(ForAll(ForSome(Implies(And(Pred("P", BV("a")),
-				Pred("E", BV("a")),
-				Implies(Pred("E", BV("x")),
-						Or(Pred("G", BV("x")), Pred("s", BV("x"), Fun("f", BV("x"))))),
-				Implies(Pred("E", BV("x2")),
-						Or(Pred("G", BV("x2")), Pred("C", Fun("f", BV("x2"))))),
-				Implies(Pred("S", BV("a"), BV("y")),
-						Pred("P", BV("y")))),
-				Or(And(Pred("P", BV("x3")), Pred("G", BV("x3"))),
-						And(Pred("P", BV("x4")), Pred("C", BV("x4"))))),
-				BV("x"), BV("x2"), BV("x3"), BV("x4"), BV("y")), BV("a")))
-		val claims = arrayOf(
-				/*
+		/*
    (forall ((a))
     (for-some ((x) (x2) (x3) (x4) (y))
       (implies (and (p a) (e a)
@@ -69,7 +57,8 @@ class FolTests {
         (or (and (p x3) (g x3)) 
             (and (p x4) (c x4)))))))
 
- */
+		 */
+		val claims = arrayOf(
 				Claim(ForAll(ForSome(Implies(And(Pred("P", BV("a")),
 						Pred("E", BV("a")),
 						Implies(Pred("E", BV("x")),
@@ -80,7 +69,7 @@ class FolTests {
 								Pred("P", BV("y")))),
 						Or(And(Pred("P", BV("x3")), Pred("G", BV("x3"))),
 								And(Pred("P", BV("x4")), Pred("C", BV("x4"))))),
-						BV("x"), BV("x2"), BV("x3"), BV("x4"), BV("y")), BV("a")), steps = 2))
+						BV("x"), BV("x2"), BV("x3"), BV("x4"), BV("y")), BV("a")), steps = 8))
 
 		for (claim in claims) {
 			val tableau = Tableau(TableauNode(ArrayList<SignedFormula<out Formula>>().also {

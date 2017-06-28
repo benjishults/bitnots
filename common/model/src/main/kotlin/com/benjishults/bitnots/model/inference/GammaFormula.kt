@@ -7,6 +7,7 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.terms.FV
 
 abstract class GammaFormula<F : VarBindingFormula>(formula: F, sign: Boolean) : SignedFormula<F>(formula, sign) {
+	var numberOfApplications = 0
 	override fun generateChildren(): List<SignedFormula<out Formula>> {
 		val boundToFree = mutableMapOf<Variable, Variable>()
 		formula.variables.map {

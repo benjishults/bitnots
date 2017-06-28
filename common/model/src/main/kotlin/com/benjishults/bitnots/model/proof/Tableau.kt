@@ -47,7 +47,7 @@ class Tableau(val root: TableauNode) {
 			return false
 		gamma?.let {
 			gamma ->
-			node.newFormulas.remove(gamma);
+			gamma.numberOfApplications++
 			val leaves = node.allLeaves()
 			leaves.map { leaf -> gamma.generateChildren().map { leaf.children.add(TableauNode(mutableListOf(it), leaf)) } }
 			return true
