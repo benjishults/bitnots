@@ -5,12 +5,18 @@ import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
 import com.benjishults.bitnots.model.inference.BetaFormula
 import com.benjishults.bitnots.model.inference.DeltaFormula
 import com.benjishults.bitnots.model.inference.GammaFormula
+import com.benjishults.bitnots.model.unifier.MultiBranchCloser
 
 class Tableau(val root: TableauNode) {
 
 	override fun toString() = root.toString()
 
 	fun isClosed() = root.isClosed()
+	
+	fun unify() : MultiBranchCloser? {
+		
+		return null
+	}
 
 	fun step() {
 		if (!applyDelta() && !applyBeta())

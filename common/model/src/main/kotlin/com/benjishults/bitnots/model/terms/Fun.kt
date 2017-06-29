@@ -1,13 +1,19 @@
 package com.benjishults.bitnots.model.terms
 
+import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTable
 
-class Function private constructor(name: String, vararg val arguments: Term) : Term(TermConstructor(name)) {
+abstract class Function private constructor(name: String, vararg val arguments: Term) : Term(TermConstructor(name)) {
+	//	override fun unify(other: Term): Substitution? = arguments.fold(mapOf()) { s, t -> s.it.unify(other) }
+	init {
+		TODO()
+	}
+
 	override fun getFreeVariables(): Set<FreeVariable> =
 			arguments.fold(emptySet<FreeVariable>()) { s, t -> s.union(t.getFreeVariables()) }
 
-	override fun substitute(map: Map<Variable, Term>): Function {
-		return Function.intern(cons.name, *arguments.map { it.substitute(map) }.toTypedArray())
+	override fun applySub(substitution: Substitution): Function {
+		return Function.intern(cons.name, *arguments.map { it.applySub(substitution) }.toTypedArray())
 	}
 
 	override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> {
@@ -18,7 +24,7 @@ class Function private constructor(name: String, vararg val arguments: Term) : T
 
 	companion object inner : InternTable<Function, Term>({ name, args -> Function(name, *args) })
 
-	override fun toString() = "(${cons.name} ${arguments.joinToString(" ")})"
+	override fun toString() = "(${cons.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
 
 	override fun equals(other: Any?): Boolean {
 		if (other === null) return false

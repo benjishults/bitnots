@@ -1,24 +1,24 @@
 package com.benjishults.bitnots.model.proof
 
-import com.benjishults.bitnots.model.formulas.propositional.Prop
 import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.model.formulas.propositional.Prop
 import com.benjishults.bitnots.model.inference.AlphaFormula
 import com.benjishults.bitnots.model.inference.ClosingFormula
 import com.benjishults.bitnots.model.inference.SignedFormula
-import com.benjishults.bitnots.model.util.Queue
-import com.benjishults.bitnots.model.util.TreeNode
 import com.benjishults.bitnots.model.inference.SimpleSignedFormula
-import com.benjishults.bitnots.model.unifier.BranchCloser
+import com.benjishults.bitnots.model.unifier.MultiBranchCloser
+import com.benjishults.bitnots.model.unifier.Substitution
+import com.benjishults.bitnots.model.util.TreeNode
 
 class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mutableListOf(),
 				  parent: TableauNode?) : TreeNode<TableauNode>(parent) {
-	
-	// starts as proper ancestors and new oned are added after processing
-	val allFormulas = ArrayList<SignedFormula<out Formula>>().also { list ->
+
+	// starts as proper ancestors and new ones are added after processing
+	val allFormulas = mutableListOf<SignedFormula<out Formula>>().also { list ->
 		parent?.toAncestors { list.addAll(it.newFormulas.filter { it is SimpleSignedFormula<*> }) }
 	}
 
-	// apply alpha rules and regularity in place
+	// apply alpha rules
 	init {
 		while (true) {
 			val toAdd: MutableList<SignedFormula<out Formula>> = mutableListOf()
@@ -36,7 +36,10 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mut
 			else
 				newFormulas.addAll(toAdd)
 		}
+	}
 
+	// apply regularity
+	init {
 		newFormulas.iterator().let { iter ->
 			while (iter.hasNext()) {
 				iter.next().let {
@@ -45,10 +48,23 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mut
 				}
 			}
 		}
+	}
+
+	val closers = mutableListOf<Substitution>()
+
+	// generate closers
+	init {
+		closers.let { list ->
+			allFormulas.filter { it.sign }.forEach { above -> newFormulas.filter { !it.sign }.forEach { above.formula.unify(it.formula)?.let { list.add(it) } } }
+		}
+	}
+
+	init {
 		allFormulas.addAll(newFormulas)
 	}
 
 	var closed: Boolean = newFormulas.any { it is ClosingFormula } || hasCriticalPair()
+
 
 	fun hasCriticalPair(): Boolean {
 		val pos: MutableList<Prop> = mutableListOf()
@@ -63,7 +79,12 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mut
 		}
 		return pos.any { p -> neg.any { it === p } }
 	}
-	
+
+	fun findCloser(): MultiBranchCloser? {
+
+		return null;
+	}
+
 	fun isClosed(): Boolean {
 		if (closed ||
 				(children.isNotEmpty() && children.all { (it).isClosed() })) {

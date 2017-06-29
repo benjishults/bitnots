@@ -3,17 +3,23 @@ package com.benjishults.bitnots.model.formulas.propositional
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.FormulaConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable
-import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
+import com.benjishults.bitnots.model.unifier.Substitution
 
 class Implies(val antecedent: Formula, val consequent: Formula) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.implies.name)) {
+	override fun unify(other: Formula): Substitution? =
+			if (other is Implies)
+				antecedent.unify(other.antecedent)?.let { return it.compose(consequent.unify(other.consequent)) }
+			else
+				null
+
 	override fun getFreeVariables(): Set<FreeVariable> = antecedent.getFreeVariables().union(consequent.getFreeVariables())
 
 	override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> =
 			antecedent.getVariablesUnboundExcept(boundVars).union(consequent.getVariablesUnboundExcept(boundVars))
 
-	override fun substitute(map: Map<Variable, Term>): Implies {
-		return Implies(antecedent.substitute(map), consequent.substitute(map))
+	override fun applySub(substitution: Substitution): Implies {
+		return Implies(antecedent.applySub(substitution), consequent.applySub(substitution))
 	}
 
 	override fun toString() = "(${constructor.name} ${antecedent} ${consequent})"

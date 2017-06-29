@@ -2,9 +2,10 @@ package com.benjishults.bitnots.model.inference
 
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
+import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
-import com.benjishults.bitnots.model.terms.FV
+import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class GammaFormula<F : VarBindingFormula>(formula: F, sign: Boolean) : SignedFormula<F>(formula, sign) {
 	var numberOfApplications = 0
@@ -17,6 +18,6 @@ abstract class GammaFormula<F : VarBindingFormula>(formula: F, sign: Boolean) : 
 					else
 						FV(it.cons.name))
 		}
-		return listOf(formula.formula.substitute(boundToFree).createSignedFormula(sign))
+		return listOf(formula.formula.applySub(Substitution(boundToFree)).createSignedFormula(sign))
 	}
 }

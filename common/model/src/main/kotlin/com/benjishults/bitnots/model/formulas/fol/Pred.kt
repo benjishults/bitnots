@@ -5,13 +5,18 @@ import com.benjishults.bitnots.model.formulas.FormulaConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
+import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTable
 
 class Predicate private constructor(name: String, vararg val arguments: Term) : Formula(FormulaConstructor.intern(name)) {
+	override fun unify(other: Formula): Substitution? {
+		TODO()
+	}
+
 	override fun getFreeVariables(): Set<FreeVariable> = arguments.fold(emptySet()) { s, t -> s.union(t.getFreeVariables()) }
 
-	override fun substitute(map: Map<Variable, Term>): Formula {
-		return Predicate(constructor.name, *arguments.map { it.substitute(map) }.toTypedArray())
+	override fun applySub(substitution: Substitution): Formula {
+		return Predicate(constructor.name, *arguments.map { it.applySub(substitution) }.toTypedArray())
 	}
 
 	override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> {
