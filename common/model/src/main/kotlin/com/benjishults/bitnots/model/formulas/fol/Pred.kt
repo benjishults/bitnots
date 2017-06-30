@@ -6,10 +6,11 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
+import com.benjishults.bitnots.model.unifier.Substitution.EmptySubstitution
 import com.benjishults.bitnots.model.util.InternTable
 
 class Predicate private constructor(name: String, vararg val arguments: Term) : Formula(FormulaConstructor.intern(name)) {
-	override fun unify(other: Formula): Substitution? {
+	override fun unify(other: Formula, sub: Substitution): Substitution? {
 		TODO()
 	}
 

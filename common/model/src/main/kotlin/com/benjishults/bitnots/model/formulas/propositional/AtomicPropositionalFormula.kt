@@ -9,7 +9,7 @@ import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class AtomicPropositionalFormula(cons: FormulaConstructor) : PropositionalFormula(cons) {
 
-	override fun unify(other: Formula): Substitution? = if (this == other) Substitution() else null
+	override fun unify(other: Formula, sub: Substitution): Substitution? = if (this == other) sub else null
 	override fun applySub(substitution: Substitution): Formula = this
 
 

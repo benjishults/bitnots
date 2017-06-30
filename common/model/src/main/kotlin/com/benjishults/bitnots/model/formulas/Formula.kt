@@ -2,10 +2,11 @@ package com.benjishults.bitnots.model.formulas
 
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
+import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class Formula(val constructor: FormulaConstructor) {
-	abstract fun unify(other: Formula): Substitution?
+	abstract fun unify(other: Formula, sub: Substitution = EmptySub): Substitution
 	abstract fun applySub(substitution: Substitution): Formula
 
 	abstract fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable>

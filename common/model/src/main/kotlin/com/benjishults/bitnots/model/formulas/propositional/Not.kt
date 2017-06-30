@@ -7,7 +7,7 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 
 class Not(val argument: Formula) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.not.name)) {
-	override fun unify(other: Formula): Substitution? = if (other is Not) argument.unify(other.argument) else null
+	override fun unify(other: Formula, sub: Substitution): Substitution? = if (other is Not) argument.unify(other.argument, sub) else null
 
 	override fun getFreeVariables(): Set<FreeVariable> = argument.getFreeVariables()
 

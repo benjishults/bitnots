@@ -7,7 +7,7 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class VarArgPropositionalFormula(cons: FormulaConstructor, vararg val formulas: Formula) : PropositionalFormula(cons) {
-	override fun unify(other: Formula): Substitution? {
+	override fun unify(other: Formula, sub: Substitution): Substitution? {
 		TODO()
 //		formulas.map { it.applySub(substitution) }.toTypedArray())
 

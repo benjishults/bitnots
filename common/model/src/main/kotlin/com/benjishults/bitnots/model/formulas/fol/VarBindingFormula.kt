@@ -8,7 +8,7 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class VarBindingFormula(cons: FormulaConstructor, val formula: Formula, vararg val variables: BoundVariable) : Formula(cons) {
-	override fun unify(other: Formula): Substitution? {
+	override fun unify(other: Formula, sub: Substitution): Substitution? {
 		TODO()
 	}
 

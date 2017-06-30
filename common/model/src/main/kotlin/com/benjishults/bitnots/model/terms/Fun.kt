@@ -1,9 +1,37 @@
 package com.benjishults.bitnots.model.terms
 
+import com.benjishults.bitnots.model.unifier.EmptySub
+import com.benjishults.bitnots.model.unifier.NotUnifiable
+import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTable
 
-abstract class Function private constructor(name: String, vararg val arguments: Term) : Term(TermConstructor(name)) {
+class Function private constructor(name: String, vararg val arguments: Term) : Term(TermConstructor(name)) {
+	private data class Helpers(val sigma: Substitution, val tau: Substitution)
+
+	override fun unify(other: Term, sub: Substitution): Substitution {
+		if (other is Function && other.cons === cons) {
+			arguments.foldIndexed(Helpers(sub, EmptySub)) { index, p, t ->
+				when (p.sigma) {
+					NotUnifiable -> return NotUnifiable
+					EmptySub -> {
+						val tau: Substitution = t.unify(other.arguments[index], EmptySub)
+						
+						return null
+					}
+					is Sub -> {
+						val tau: Substitution = t.unify(other.arguments[index], EmptySub)
+						return@foldIndexed Helpers(sub.compose(tau), tau)
+					}
+				}
+			}
+			return NotUnifiable
+		} else if (other is FreeVariable)
+			return Sub(other.to(this))
+		else
+			return NotUnifiable
+	}
+
 	//	override fun unify(other: Term): Substitution? = arguments.fold(mapOf()) { s, t -> s.it.unify(other) }
 	init {
 		TODO()
