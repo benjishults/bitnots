@@ -4,7 +4,7 @@ import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTable
 
 class BoundVariable private constructor(name: String) : Variable(name) {
-	override fun unify(other: Term, sub: Substitution): Substitution? = TODO()
+	override fun unify(other: Term, sub: Substitution): Substitution = TODO()
 
 	override fun getFreeVariables(): Set<FreeVariable> = emptySet()
 

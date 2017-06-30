@@ -17,7 +17,7 @@ class Function private constructor(name: String, vararg val arguments: Term) : T
 					EmptySub -> {
 						val tau: Substitution = t.unify(other.arguments[index], EmptySub)
 						
-						return null
+						return NotUnifiable
 					}
 					is Sub -> {
 						val tau: Substitution = t.unify(other.arguments[index], EmptySub)

@@ -6,10 +6,14 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 
-abstract class Iff(val first: Formula, val second: Formula) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.iff.name)) {
-	init {
-		TODO()
-	}
+class Iff(val first: Formula, val second: Formula) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.iff.name)) {
+    override fun unify(other: Formula, sub: Substitution): Substitution {
+        TODO()
+    }
+
+    override fun applySub(substitution: Substitution): Formula {
+        TODO()
+    }
 
 	override fun getFreeVariables(): Set<FreeVariable> = first.getFreeVariables().union(second.getFreeVariables())
 
