@@ -11,7 +11,7 @@ abstract class Term(val cons: TermConstructor) {
 	abstract fun unify(other: Term, sub: Substitution = EmptySub): Substitution
 
 	abstract fun applySub(substitution: Substitution): Term
-	abstract fun contains(variable: Variable): Boolean
+	abstract operator fun contains(variable: Variable): Boolean
 
 	abstract fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable>
 	abstract fun getFreeVariables(): Set<FreeVariable>

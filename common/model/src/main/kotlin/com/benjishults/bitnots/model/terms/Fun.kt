@@ -6,7 +6,14 @@ import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTable
 
-class Function private constructor(name: String, vararg val arguments: Term) : Term(TermConstructor(name)) {
+class Function private constructor(name: String, vararg val arguments: Term) : Term(FunctionConstructor(name)) {
+
+	class FunctionConstructor(name: String) : TermConstructor(name) {
+		// TODO look into doing it this way
+//		operator fun invoke(vararg arguments:Term) {
+//			
+//		}
+	}
 
 	override fun contains(variable: Variable): Boolean = arguments.any { it.contains(variable) }
 

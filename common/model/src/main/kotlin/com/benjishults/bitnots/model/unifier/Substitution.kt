@@ -9,6 +9,8 @@ sealed class Substitution {
 	abstract fun applyToVar(v: Variable): Term
 
 	abstract override fun equals(other: Any?): Boolean
+
+	abstract override fun toString(): String
 }
 
 /**
@@ -21,6 +23,8 @@ object NotUnifiable : Substitution() {
 	override fun compose(other: Substitution): Substitution = this
 
 	override fun equals(other: Any?): Boolean = other === this
+	override fun toString(): String = "\u22A5"
+
 }
 
 object EmptySub : Substitution() {
@@ -30,6 +34,8 @@ object EmptySub : Substitution() {
 	override fun compose(other: Substitution) = other
 
 	override fun equals(other: Any?): Boolean = this === other
+	override fun toString(): String = "{}"
+
 }
 
 class Sub(val map: Map<Variable, Term>) : Substitution() {
@@ -87,4 +93,12 @@ class Sub(val map: Map<Variable, Term>) : Substitution() {
 //		}
 //		return false
 	}
+
+	override fun toString(): String =
+			"{" + map.entries.fold(mutableListOf<String>())
+			{
+				s, t ->
+				s.also { it.add("${t.value}/${t.key}") }
+			}.joinToString(", ") + "}"
+
 }
