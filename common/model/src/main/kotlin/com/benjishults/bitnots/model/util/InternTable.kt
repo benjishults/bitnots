@@ -11,8 +11,9 @@ open class InternTable<T, A>(val factory: (String, Array<out A>) -> T) {
 	fun exists(name: String): Boolean = table.containsKey(name)
 
 	fun intern(name: String, vararg others: A): T {
-		table.get(name)?.let { return it }
-		return factory(name, others).also {
+		table.get(name)?.let {
+			return it
+		} ?: return factory(name, others).also {
 			table.put(name, it)
 		}
 	}

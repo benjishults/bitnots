@@ -15,4 +15,5 @@ abstract class Term(val cons: TermConstructor) {
 
 	abstract fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable>
 	abstract fun getFreeVariables(): Set<FreeVariable>
+	abstract fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int>
 }

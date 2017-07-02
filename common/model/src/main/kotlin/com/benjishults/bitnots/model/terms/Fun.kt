@@ -36,6 +36,12 @@ class Function private constructor(name: String, vararg val arguments: Term) : T
 	override fun getFreeVariables(): Set<FreeVariable> =
 			arguments.fold(emptySet<FreeVariable>()) { s, t -> s.union(t.getFreeVariables()) }
 
+	override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
+			arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
+				t.getFreeVariablesAndCounts().entries.forEach { (v, c) -> s.get(v)?.also { s.put(v, c + it) } ?: s.put(v, c) }
+				s
+			}
+
 	override fun applySub(substitution: Substitution): Function {
 		return Fun(cons.name, *arguments.map { it.applySub(substitution) }.toTypedArray())
 	}

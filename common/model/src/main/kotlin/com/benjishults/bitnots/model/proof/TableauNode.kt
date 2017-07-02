@@ -55,7 +55,17 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mut
 	// generate closers
 	init {
 		closers.let { list ->
-			allFormulas.filter { it.sign }.forEach { above -> newFormulas.filter { !it.sign }.forEach { above.formula.unify(it.formula)?.let { list.add(it) } } }
+			allFormulas.filter {
+				it.sign
+			}.forEach { above ->
+				newFormulas.filter {
+					!it.sign
+				}.forEach {
+					above.formula.unify(it.formula)?.let {
+						list.add(it)
+					}
+				}
+			}
 		}
 	}
 

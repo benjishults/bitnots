@@ -12,9 +12,9 @@ class Tableau(val root: TableauNode) {
 	override fun toString() = root.toString()
 
 	fun isClosed() = root.isClosed()
-	
-	fun unify() : MultiBranchCloser? {
-		
+
+	fun unify(): MultiBranchCloser? {
+
 		return null
 	}
 
@@ -38,8 +38,7 @@ class Tableau(val root: TableauNode) {
 			val leaves = node.allLeaves()
 			leaves.map { leaf -> delta.generateChildren().map { leaf.children.add(TableauNode(mutableListOf(it), leaf)) } }
 			return true
-		}
-		return false
+		} ?: return false
 	}
 
 	// TODO make this splice
@@ -57,8 +56,7 @@ class Tableau(val root: TableauNode) {
 			val leaves = node.allLeaves()
 			leaves.map { leaf -> gamma.generateChildren().map { leaf.children.add(TableauNode(mutableListOf(it), leaf)) } }
 			return true
-		}
-		return false
+		} ?: return false
 	}
 
 	private fun applyBeta(): Boolean {
@@ -75,8 +73,7 @@ class Tableau(val root: TableauNode) {
 			val leaves = node.allLeaves()
 			leaves.map { leaf -> beta.generateChildren().map { leaf.children.add(TableauNode(mutableListOf(it), leaf)) } }
 			return true
-		}
-		return false
+		} ?: return false
 	}
 
 }

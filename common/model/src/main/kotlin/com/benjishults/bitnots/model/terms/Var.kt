@@ -19,12 +19,13 @@ sealed class Variable(name: TermConstructor) : Term(name) {
 }
 
 class BoundVariable private constructor(name: String) : Variable(BVConstructor(name)) {
-	
-	class BVConstructor(name:String) : TermConstructor(name)
+
+	class BVConstructor(name: String) : TermConstructor(name)
 
 	override fun unify(other: Term, sub: Substitution): Substitution = if (other === this) sub else NotUnifiable
 
 	override fun getFreeVariables(): Set<FreeVariable> = emptySet()
+	override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
 
 	companion object inner : InternTable<BoundVariable, Nothing>({ name, _ -> BoundVariable(name) })
 
@@ -34,9 +35,9 @@ fun BV(name: String): BoundVariable = BoundVariable.intern(name)
 
 class FreeVariable private constructor(name: String) : Variable(FVConstructor(name)) {
 
-	class FVConstructor(name:String) : TermConstructor(name)
+	class FVConstructor(name: String) : TermConstructor(name)
 
-		override fun unify(other: Term, sub: Substitution): Substitution =
+	override fun unify(other: Term, sub: Substitution): Substitution =
 			if (this === other)
 				sub
 			else if (other.contains(this))
@@ -45,6 +46,7 @@ class FreeVariable private constructor(name: String) : Variable(FVConstructor(na
 				sub.compose(Sub(this.to(other)))
 
 	override fun getFreeVariables(): Set<FreeVariable> = setOf(this)
+	override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf(this.to(1))
 
 	companion object inner : InternTable<FreeVariable, Nothing>({ name, _ -> FreeVariable(name) })
 

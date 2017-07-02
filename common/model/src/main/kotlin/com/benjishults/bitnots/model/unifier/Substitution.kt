@@ -43,8 +43,9 @@ class Sub(val map: Map<Variable, Term>) : Substitution() {
 	constructor(vararg pairs: Pair<Variable, Term>) : this(mapOf(*pairs))
 
 	override fun applyToVar(v: Variable): Term {
-		map.get(v)?.let { return it }
-		return v
+		map.get(v)?.let {
+			return it
+		} ?: return v
 	}
 
 	override fun compose(other: Substitution): Substitution {
