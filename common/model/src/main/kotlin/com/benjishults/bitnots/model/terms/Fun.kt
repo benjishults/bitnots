@@ -7,7 +7,9 @@ import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTable
 
-fun Fn(name: String, arity: Int) = FunctionConstructor.intern(name, arity)
+fun Const(name: String) = Fn(name, 0)
+
+fun Fn(name: String, arity: Int = 1) = FunctionConstructor.intern(name, arity)
 
 class Function private constructor(name: Fun, val arguments: Array<Term>) : Term(name) {
 
