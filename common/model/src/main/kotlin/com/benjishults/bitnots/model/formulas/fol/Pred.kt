@@ -25,7 +25,7 @@ class Predicate private constructor(name: String, vararg val arguments: Term) : 
 		return value.toSet()
 	}
 
-	companion object inner : InternTable<Predicate, Term>({ name, args -> Predicate(name, *args) })
+	companion object inner : InternTable<Predicate>({ name -> TODO() })
 
 	override fun equals(other: Any?): Boolean {
 		if (other === null) return false
@@ -45,4 +45,4 @@ class Predicate private constructor(name: String, vararg val arguments: Term) : 
 
 }
 
-fun Pred(name: String, vararg arguments: Term): Predicate = Predicate.intern(name, *arguments)
+fun Pred(name: String, vararg arguments: Term): Predicate = Predicate.intern(name)

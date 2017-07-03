@@ -1,18 +1,34 @@
 package com.benjishults.bitnots.model.terms
 
+import com.benjishults.bitnots.model.terms.Function.Fun
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.NotUnifiable
 import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTable
 
-class Function private constructor(name: String, vararg val arguments: Term) : Term(FunctionConstructor(name)) {
+fun Fn(name: String, arity: Int) = FunctionConstructor.intern(name, arity)
 
-	class FunctionConstructor(name: String) : TermConstructor(name) {
-		// TODO look into doing it this way
-//		operator fun invoke(vararg arguments:Term) {
-//			
-//		}
+class Function private constructor(name: Fun, val arguments: Array<Term>) : Term(name) {
+
+	class FunctionConstructor private constructor(name: String, arity: Int = 0) : TermConstructor(name) {
+		companion object inner : InternTable<Fun>({ name -> Fun(name) })
+
+		operator fun invoke(arguments: Array<Term>) = Function(this, arguments)
+		operator fun invoke(argument: Term) =
+				Function(this, arrayOf(argument))
+
+		operator fun invoke(arg1: Term, arg2: Term) =
+				Function(this, arrayOf(arg1, arg2))
+
+		operator fun invoke(arg1: Term, arg2: Term, arg3: Term) =
+				Function(this, arrayOf(arg1, arg2, arg3))
+
+		operator fun invoke(arg1: Term, arg2: Term, arg3: Term, arg4: Term) =
+				Function(this, arrayOf(arg1, arg2, arg3, arg4))
+
+		operator fun invoke(arg1: Term, arg2: Term, arg3: Term, arg4: Term, arg5: Term) =
+				Function(this, arrayOf(arg1, arg2, arg3, arg4, arg5))
 	}
 
 	override fun contains(variable: Variable): Boolean = arguments.any { it.contains(variable) }
@@ -38,12 +54,16 @@ class Function private constructor(name: String, vararg val arguments: Term) : T
 
 	override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
 			arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
-				t.getFreeVariablesAndCounts().entries.forEach { (v, c) -> s.get(v)?.also { s.put(v, c + it) } ?: s.put(v, c) }
+				t.getFreeVariablesAndCounts().entries.forEach { (v, c) ->
+					s.get(v)?.also {
+						s.put(v, c + it)
+					} ?: s.put(v, c)
+				}
 				s
 			}
 
 	override fun applySub(substitution: Substitution): Function {
-		return Fun(cons.name, *arguments.map { it.applySub(substitution) }.toTypedArray())
+		return Fun(cons.name, arguments.map { it.applySub(substitution) }.toTypedArray())
 	}
 
 	override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> {
@@ -51,8 +71,6 @@ class Function private constructor(name: String, vararg val arguments: Term) : T
 		arguments.map { value.addAll(it.getVariablesUnboundExcept(boundVars)) }
 		return value.toSet()
 	}
-
-	companion object inner : InternTable<Function, Term>({ name, args -> Function(name, *args) })
 
 	override fun toString() = "(${cons.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
 
@@ -71,4 +89,4 @@ class Function private constructor(name: String, vararg val arguments: Term) : T
 	}
 }
 
-fun Fun(name: String, vararg arguments: Term): Function = Function.intern(name, *arguments)
+//fun Fun(name: String, arguments: Array<Term> = emptyArray()): Function = FunctionConstructor.intern(name)(arguments)

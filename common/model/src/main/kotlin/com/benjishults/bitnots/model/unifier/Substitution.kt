@@ -38,7 +38,7 @@ object EmptySub : Substitution() {
 
 }
 
-class Sub(val map: Map<Variable, Term>) : Substitution() {
+class Sub private constructor(private val map: Map<Variable, Term>) : Substitution() {
 
 	constructor(vararg pairs: Pair<Variable, Term>) : this(mapOf(*pairs))
 
@@ -57,42 +57,42 @@ class Sub(val map: Map<Variable, Term>) : Substitution() {
 				this
 			}
 			is Sub -> {
-				val doneMap = other.map.entries.fold(map.entries.fold(map) { s, t ->
+
+				val keys = map.keys.toSet()
+				val newMap = mutableMapOf<Variable, Term>()
+
+				map.entries.map { (v, term) ->
 					// apply arg to value in receiver
-					val applied = t.value.applySub(other)
-					if (applied !== t.value) {
-						s.plus(t.key.to(applied))
-					} else {
-						s
-					}
-				}) { s, t ->
-					// if arg covers more variables, add them
-					if (!map.keys.contains(t.key)) {
-						s.plus(t.key.to(t.value))
-					} else {
-						s
+					term.applySub(other).let {
+						if (it !== v)
+							newMap.put(v, it)
+						else
+							newMap.remove(v)
 					}
 				}
-				if (doneMap === map)
-					this
-				else
-					Sub(doneMap)
+
+				other.map.entries.map { (v, term) ->
+					// if arg covers more variables, add them
+					if (!keys.contains(v)) {
+						newMap.put(v, term)
+					}
+				}
+
+				Sub(newMap)
 			}
 		}
 	}
 
-	override fun equals(other: Any?): Boolean {
-		TODO()
+	override fun equals(other: Any?): Boolean // = this === other
+	{
 		// return true if each is more general than the other... i.e. if they are *equivalent*.
-//		other?.let {
-//			if (other::class === this::class) {
-//				if ((other as Substitution).map.size == this.arguments.size) {
-//
-//					return false
-//				}
-//			}
-//		}
-//		return false
+		other?.let {
+			return (other is Sub &&
+					other.map.size == map.size &&
+					other.map.keys == map.keys &&
+					other.map.entries.all { map.get(it.key) == it.value })
+		}
+		return false
 	}
 
 	override fun toString(): String =

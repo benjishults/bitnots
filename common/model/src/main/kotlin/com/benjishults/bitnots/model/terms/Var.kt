@@ -27,7 +27,7 @@ class BoundVariable private constructor(name: String) : Variable(BVConstructor(n
 	override fun getFreeVariables(): Set<FreeVariable> = emptySet()
 	override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
 
-	companion object inner : InternTable<BoundVariable, Nothing>({ name, _ -> BoundVariable(name) })
+	companion object inner : InternTable<BoundVariable>({ name -> BoundVariable(name) })
 
 }
 
@@ -48,7 +48,7 @@ class FreeVariable private constructor(name: String) : Variable(FVConstructor(na
 	override fun getFreeVariables(): Set<FreeVariable> = setOf(this)
 	override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf(this.to(1))
 
-	companion object inner : InternTable<FreeVariable, Nothing>({ name, _ -> FreeVariable(name) })
+	companion object inner : InternTable<FreeVariable>({ name -> FreeVariable(name) })
 
 }
 
