@@ -17,7 +17,7 @@ class Implies(val antecedent: Formula, val consequent: Formula) : PropositionalF
 
 	override fun getFreeVariables(): Set<FreeVariable> = antecedent.getFreeVariables().union(consequent.getFreeVariables())
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> =
+	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
 			antecedent.getVariablesUnboundExcept(boundVars).union(consequent.getVariablesUnboundExcept(boundVars))
 
 	override fun applySub(substitution: Substitution): Implies {

@@ -1,8 +1,8 @@
 package com.benjishults.bitnots.model.util
 
-open class InternTable<C>(val makeNew: (String) -> C) {
+open class InternTable<C>(open val makeNew: (String) -> C) {
 
-	private val table = mutableMapOf<String, C>()
+	protected val table = mutableMapOf<String, C>()
 
 	fun clear() {
 		table.clear()

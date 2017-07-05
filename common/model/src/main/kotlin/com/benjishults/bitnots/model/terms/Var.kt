@@ -1,28 +1,30 @@
 package com.benjishults.bitnots.model.terms
 
+import com.benjishults.bitnots.model.terms.BoundVariable.BVConstructor
+import com.benjishults.bitnots.model.terms.FreeVariable.FVConstructor
 import com.benjishults.bitnots.model.unifier.NotUnifiable
 import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTable
 
-sealed class Variable(name: TermConstructor) : Term(name) {
+sealed class Variable<C:TermConstructor>(name: C) : Term<C>(name) {
 
-	override fun contains(variable: Variable): Boolean = this === variable
+	override fun contains(variable: Variable<*>): Boolean = this === variable
 
-	override fun applySub(substitution: Substitution): Term = substitution.applyToVar(this)
+	override fun applySub(substitution: Substitution): Term<*> = substitution.applyToVar(this)
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> = if (this in boundVars) setOf() else setOf(this)
+	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = if (this in boundVars) setOf() else setOf(this)
 
 	override fun toString(): String {
 		return cons.name
 	}
 }
 
-class BoundVariable private constructor(name: String) : Variable(BVConstructor(name)) {
+class BoundVariable private constructor(name: String) : Variable<BVConstructor>(BVConstructor(name)) {
 
 	class BVConstructor(name: String) : TermConstructor(name)
 
-	override fun unify(other: Term, sub: Substitution): Substitution = if (other === this) sub else NotUnifiable
+	override fun unify(other: Term<*>, sub: Substitution): Substitution = if (other === this) sub else NotUnifiable
 
 	override fun getFreeVariables(): Set<FreeVariable> = emptySet()
 	override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
@@ -33,11 +35,11 @@ class BoundVariable private constructor(name: String) : Variable(BVConstructor(n
 
 fun BV(name: String): BoundVariable = BoundVariable.intern(name)
 
-class FreeVariable private constructor(name: String) : Variable(FVConstructor(name)) {
+class FreeVariable private constructor(name: String) : Variable<FVConstructor>(FVConstructor(name)) {
 
 	class FVConstructor(name: String) : TermConstructor(name)
 
-	override fun unify(other: Term, sub: Substitution): Substitution =
+	override fun unify(other: Term<*>, sub: Substitution): Substitution =
 			if (this === other)
 				sub
 			else if (other.contains(this))

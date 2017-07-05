@@ -17,7 +17,7 @@ class Iff(val first: Formula, val second: Formula) : PropositionalFormula(Formul
 
 	override fun getFreeVariables(): Set<FreeVariable> = first.getFreeVariables().union(second.getFreeVariables())
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> =
+	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
 			first.getVariablesUnboundExcept(boundVars).union(second.getVariablesUnboundExcept(boundVars))
 
 //	override fun applySub(substitution: Substitution): Iff {

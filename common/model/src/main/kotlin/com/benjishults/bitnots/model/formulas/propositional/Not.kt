@@ -12,7 +12,7 @@ class Not(val argument: Formula) : PropositionalFormula(FormulaConstructor.inter
 
 	override fun getFreeVariables(): Set<FreeVariable> = argument.getFreeVariables()
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> = argument.getVariablesUnboundExcept(boundVars)
+	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = argument.getVariablesUnboundExcept(boundVars)
 
 	override fun applySub(substitution: Substitution): Not {
 		return Not(argument.applySub(substitution))

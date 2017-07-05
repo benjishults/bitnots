@@ -8,7 +8,7 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTable
 
-class Predicate private constructor(name: String, vararg val arguments: Term) : Formula(FormulaConstructor.intern(name)) {
+class Predicate private constructor(name: String, vararg val arguments: Term<*>) : Formula(FormulaConstructor.intern(name)) {
 	override fun unify(other: Formula, sub: Substitution): Substitution {
 		TODO()
 	}
@@ -19,8 +19,8 @@ class Predicate private constructor(name: String, vararg val arguments: Term) : 
 		return Predicate(constructor.name, *arguments.map { it.applySub(substitution) }.toTypedArray())
 	}
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> {
-		val value = mutableSetOf<Variable>()
+	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
+		val value = mutableSetOf<Variable<*>>()
 		arguments.map { value.addAll(it.getVariablesUnboundExcept(boundVars)) }
 		return value.toSet()
 	}
@@ -45,4 +45,4 @@ class Predicate private constructor(name: String, vararg val arguments: Term) : 
 
 }
 
-fun Pred(name: String, vararg arguments: Term): Predicate = Predicate.intern(name)
+fun Pred(name: String, vararg arguments: Term<*>): Predicate = Predicate.intern(name)

@@ -14,7 +14,7 @@ abstract class VarBindingFormula(cons: FormulaConstructor, val formula: Formula,
 
     override fun getFreeVariables(): Set<FreeVariable> = formula.getFreeVariables()
 
-    override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> {
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
         return formula.getVariablesUnboundExcept(boundVars.plus(variables))
     }
 

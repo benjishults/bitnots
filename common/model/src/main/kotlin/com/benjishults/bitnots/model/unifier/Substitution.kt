@@ -1,12 +1,13 @@
 package com.benjishults.bitnots.model.unifier
 
 import com.benjishults.bitnots.model.terms.Term
+import com.benjishults.bitnots.model.terms.TermConstructor
 import com.benjishults.bitnots.model.terms.Variable
 
 sealed class Substitution {
 
 	abstract fun compose(other: Substitution): Substitution
-	abstract fun applyToVar(v: Variable): Term
+	abstract fun  <C: TermConstructor> applyToVar(v: Variable<C>): Term<*>
 
 	abstract override fun equals(other: Any?): Boolean
 
@@ -18,7 +19,7 @@ sealed class Substitution {
  */
 object NotUnifiable : Substitution() {
 
-	override fun applyToVar(v: Variable) = error("Attempt made to apply a non-existent substitution.")
+	override fun <C: TermConstructor> applyToVar(v: Variable<C>) = error("Attempt made to apply a non-existent substitution.")
 
 	override fun compose(other: Substitution): Substitution = this
 
@@ -29,7 +30,7 @@ object NotUnifiable : Substitution() {
 
 object EmptySub : Substitution() {
 
-	override fun applyToVar(v: Variable) = v;
+	override fun <C: TermConstructor> applyToVar(v: Variable<C>) = v;
 
 	override fun compose(other: Substitution) = other
 
@@ -38,11 +39,11 @@ object EmptySub : Substitution() {
 
 }
 
-class Sub private constructor(private val map: Map<Variable, Term>) : Substitution() {
+class Sub private constructor(private val map: Map<Variable<*>, Term<*>>) : Substitution() {
 
-	constructor(vararg pairs: Pair<Variable, Term>) : this(mapOf(*pairs))
+	constructor(vararg pairs: Pair<Variable<*>, Term<*>>) : this(mapOf(*pairs))
 
-	override fun applyToVar(v: Variable): Term {
+	override fun <C: TermConstructor> applyToVar(v: Variable<C>): Term<*> {
 		map.get(v)?.let {
 			return it
 		} ?: return v
@@ -59,7 +60,7 @@ class Sub private constructor(private val map: Map<Variable, Term>) : Substituti
 			is Sub -> {
 
 				val keys = map.keys.toSet()
-				val newMap = mutableMapOf<Variable, Term>()
+				val newMap = mutableMapOf<Variable<*>, Term<*>>()
 
 				map.entries.map { (v, term) ->
 					// apply arg to value in receiver

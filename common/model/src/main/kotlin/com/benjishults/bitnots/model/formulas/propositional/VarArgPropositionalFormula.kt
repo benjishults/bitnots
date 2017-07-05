@@ -20,8 +20,8 @@ abstract class VarArgPropositionalFormula(cons: FormulaConstructor, vararg val f
 		if (formulas.size < 2) throw IllegalArgumentException("Must provide at least two arguments to VarArgPropositionalFormula constructor.")
 	}
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> {
-		val value = mutableSetOf<Variable>()
+	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
+		val value = mutableSetOf<Variable<*>>()
 		formulas.map { value.addAll(it.getVariablesUnboundExcept(boundVars)) }
 		return value.toSet()
 	}

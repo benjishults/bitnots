@@ -1,41 +1,58 @@
 package com.benjishults.bitnots.model.terms
 
-import com.benjishults.bitnots.model.terms.Function.Fun
+import com.benjishults.bitnots.model.terms.Function.FunctionConstructor
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.NotUnifiable
 import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
-import com.benjishults.bitnots.model.util.InternTable
+import com.benjishults.bitnots.model.util.InternTableWithOther
 
-fun Const(name: String) = Fn(name, 0)
 
 fun Fn(name: String, arity: Int = 1) = FunctionConstructor.intern(name, arity)
 
-class Function private constructor(name: FunctionConstructor, val arguments: Array<Term>) : Term(name) {
+class Function private constructor(name: FunctionConstructor, var arguments: Array<Term<*>>) : Term<FunctionConstructor>(name) {
 
-    class FunctionConstructor private constructor(name: String, val arity: Int = 0) : TermConstructor(name) {
-        companion object inner : InternTable<Fun>({ name -> FunctionConstructor(name) })
-
-        operator fun invoke(arguments: Array<Term>) {
-            check(arguments.)
-            Function(this, arguments)
-        }
-
-        operator fun invoke(argument: Term) = Function(this, arrayOf(argument))
-
-        operator fun invoke(arg1: Term, arg2: Term) = Function(this, arrayOf(arg1, arg2))
-
-        operator fun invoke(arg1: Term, arg2: Term, arg3: Term) = Function(this, arrayOf(arg1, arg2, arg3))
-
-        operator fun invoke(arg1: Term, arg2: Term, arg3: Term, arg4: Term) = Function(this, arrayOf(arg1, arg2, arg3, arg4))
-
-        operator fun invoke(arg1: Term, arg2: Term, arg3: Term, arg4: Term, arg5: Term) =
-                Function(this, arrayOf(arg1, arg2, arg3, arg4, arg5))
+    companion object inner {
+        fun Const(name: String) = Function(Fn(name, 0), arrayOf())
     }
 
-    override fun contains(variable: Variable): Boolean = arguments.any { it.contains(variable) }
+    class FunctionConstructor private constructor(name: String, val arity: Int = 0) : TermConstructor(name) {
+        companion object inner : InternTableWithOther<FunctionConstructor, Int>({ name, arity -> FunctionConstructor(name, arity) })
 
-    override fun unify(other: Term, sub: Substitution): Substitution {
+        operator fun invoke(arguments: Array<Term<*>>): Function {
+            check(arguments.size == arity)
+            return Function(this, arguments)
+        }
+
+        operator fun invoke(argument: Term<*>): Function {
+            check(1 == arity)
+            return Function(this, arrayOf(argument))
+        }
+
+        operator fun invoke(arg1: Term<*>, arg2: Term<*>): Function {
+            check(2 == arity)
+            return Function(this, arrayOf(arg1, arg2))
+        }
+
+        operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>): Function {
+            check(3 == arity)
+            return Function(this, arrayOf(arg1, arg2, arg3))
+        }
+
+        operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>, arg4: Term<*>): Function {
+            check(4 == arity)
+            return Function(this, arrayOf(arg1, arg2, arg3, arg4))
+        }
+
+        operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>, arg4: Term<*>, arg5: Term<*>): Function {
+            check(5 == arity)
+            return Function(this, arrayOf(arg1, arg2, arg3, arg4, arg5))
+        }
+    }
+
+    override fun contains(variable: Variable<*>): Boolean = arguments.any { it.contains(variable) }
+
+    override fun unify(other: Term<*>, sub: Substitution): Substitution {
         if (other is Function && other.cons === cons) {
             return sub.compose(arguments.foldIndexed(EmptySub as Substitution) { i, s, t ->
                 t.unify(other.applySub(s).arguments[i].applySub(s), s).let {
@@ -68,8 +85,8 @@ class Function private constructor(name: FunctionConstructor, val arguments: Arr
         return cons(arguments.map { it.applySub(substitution) }.toTypedArray())
     }
 
-    override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> {
-        val value = mutableSetOf<Variable>()
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
+        val value = mutableSetOf<Variable<*>>()
         arguments.map { value.addAll(it.getVariablesUnboundExcept(boundVars)) }
         return value.toSet()
     }
@@ -91,4 +108,4 @@ class Function private constructor(name: FunctionConstructor, val arguments: Arr
     }
 }
 
-//fun Fun(name: String, arguments: Array<Term> = emptyArray()): Function = FunctionConstructor.intern(name)(arguments)
+//fun Fun(name: String, arguments: Array<Term<*>> = emptyArray()): Function = FunctionConstructor.intern(name)(arguments)

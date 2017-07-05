@@ -9,7 +9,7 @@ abstract class Formula(val constructor: FormulaConstructor) {
 	abstract fun unify(other: Formula, sub: Substitution = EmptySub): Substitution
 	abstract fun applySub(substitution: Substitution): Formula
 
-	abstract fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable>
+	abstract fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>>
 	abstract fun getFreeVariables(): Set<FreeVariable>
 
 	override fun toString() = "(${constructor.name})"
