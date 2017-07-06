@@ -15,7 +15,8 @@ import com.benjishults.bitnots.model.inference.SignedFormula
 import com.benjishults.bitnots.model.inference.createSignedFormula
 import com.benjishults.bitnots.model.proof.Tableau
 import com.benjishults.bitnots.model.proof.TableauNode
-import com.benjishults.bitnots.model.terms.Fun
+import com.benjishults.bitnots.model.terms.Fn
+import com.benjishults.bitnots.model.terms.Const
 import com.benjishults.bitnots.model.terms.BV
 import com.benjishults.bitnots.model.terms.FV
 import org.junit.Assert
@@ -62,9 +63,9 @@ class FolTests {
 				Claim(ForAll(ForSome(Implies(And(Pred("P", BV("a")),
 						Pred("E", BV("a")),
 						Implies(Pred("E", BV("x")),
-								Or(Pred("G", BV("x")), Pred("S", BV("x"), Fun("f", arrayOf(BV("x")))))),
+								Or(Pred("G", BV("x")), Pred("S", BV("x"), Fn("f")(BV("x"))))),
 						Implies(Pred("E", BV("x2")),
-								Or(Pred("G", BV("x2")), Pred("C", Fun("f", arrayOf(BV("x2")))))),
+								Or(Pred("G", BV("x2")), Pred("C", Fn("f")(BV("x2"))))),
 						Implies(Pred("S", BV("a"), BV("y")),
 								Pred("P", BV("y")))),
 						Or(And(Pred("P", BV("x3")), Pred("G", BV("x3"))),

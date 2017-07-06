@@ -9,12 +9,9 @@ import com.benjishults.bitnots.model.util.InternTableWithOther
 
 
 fun Fn(name: String, arity: Int = 1) = FunctionConstructor.intern(name, arity)
+fun Const(name: String) = Fn(name, 0)(arrayOf())
 
 class Function private constructor(name: FunctionConstructor, var arguments: Array<Term<*>>) : Term<FunctionConstructor>(name) {
-
-    companion object inner {
-        fun Const(name: String) = Function(Fn(name, 0), arrayOf())
-    }
 
     class FunctionConstructor private constructor(name: String, val arity: Int = 0) : TermConstructor(name) {
         companion object inner : InternTableWithOther<FunctionConstructor, Int>({ name, arity -> FunctionConstructor(name, arity) })
