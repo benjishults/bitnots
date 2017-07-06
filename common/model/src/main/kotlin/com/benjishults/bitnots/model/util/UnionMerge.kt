@@ -12,5 +12,9 @@ class MergingEquivalenceClass<T>(val relation: (T, T) -> Boolean) {
 			return merge(it, t)
 		} ?: return t.also { classes.add(it) }
 	}
+	
+	override fun toString() : String {
+		return "${classes}"
+	}
 
 }

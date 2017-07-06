@@ -36,7 +36,8 @@ data class SystemOfMultiEquations private constructor(
 	}
 
 	tailrec fun solve(): Substitution {
-		reduce()?.let { addToT ->
+		val addToT = reduce()
+		if (addToT !== null) { 
 			compactify(addToT)
 //			val addToT = mutableListOf<MultiEquation>()
 //			U.removeIf { multiEq ->
@@ -67,10 +68,6 @@ data class SystemOfMultiEquations private constructor(
 	}
 
 	// U' = (U - { S=M }) U { S=(C) } U F
-	// so count changes are as follows:
-	//   for v in[n] M and v in S', S'=M' - n,
-	//   for v in[m] C and v in S', S'=M' + m,
-	//   for v in[p]
 	/**
 	 * @return the list of MultiEquations that need to be transferred from U to T
 	 */
@@ -191,6 +188,10 @@ data class SystemOfMultiEquations private constructor(
 		}
 
 		override fun compareTo(other: MultiEquation): Int = counter.compareTo(other.counter)
+		
+		override fun toString() : String {
+			return "[${counter}] ${S}=${M}"
+		}
 	}
 
 }

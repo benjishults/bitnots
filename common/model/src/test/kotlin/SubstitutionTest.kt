@@ -65,7 +65,6 @@ class SubstitutionTest {
 
 		sigma = t1.unify(t2)
 
-
 	}
 	// see if you can get a unification the requires the occurs-check.
 
