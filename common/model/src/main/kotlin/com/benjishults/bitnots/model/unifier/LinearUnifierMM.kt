@@ -4,7 +4,6 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Function
 import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.util.DirectedGraph
-import com.benjishults.bitnots.model.util.UFNode
 import com.benjishults.bitnots.model.util.EquivalenceClasses
 
 fun Term<*>.linearUnify(other: Term<*>): Substitution = SystemOfMultiEquations(this, other).solve()
@@ -31,7 +30,7 @@ class SystemOfMultiEquations {
 				} ?: return NotUnifiable
 			} ?: break
 		}
-		val dag = DirectedGraph<UFNode<Term<*>>>()
+		val dag = DirectedGraph(2)
 		val R = { v1: FreeVariable, v2: FreeVariable ->
 			setOfMultiEqns.any { M ->
 				M.any {
@@ -50,7 +49,7 @@ class SystemOfMultiEquations {
 					it is FreeVariable
 				}.let { x ->
 					t.getFreeVariables().map { y ->
-						dag.add(classes.add(y).to(classes.add(x)))
+//						dag.add(classes.add(y).to(classes.add(x)))
 					}
 				}
 			}
