@@ -1,12 +1,14 @@
+import com.benjishults.bitnots.model.terms.Const
 import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn
-import com.benjishults.bitnots.model.terms.Const
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Function.FunctionConstructor
 import com.benjishults.bitnots.model.unifier.Sub
+import com.benjishults.bitnots.model.unifier.SystemOfMultiEquations
 import com.benjishults.bitnots.model.unifier.linearUnify
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 class SubstitutionTest {
@@ -36,6 +38,31 @@ class SubstitutionTest {
 	}
 
 	@Test
+	fun disagreementTest() {
+		val x1 = FV("x1")
+		val x2 = FV("x2")
+		val x3 = FV("x3")
+		val x4 = FV("x4")
+		val h = Fn("h", 2)
+		var t1 = h(x3, h(x2, x2))
+		var t2 = h(h(h(x1, x1), x2), x3)
+
+		println(SystemOfMultiEquations.disagreementSet(t1, t2))
+
+		val b = Const("b")
+		val a = Const("a")
+		val x5 = FV("x5")
+		val f = Fn("f", 4)
+		val g = Fn("g", 2)
+		t1 = f(x1, g(x2, x3), x2, b)
+		t2 = f(g(h(a, x5), x2), x1, h(a, x4), x4)
+
+		println(SystemOfMultiEquations.disagreementSet(t1, t2))
+
+	}
+
+	@Test
+	@Ignore
 	fun unificationTest() {
 		val x1 = FV("x1")
 		val x2 = FV("x2")

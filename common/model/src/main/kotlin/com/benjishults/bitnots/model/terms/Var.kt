@@ -7,7 +7,7 @@ import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTable
 
-sealed class Variable<C:TermConstructor>(name: C) : Term<C>(name) {
+sealed class Variable<C : TermConstructor>(name: C) : Term<C>(name) {
 
 	override fun contains(variable: Variable<*>): Boolean = this === variable
 
@@ -49,6 +49,15 @@ class FreeVariable private constructor(name: String) : Variable<FVConstructor>(F
 
 	override fun getFreeVariables(): Set<FreeVariable> = setOf(this)
 	override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf(this.to(1))
+
+	fun occursIn(term: Term<*>): Boolean {
+		when (term) {
+			is BoundVariable -> return false
+			is FreeVariable -> return this === term
+			is Function -> return term.arguments.any { this.occursIn(it) }
+			else -> return false
+		}
+	}
 
 	companion object inner : InternTable<FreeVariable>({ name -> FreeVariable(name) })
 
