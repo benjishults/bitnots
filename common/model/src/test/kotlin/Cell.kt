@@ -13,20 +13,21 @@ class Cell(var objs: MutableList<Entity> = mutableListOf(), val walls: Array<Dir
 		return this
 	}
 
-
 	fun report(direction: Direction): String {
 		return """
 You are facing ${direction.natural}.
-Here, you see ${if (objs.isEmpty()) "nothing."
-		else {
-			var items = StringBuilder()
-			for ((index, value) in objs.withIndex()) {
-				items.append("\n")
-				items.append(index - 1)
-				items.append(") ")
-				items.append(value.inSentence())
+Here, you see ${when (objs.size) {0 -> "nothing."
+			1 -> objs[0].inSentence() + "."
+			else -> {
+				var items = StringBuilder()
+				for ((index, value) in objs.withIndex()) {
+					items.append("\n")
+					items.append(index + 1)
+					items.append(") ")
+					items.append(value.inSentence())
+				}
+				items.toString()
 			}
-			items.toString()
 		}}
 You see ${if (direction in walls) "a wall" else "an opening"} ahead of you.
 To your left is ${if (direction.left() in walls) "a wall" else "an opening"}.

@@ -22,6 +22,8 @@ class CellTest {
 	val monster = Monster()
 
 	val duck = object : Entity {
+		override fun display() = 'f'
+
 		override fun plural() = "ducks"
 
 		override fun person() = 3
@@ -32,6 +34,8 @@ class CellTest {
 	}
 
 	val rabbit = object : Entity {
+		override fun display() = 'f'
+
 		override fun plural() = "rabbits"
 		override fun person() = 3
 
@@ -161,7 +165,7 @@ To your right is an opening.
 			sb.append(it.display())
 			sb.append(" ")
 		}
-		Assert.assertEquals("f f @ ${179.toShort().toChar()} ....", sb.toString())
+		Assert.assertEquals("f f @ o u / ) [ b m ", sb.toString())
 	}
 
 	@Test
@@ -220,7 +224,7 @@ To your right is an opening.
 
 		character.enterFrom(northSouthEmptyCell, Direction.West)
 		Assert.assertEquals("""
-You are facing West.
+You are facing East.
 Here, you see 
 1) a duck
 2) a rabbit
