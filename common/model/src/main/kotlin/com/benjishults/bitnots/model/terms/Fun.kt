@@ -67,12 +67,9 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
     override fun unify(other: Term<*>, sub: Substitution): Substitution {
         if (other is Function && other.cons === cons) {
             return sub.compose(arguments.foldIndexed(EmptySub as Substitution) { i, s, t ->
-                t.unify(other.applySub(s).arguments[i].applySub(s), s).let {
-                    when (it) {
-                        NotUnifiable -> return NotUnifiable
-                        else -> it
-                    }
-                }
+                t.unify(other.applySub(s).arguments[i].applySub(s), s).takeIf {
+                    it !== NotUnifiable
+                } ?: return NotUnifiable
             })
         } else if (other is FreeVariable)
             return sub.compose(Sub(other.to(this)))
@@ -81,7 +78,9 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
     }
 
     override fun getFreeVariables(): Set<FreeVariable> =
-            arguments.fold(emptySet<FreeVariable>()) { s, t -> s.union(t.getFreeVariables()) }
+            arguments.fold(emptySet<FreeVariable>()) { s, t ->
+                s.union(t.getFreeVariables())
+            }
 
     override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
             arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
@@ -93,15 +92,17 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
                 s
             }
 
-    override fun applySub(substitution: Substitution): Function {
-        return cons(arguments.map { it.applySub(substitution) }.toTypedArray())
-    }
+    override fun applySub(substitution: Substitution) =
+            cons(arguments.map {
+                it.applySub(substitution)
+            }.toTypedArray())
 
-    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
-        val value = mutableSetOf<Variable<*>>()
-        arguments.map { value.addAll(it.getVariablesUnboundExcept(boundVars)) }
-        return value.toSet()
-    }
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>) =
+            arguments.fold(mutableSetOf<Variable<*>>()) { s, t ->
+                s.also {
+                    it.addAll(t.getVariablesUnboundExcept(boundVars))
+                }
+            }
 
     override fun toString() = "(${cons.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
 
@@ -119,5 +120,3 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
         return false
     }
 }
-
-//fun Fun(name: String, arguments: Array<Term<*>> = emptyArray()): Function = FunctionConstructor.intern(name)(arguments)

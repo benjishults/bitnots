@@ -7,7 +7,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>engine</artifactId>
+    <artifactId>inference</artifactId>
 
     <name>BITNOTS :: Common :: Engine</name>
 
@@ -31,11 +31,6 @@
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>model</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>inference</artifactId>
             <version>${project.version}</version>
         </dependency>
 

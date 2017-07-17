@@ -11,10 +11,10 @@ import com.benjishults.bitnots.model.formulas.propositional.Or
 import com.benjishults.bitnots.model.formulas.propositional.Prop
 import com.benjishults.bitnots.model.formulas.propositional.Tfae
 import com.benjishults.bitnots.model.formulas.propositional.Truth
-import com.benjishults.bitnots.model.inference.SignedFormula
-import com.benjishults.bitnots.model.inference.createSignedFormula
-import com.benjishults.bitnots.model.proof.Tableau
-import com.benjishults.bitnots.model.proof.TableauNode
+import com.benjishults.bitnots.inference.rules.SignedFormula
+import com.benjishults.bitnots.inference.rules.createSignedFormula
+import com.benjishults.bitnots.engine.proof.Tableau
+import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.Const
 import com.benjishults.bitnots.model.terms.BV
