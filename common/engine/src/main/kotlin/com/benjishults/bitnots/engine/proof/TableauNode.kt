@@ -97,7 +97,9 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mut
 
 	fun isClosed(): Boolean {
 		if (closed ||
-				(children.isNotEmpty() && children.all { (it).isClosed() })) {
+				(children.isNotEmpty() && children.all {
+					(it).isClosed()
+				})) {
 			closed = true
 			return true
 		} else
@@ -107,9 +109,19 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mut
 	override fun toString(): String {
 		return StringBuilder().also {
 			if (newFormulas.any { it.sign })
-				it.append("Suppose: " + newFormulas.filter { it.sign }.map { it.formula }.joinToString("\n") + "\n")
-			if (newFormulas.any { !it.sign })
-				it.append("Show: " + newFormulas.filter { !it.sign }.map { it.formula }.joinToString("\n") + "\n")
+				it.append("Suppose: " + newFormulas.filter {
+					it.sign
+				}.map {
+					it.formula
+				}.joinToString("\n") + "\n")
+			if (newFormulas.any {
+				!it.sign
+			})
+				it.append("Show: " + newFormulas.filter {
+					!it.sign
+				}.map {
+					it.formula
+				}.joinToString("\n") + "\n")
 			if (children.isNotEmpty())
 				children.joinToString("\n")
 		}.toString();
