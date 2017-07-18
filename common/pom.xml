@@ -15,6 +15,7 @@
     <name>BITNOTS :: Common</name>
 
     <modules>
+        <module>util</module>
         <module>model</module>
         <module>inference</module>
         <module>engine</module>
