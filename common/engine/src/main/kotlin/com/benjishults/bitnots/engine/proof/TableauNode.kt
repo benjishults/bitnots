@@ -75,16 +75,15 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mut
 
 	var closed: Boolean = newFormulas.any { it is ClosingFormula } || hasCriticalPair()
 
-
 	fun hasCriticalPair(): Boolean {
 		val pos: MutableList<Prop> = mutableListOf()
 		val neg: MutableList<Prop> = mutableListOf()
 		allFormulas.map {
 			if (it.formula is Prop) {
 				if (it.sign)
-					pos.add(it.formula)
+					pos.add(it.formula as Prop)
 				else
-					neg.add(it.formula)
+					neg.add(it.formula as Prop)
 			}
 		}
 		return pos.any { p -> neg.any { it === p } }

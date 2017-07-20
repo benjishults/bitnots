@@ -9,7 +9,7 @@
 
     <artifactId>util</artifactId>
 
-    <name>BITNOTS :: Common :: Model</name>
+    <name>BITNOTS :: Common :: Util</name>
 
     <properties>
         <kotlin.compiler.incremental>false</kotlin.compiler.incremental>

@@ -9,7 +9,7 @@
 
     <artifactId>inference</artifactId>
 
-    <name>BITNOTS :: Common :: Engine</name>
+    <name>BITNOTS :: Common :: Inference</name>
 
     <properties>
         <kotlin.compiler.incremental>false</kotlin.compiler.incremental>

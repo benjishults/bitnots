@@ -28,8 +28,11 @@ fun Const(name: String) = Fn(name, 0)(emptyArray())
  */
 class Function private constructor(name: FunctionConstructor, var arguments: Array<Term<*>>) : Term<FunctionConstructor>(name) {
 
+    private val freeVars by lazy { mutableSetOf<FreeVariable>() }
+    private var dirtyFreeVars = true
+
     class FunctionConstructor private constructor(name: String, val arity: Int = 0) : TermConstructor(name) {
-        companion object inner : InternTableWithOther<FunctionConstructor, Int>({ name, arity -> FunctionConstructor(name, arity) })
+        companion object : InternTableWithOther<FunctionConstructor, Int>({ name, arity -> FunctionConstructor(name, arity) })
 
         operator fun invoke(arguments: Array<Term<*>>): Function {
             check(arguments.size == arity)
@@ -62,25 +65,40 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
         }
     }
 
-    override fun contains(variable: Variable<*>): Boolean = arguments.any { it.contains(variable) }
+    override fun contains(variable: Variable<*>): Boolean =
+            if (dirtyFreeVars)
+                arguments.any {
+                    variable in it
+                }
+            else
+                variable in freeVars
 
     override fun unify(other: Term<*>, sub: Substitution): Substitution {
-        if (other is Function && other.cons === cons) {
-            return sub.compose(arguments.foldIndexed(EmptySub as Substitution) { i, s, t ->
-                t.unify(other.applySub(s).arguments[i].applySub(s), s).takeIf {
-                    it !== NotUnifiable
-                } ?: return NotUnifiable
-            })
+        if (other is Function) {
+            if (other.cons === cons) {
+                return arguments.foldIndexed(sub) { i, s, t ->
+                    t.unify(other.arguments[i], s).takeIf {
+                        it !== NotUnifiable
+                    } ?: return NotUnifiable
+                }
+            } else {
+                return NotUnifiable
+            }
         } else if (other is FreeVariable)
-            return sub.compose(Sub(other.to(this)))
+            return other.unify(this, sub)
         else
             return NotUnifiable
     }
 
-    override fun getFreeVariables(): Set<FreeVariable> =
-            arguments.fold(emptySet<FreeVariable>()) { s, t ->
-                s.union(t.getFreeVariables())
-            }
+    override fun getFreeVariables(): Set<FreeVariable> {
+        return arguments.takeIf {
+            dirtyFreeVars
+        }?.fold(emptySet<FreeVariable>().also {
+            dirtyFreeVars = false
+        }) { s, t ->
+            s.union(t.getFreeVariables())
+        } ?: freeVars
+    }
 
     override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
             arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->

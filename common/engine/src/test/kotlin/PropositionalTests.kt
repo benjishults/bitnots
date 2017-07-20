@@ -17,7 +17,7 @@ import org.junit.Test
 
 class PropositionalTests {
 
-	companion object inner {
+	companion object {
 		val MAX_STEPS = 10
 	}
 

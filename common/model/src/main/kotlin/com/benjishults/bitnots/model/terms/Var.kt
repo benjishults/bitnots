@@ -9,27 +9,27 @@ import com.benjishults.bitnots.model.util.InternTable
 
 sealed class Variable<C : TermConstructor>(name: C) : Term<C>(name) {
 
-	override fun contains(variable: Variable<*>): Boolean = this === variable
+    override fun contains(variable: Variable<*>): Boolean = this === variable
 
-	override fun applySub(substitution: Substitution): Term<*> = substitution.applyToVar(this)
+    override fun applySub(substitution: Substitution): Term<*> = substitution.applyToVar(this)
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = if (this in boundVars) setOf() else setOf(this)
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = if (this in boundVars) setOf() else setOf(this)
 
-	override fun toString(): String {
-		return cons.name
-	}
+    override fun toString(): String {
+        return cons.name
+    }
 }
 
 class BoundVariable private constructor(name: String) : Variable<BVConstructor>(BVConstructor(name)) {
 
-	class BVConstructor(name: String) : TermConstructor(name)
+    class BVConstructor(name: String) : TermConstructor(name)
 
-	override fun unify(other: Term<*>, sub: Substitution): Substitution = if (other === this) sub else NotUnifiable
+    override fun unify(other: Term<*>, sub: Substitution): Substitution = if (other === this) sub else NotUnifiable
 
-	override fun getFreeVariables(): Set<FreeVariable> = emptySet()
-	override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
+    override fun getFreeVariables(): Set<FreeVariable> = emptySet()
+    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
 
-	companion object inner : InternTable<BoundVariable>({ name -> BoundVariable(name) })
+    companion object : InternTable<BoundVariable>({ name -> BoundVariable(name) })
 
 }
 
@@ -37,29 +37,26 @@ fun BV(name: String): BoundVariable = BoundVariable.intern(name)
 
 class FreeVariable private constructor(name: String) : Variable<FVConstructor>(FVConstructor(name)) {
 
-	class FVConstructor(name: String) : TermConstructor(name)
+    class FVConstructor(name: String) : TermConstructor(name)
 
-	override fun unify(other: Term<*>, sub: Substitution): Substitution =
-			if (this === other)
-				sub
-			else if (other.contains(this))
-				NotUnifiable
-			else
-				sub.compose(Sub(this.to(other)))
+    override fun unify(other: Term<*>, sub: Substitution): Substitution {
+        // this could be a tad more efficient since sub is assumed to be idempotent... if a var is replaced by another var, that second var cannot be a key in sub
+        sub.applyToVar(this).also {
+            if (it !== this)
+                return it.unify(other, sub)
+        }
+        return if (this === other)
+            sub
+        else if (this in other)
+            NotUnifiable
+        else
+            sub.compose(Sub(this to other))
+    }
 
-	override fun getFreeVariables(): Set<FreeVariable> = setOf(this)
-	override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf(this.to(1))
+    override fun getFreeVariables(): Set<FreeVariable> = setOf(this)
+    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf(this.to(1))
 
-	fun occursIn(term: Term<*>): Boolean {
-		when (term) {
-			is BoundVariable -> return false
-			is FreeVariable -> return this === term
-			is Function -> return term.arguments.any { this.occursIn(it) }
-			else -> return false
-		}
-	}
-
-	companion object inner : InternTable<FreeVariable>({ name -> FreeVariable(name) })
+    companion object : InternTable<FreeVariable>({ name -> FreeVariable(name) })
 
 }
 
