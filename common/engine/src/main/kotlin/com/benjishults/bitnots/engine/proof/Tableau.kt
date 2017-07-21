@@ -60,7 +60,7 @@ class Tableau(val root: TableauNode) {
 	}
 
 	private fun applyBeta(): Boolean {
-		var beta: BetaFormula<out Formula>? = null
+		var beta: BetaFormula<out Formula<*>>? = null
 		val node = root.breadthFirst {
 			beta = it.newFormulas.firstOrNull { it is BetaFormula<*> } as BetaFormula<*>?
 			beta !== null

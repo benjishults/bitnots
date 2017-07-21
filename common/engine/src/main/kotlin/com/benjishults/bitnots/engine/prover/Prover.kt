@@ -8,8 +8,8 @@ import com.benjishults.bitnots.engine.proof.TableauNode
 
 class Prover {
 
-	fun prove(formula: Formula) {
-		val tableau = Tableau(TableauNode( ArrayList<SignedFormula<out Formula>>().also {
+	fun prove(formula: Formula<*>) {
+		val tableau = Tableau(TableauNode( ArrayList<SignedFormula<out Formula<*>>>().also {
 			it.add(formula.createSignedFormula())
 		}, null))
 		println(tableau)

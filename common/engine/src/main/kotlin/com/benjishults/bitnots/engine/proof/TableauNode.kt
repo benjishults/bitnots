@@ -10,18 +10,18 @@ import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariabl
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.TreeNode
 
-class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mutableListOf(),
+class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula<*>>> = mutableListOf(),
 				  parent: TableauNode?) : TreeNode<TableauNode>(parent) {
 
 	// starts as proper ancestors and new ones are added after processing
-	val allFormulas = mutableListOf<SignedFormula<out Formula>>().also { list ->
+	val allFormulas = mutableListOf<SignedFormula<out Formula<*>>>().also { list ->
 		parent?.toAncestors { list.addAll(it.newFormulas.filter { it is SimpleSignedFormula<*> }) }
 	}
 
 	// apply alpha rules
 	init {
 		while (true) {
-			val toAdd: MutableList<SignedFormula<out Formula>> = mutableListOf()
+			val toAdd: MutableList<SignedFormula<out Formula<*>>> = mutableListOf()
 			newFormulas.iterator().let {
 				while (it.hasNext()) {
 					val current = it.next()

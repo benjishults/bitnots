@@ -51,24 +51,24 @@ class FolTests {
     @Test
     fun testValid() {
         val claims = arrayOf(
-                Claim(ForAll(ForSome(Implies(And(Pred("P", a),
-                        Pred("E", a),
-                        Implies(Pred("E", x),
-                                Or(Pred("G", x),
-                                        Pred("S", x, f(x)))),
-                        Implies(Pred("E", x2),
-                                Or(Pred("G", x2),
-                                        Pred("C", f(x2)))),
-                        Implies(Pred("S", a, y),
-                                Pred("P", y))),
-                        Or(And(Pred("P", x3),
-                                Pred("G", x3)),
-                                And(Pred("P", x4),
-                                        Pred("C", x4)))),
+                Claim(ForAll(ForSome(Implies(And(Pred("P", 1)(a),
+                        Pred("E", 1)(a),
+                        Implies(Pred("E", 1)(x),
+                                Or(Pred("G", 1)(x),
+                                        Pred("S", 2)(x, f(x)))),
+                        Implies(Pred("E", 1)(x2),
+                                Or(Pred("G", 1)(x2),
+                                        Pred("C", 1)(f(x2)))),
+                        Implies(Pred("S", 2)(a, y),
+                                Pred("P", 1)(y))),
+                        Or(And(Pred("P", 1)(x3),
+                                Pred("G", 1)(x3)),
+                                And(Pred("P", 1)(x4),
+                                        Pred("C", 1)(x4)))),
                         x, x2, x3, x4, y), a), steps = 8))
 
         for (claim in claims) {
-            val tableau = Tableau(TableauNode(ArrayList<SignedFormula<out Formula>>().also {
+            val tableau = Tableau(TableauNode(ArrayList<SignedFormula<out Formula<*>>>().also {
                 it.add(claim.formula.createSignedFormula())
             }, null))
             for (step in claim.steps downTo 1) {
@@ -88,7 +88,7 @@ class FolTests {
         val claims = arrayOf<Claim>()
 
         for (claim in claims) {
-            val tableau = Tableau(TableauNode(ArrayList<SignedFormula<out Formula>>().also {
+            val tableau = Tableau(TableauNode(ArrayList<SignedFormula<out Formula<*>>>().also {
                 it.add(claim.formula.createSignedFormula())
             }, null))
             for (step in claim.steps downTo 1) {

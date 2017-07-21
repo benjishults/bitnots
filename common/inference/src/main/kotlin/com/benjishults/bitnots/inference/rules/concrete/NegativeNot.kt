@@ -7,5 +7,5 @@ import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.inference.rules.createSignedFormula
 
 class NegativeNot(not: Not) : AlphaFormula<Not>(not, false) {
-	override fun generateChildren(): List<SignedFormula<out Formula>> = listOf(formula.argument.createSignedFormula(true))
+	override fun generateChildren(): List<SignedFormula<out Formula<*>>> = listOf(formula.argument.createSignedFormula(true))
 }

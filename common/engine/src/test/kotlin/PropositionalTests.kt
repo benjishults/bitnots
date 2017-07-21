@@ -56,7 +56,7 @@ class PropositionalTests {
 		)
 
 		for (claim in claims) {
-			val tableau = Tableau(TableauNode(ArrayList<SignedFormula<out Formula>>().also {
+			val tableau = Tableau(TableauNode(ArrayList<SignedFormula<out Formula<*>>>().also {
 				it.add(claim.formula.createSignedFormula())
 			}, null))
 			for (step in claim.steps downTo 1) {
@@ -97,7 +97,7 @@ class PropositionalTests {
 		)
 
 		for (claim in claims) {
-			val tableau = Tableau(TableauNode(ArrayList<SignedFormula<out Formula>>().also {
+			val tableau = Tableau(TableauNode(ArrayList<SignedFormula<out Formula<*>>>().also {
 				it.add(claim.formula.createSignedFormula())
 			}, null))
 			for (step in claim.steps downTo 1) {

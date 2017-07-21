@@ -7,5 +7,5 @@ import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.inference.rules.createSignedFormula
 
 class PositiveAnd(and: And) : AlphaFormula<And>(and, true) {
-	override fun generateChildren(): List<SignedFormula<out Formula>> = formula.formulas.map { it.createSignedFormula(true) }
+	override fun generateChildren(): List<SignedFormula<out Formula<*>>> = formula.formulas.map { it.createSignedFormula(true) }
 }
