@@ -9,8 +9,8 @@ import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class AtomicPropositionalFormula(cons: FormulaConstructor) : PropositionalFormula(cons) {
 
-	override fun unify(other: Formula, sub: Substitution): Substitution = if (this == other) sub else NotUnifiable
-	override fun applySub(substitution: Substitution): Formula = this
+	override fun unify(other: Formula<*>, sub: Substitution): Substitution = if (this == other) sub else NotUnifiable
+	override fun applySub(substitution: Substitution): Formula<FormulaConstructor> = this
 
 
 	override fun getFreeVariables(): Set<FreeVariable> = emptySet()

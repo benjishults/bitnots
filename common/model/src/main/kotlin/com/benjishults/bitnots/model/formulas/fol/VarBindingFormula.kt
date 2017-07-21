@@ -7,13 +7,16 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 
-abstract class VarBindingFormula(cons: FormulaConstructor, val formula: Formula, vararg val variables: BoundVariable) : Formula(cons) {
+abstract class VarBindingFormula(cons: FormulaConstructor, val formula: Formula<*>, vararg val variables: BoundVariable) : Formula<FormulaConstructor>(cons) {
+    override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
+        TODO()
+    }
 
-	init {
+    init {
 		require(variables.size > 0)
 	}
 
-	override fun unify(other: Formula, sub: Substitution): Substitution {
+	override fun unify(other: Formula<*>, sub: Substitution): Substitution {
 		TODO()
 	}
 
@@ -23,7 +26,7 @@ abstract class VarBindingFormula(cons: FormulaConstructor, val formula: Formula,
 		return formula.getVariablesUnboundExcept(boundVars.plus(variables))
 	}
 
-	override fun applySub(substitution: Substitution): Formula {
+	override fun applySub(substitution: Substitution): Formula<FormulaConstructor> {
 		return this::class.constructors.first().call(formula.applySub(substitution), variables)
 	}
 

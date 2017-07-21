@@ -1,12 +1,12 @@
 package com.benjishults.bitnots.engine.proof
 
-import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.formulas.propositional.Prop
+import com.benjishults.bitnots.engine.unifier.MultiBranchCloser
 import com.benjishults.bitnots.inference.rules.AlphaFormula
 import com.benjishults.bitnots.inference.rules.ClosingFormula
 import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.inference.rules.SimpleSignedFormula
-import com.benjishults.bitnots.engine.unifier.MultiBranchCloser
+import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.TreeNode
 
@@ -76,14 +76,14 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula>> = mut
 	var closed: Boolean = newFormulas.any { it is ClosingFormula } || hasCriticalPair()
 
 	fun hasCriticalPair(): Boolean {
-		val pos: MutableList<Prop> = mutableListOf()
-		val neg: MutableList<Prop> = mutableListOf()
+		val pos: MutableList<PropositionalVariable> = mutableListOf()
+		val neg: MutableList<PropositionalVariable> = mutableListOf()
 		allFormulas.map {
-			if (it.formula is Prop) {
+			if (it.formula is PropositionalVariable) {
 				if (it.sign)
-					pos.add(it.formula as Prop)
+					pos.add(it.formula as PropositionalVariable)
 				else
-					neg.add(it.formula as Prop)
+					neg.add(it.formula as PropositionalVariable)
 			}
 		}
 		return pos.any { p -> neg.any { it === p } }

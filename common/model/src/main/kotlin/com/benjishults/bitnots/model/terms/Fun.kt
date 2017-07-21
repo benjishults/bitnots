@@ -7,7 +7,6 @@ import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTableWithOther
 
-
 /**
  * @param name the name of the function
  * @param arity the arity of the function
@@ -65,13 +64,14 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
         }
     }
 
-    override fun contains(variable: Variable<*>): Boolean =
-            if (dirtyFreeVars)
-                arguments.any {
-                    variable in it
-                }
-            else
-                variable in freeVars
+    /**
+     * @param variable must not be bound by sub
+     */
+    override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
+        return getFreeVariables().any {
+            it.contains(variable, sub)
+        }
+    }
 
     override fun unify(other: Term<*>, sub: Substitution): Substitution {
         if (other is Function) {
@@ -93,22 +93,23 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
     override fun getFreeVariables(): Set<FreeVariable> {
         return arguments.takeIf {
             dirtyFreeVars
-        }?.fold(emptySet<FreeVariable>().also {
+        }?.fold(freeVars.also {
             dirtyFreeVars = false
         }) { s, t ->
-            s.union(t.getFreeVariables())
+            s += t.getFreeVariables()
+            s
         } ?: freeVars
     }
 
-    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
-            arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
-                t.getFreeVariablesAndCounts().entries.forEach { (v, c) ->
-                    s.get(v)?.also {
-                        s.put(v, c + it)
-                    } ?: s.put(v, c)
-                }
-                s
-            }
+//    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
+//            arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
+//                t.getFreeVariablesAndCounts().entries.forEach { (v, c) ->
+//                    s.get(v)?.also {
+//                        s.put(v, c + it)
+//                    } ?: s.put(v, c)
+//                }
+//                s
+//            }
 
     override fun applySub(substitution: Substitution) =
             cons(arguments.map {

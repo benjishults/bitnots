@@ -12,11 +12,11 @@ abstract class GammaFormula<F : VarBindingFormula>(formula: F, sign: Boolean) : 
     var numberOfApplications = 0
     override fun generateChildren(): List<SignedFormula<out Formula>> {
         val boundToFree = formula.variables.fold(EmptySub) { s: Substitution, t ->
-            s.compose(Sub(t.to(
+            s + Sub(t.to(
                     if (FreeVariable.exists(t.cons.name))
                         FreeVariable.new(t.cons.name)
                     else
-                        FV(t.cons.name))))
+                        FV(t.cons.name)))
         }
         return listOf(formula.formula.applySub(boundToFree).createSignedFormula(sign))
     }

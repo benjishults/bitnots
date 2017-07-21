@@ -6,8 +6,8 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 
-class Implies(val antecedent: Formula, val consequent: Formula) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.implies.name)) {
-	override fun unify(other: Formula, sub: Substitution): Substitution = TODO()
+class Implies(val antecedent: Formula<*>, val consequent: Formula<*>) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.implies.name)) {
+	override fun unify(other: Formula<*>, sub: Substitution): Substitution = TODO()
 //			if (other is Implies)
 //				antecedent.unify(other.antecedent, sub)?.let {
 //					return it.compose(consequent.unify(other.consequent.applySub(it), sub))

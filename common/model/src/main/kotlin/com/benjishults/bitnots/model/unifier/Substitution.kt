@@ -1,14 +1,15 @@
 package com.benjishults.bitnots.model.unifier
 
+import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.TermConstructor
 import com.benjishults.bitnots.model.terms.Variable
-import kotlin.text.String
 
 sealed class Substitution {
 
-    abstract fun compose(other: Substitution): Substitution
-    abstract fun <C : TermConstructor> applyToVar(v: Variable<C>): Term<*>
+    abstract operator fun plus(other: Substitution): Substitution
+    abstract operator fun plus(other: Pair<FreeVariable, Term<*>>): Substitution
+    abstract operator fun <C : TermConstructor> get(v: Variable<C>): Term<*>
 
     abstract override fun equals(other: Any?): Boolean
 
@@ -19,20 +20,22 @@ sealed class Substitution {
  * The result of an attempted unification of un-unifiable terms.
  */
 object NotUnifiable : Substitution() {
+    override fun plus(other: Pair<FreeVariable, Term<*>>): Substitution = this
 
-    override fun <C : TermConstructor> applyToVar(v: Variable<C>) = error("Attempt made to apply a non-existent substitution.")
+    override fun <C : TermConstructor> get(v: Variable<C>): Term<*> = error("Attempt made to apply a non-existent substitution.")
 
-    override fun compose(other: Substitution): Substitution = this
+    override fun plus(other: Substitution): Substitution = this
 
     override fun equals(other: Any?): Boolean = other === this
     override fun toString(): String = "\u22A5"
 }
 
 object EmptySub : Substitution() {
+    override fun plus(other: Pair<FreeVariable, Term<*>>): Substitution = Sub(other)
 
-    override fun <C : TermConstructor> applyToVar(v: Variable<C>) = v;
+    override fun <C : TermConstructor> get(v: Variable<C>): Term<*> = v
 
-    override fun compose(other: Substitution) = other
+    override fun plus(other: Substitution) = other
 
     override fun equals(other: Any?): Boolean = this === other
     override fun toString(): String = "{}"
@@ -41,15 +44,18 @@ object EmptySub : Substitution() {
 
 class Sub private constructor(private val map: Map<Variable<*>, Term<*>>) : Substitution() {
 
-    constructor(vararg pairs: Pair<Variable<*>, Term<*>>) : this(mapOf(*pairs))
-
-    override fun <C : TermConstructor> applyToVar(v: Variable<C>): Term<*> {
-        map.get(v)?.let {
-            return it
-        } ?: return v
+    override fun plus(other: Pair<FreeVariable, Term<*>>): Substitution {
+        require(other.first !in map)
+        return this + Sub(other)
     }
 
-    override fun compose(other: Substitution): Substitution {
+    constructor(vararg pairs: Pair<Variable<*>, Term<*>>) : this(mapOf(*pairs))
+
+    override fun <C : TermConstructor> get(v: Variable<C>): Term<*> {
+        return map[v] ?: v
+    }
+
+    override fun plus(other: Substitution): Substitution {
         return when (other) {
             NotUnifiable -> NotUnifiable
             EmptySub -> this
@@ -61,15 +67,15 @@ class Sub private constructor(private val map: Map<Variable<*>, Term<*>>) : Subs
                     // apply arg to value in receiver
                     term.applySub(other).let {
                         if (it !== v)
-                            newMap.put(v, it)
+                            newMap[v] = it
                         else
-                            newMap.remove(v)
+                            newMap -= v
                     }
                 }
 
                 other.map.entries.map { (v, term) ->
                     // if arg covers more variables, add them
-                    if (!keys.contains(v)) {
+                    if (v !in keys) {
                         newMap.put(v, term)
                     }
                 }

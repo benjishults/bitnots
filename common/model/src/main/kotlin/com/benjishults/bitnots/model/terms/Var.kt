@@ -9,9 +9,7 @@ import com.benjishults.bitnots.model.util.InternTable
 
 sealed class Variable<C : TermConstructor>(name: C) : Term<C>(name) {
 
-    override fun contains(variable: Variable<*>): Boolean = this === variable
-
-    override fun applySub(substitution: Substitution): Term<*> = substitution.applyToVar(this)
+    override fun applySub(substitution: Substitution): Term<*> = substitution[this]
 
     override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = if (this in boundVars) setOf() else setOf(this)
 
@@ -21,13 +19,17 @@ sealed class Variable<C : TermConstructor>(name: C) : Term<C>(name) {
 }
 
 class BoundVariable private constructor(name: String) : Variable<BVConstructor>(BVConstructor(name)) {
+    override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
+        TODO()
+    }
+
 
     class BVConstructor(name: String) : TermConstructor(name)
 
     override fun unify(other: Term<*>, sub: Substitution): Substitution = if (other === this) sub else NotUnifiable
 
     override fun getFreeVariables(): Set<FreeVariable> = emptySet()
-    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
+//    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
 
     companion object : InternTable<BoundVariable>({ name -> BoundVariable(name) })
 
@@ -37,24 +39,44 @@ fun BV(name: String): BoundVariable = BoundVariable.intern(name)
 
 class FreeVariable private constructor(name: String) : Variable<FVConstructor>(FVConstructor(name)) {
 
+    /**
+     * @param variable must not be bound by sub
+     */
+    override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
+        return if (this === variable)
+            true
+        else {
+            sub[this].let {
+                it !== this && it.contains(variable, sub)
+            }
+        }
+    }
+
     class FVConstructor(name: String) : TermConstructor(name)
 
     override fun unify(other: Term<*>, sub: Substitution): Substitution {
-        // this could be a tad more efficient since sub is assumed to be idempotent... if a var is replaced by another var, that second var cannot be a key in sub
-        sub.applyToVar(this).also {
+        sub[this].let {
             if (it !== this)
                 return it.unify(other, sub)
         }
+        // INVARIANT: this is not bound by sub
         return if (this === other)
             sub
-        else if (this in other)
+        else if (other.contains(this, sub))
             NotUnifiable
+        else if (other is FreeVariable)
+            sub[other].let {
+                if (it !== other)
+                    it.unify(this, sub)
+                else
+                    sub + (this to other.applySub(sub))
+            }
         else
-            sub.compose(Sub(this to other))
+            sub + (this to other.applySub(sub))
     }
 
     override fun getFreeVariables(): Set<FreeVariable> = setOf(this)
-    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf(this.to(1))
+//    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf(this.to(1))
 
     companion object : InternTable<FreeVariable>({ name -> FreeVariable(name) })
 

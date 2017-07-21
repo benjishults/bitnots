@@ -19,6 +19,7 @@ class SubstitutionTest {
     val g by lazy { Fn("g", 2) }
     val q by lazy { Fn("q", 2) }
 
+    val u by lazy { FV("u") }
     val w by lazy { FV("w") }
     val x by lazy { FV("x") }
     val y by lazy { FV("y") }
@@ -39,50 +40,61 @@ class SubstitutionTest {
     @Test
     fun substitutionTest() {
         var s1 = Sub(
+                x to f(y),
+                y to z)
+        var s2 = Sub(
+                x to a,
+                y to b,
+                z to y)
+        var s3 = Sub(
+                x to f(b),
+                z to y)
+        Assert.assertEquals(s3, s1 + s2)
+
+        s1 = Sub(
                 x to f(a),
                 y to g(b, z),
                 z to x)
-        var s2 = Sub(
+        s2 = Sub(
                 x to w,
                 y to h(z),
                 z to a)
-        var s3 = Sub(
+        s3 = Sub(
                 x to f(a),
                 y to q(b, a),
                 z to w)
-        Assert.assertEquals(s1.compose(s2), s3)
+        Assert.assertEquals(s3, s1 + s2)
     }
 
     @Test
     fun unificationTest() {
-        val h = Fn("h", 2)
-        var t1 = h(x3, h(x2, x2))
-        var t2 = h(h(h(x1, x1), x2), x3)
-
-//        var mgu = Sub(
-//                x2 to h(x1, x1),
-//                x3 to h(h(x1, x1), x1))
-
+        val g = Fn("g", 1)
+        val p = Fn("p", 3)
+        var t1 = p(a, x, f(g(y)))
+        var t2 = p(z, f(z), f(u))
         var sigma = t1.unify(t2)
-//        Assert.assertEquals(mgu, sigma)
+
+        var mgu = Sub(
+                z to a,
+                x to f(a),
+                u to g(y))
+        
         Assert.assertEquals(t1.applySub(sigma), t2.applySub(sigma))
+        Assert.assertEquals(mgu, sigma)
+
+        val h = Fn("h", 2)
+        t1 = h(x3, h(x2, x2))
+        t2 = h(h(h(x1, x1), x2), x3)
+
+        sigma = t1.unify(t2)
+        Assert.assertEquals(t1.applySub(sigma).toString(), t2.applySub(sigma).toString())
 
         val f = Fn("f", 4)
-        t1 = f(x1, g(x2, x3), x2, b)
-        t2 = f(g(h(a, x5), x2), x1, h(a, x4), x4)
-
-        val hab = h(a, b)
-//        mgu = Sub(
-//                x3 to hab,
-//                x4 to b,
-//                x5 to b,
-//                x1 to g(hab, hab),
-//                x2 to hab);
+        t1 = f(x1, this.g(x2, x3), x2, b)
+        t2 = f(this.g(h(a, x5), x2), x1, h(a, x4), x4)
 
         sigma = t1.unify(t2)
         Assert.assertEquals(t1.applySub(sigma), t2.applySub(sigma))
-//        Assert.assertEquals(mgu, sigma)
     }
-    // see if you can get a unification the requires the occurs-check.
 
 }

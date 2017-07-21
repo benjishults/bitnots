@@ -21,20 +21,20 @@ class PropositionalTests {
 		val MAX_STEPS = 10
 	}
 
-	val A = Prop.intern("A")
-	val A1 = Prop.intern("A1")
-	val A2 = Prop.intern("A2")
-	val A11 = Prop.intern("A11")
-	val A12 = Prop.intern("A12")
-	val B = Prop.intern("B")
-	val B1 = Prop.intern("B1")
-	val B2 = Prop.intern("B2")
-	val C = Prop.intern("C")
-	val E = Prop.intern("E")
-	val F = Prop.intern("F")
-	val P = Prop.intern("P")
-	val Q = Prop.intern("Q")
-	val R = Prop.intern("R")
+	val A = Prop("A")
+	val A1 = Prop("A1")
+	val A2 = Prop("A2")
+	val A11 = Prop("A11")
+	val A12 = Prop("A12")
+	val B = Prop("B")
+	val B1 = Prop("B1")
+	val B2 = Prop("B2")
+	val C = Prop("C")
+	val E = Prop("E")
+	val F = Prop("F")
+	val P = Prop("P")
+	val Q = Prop("Q")
+	val R = Prop("R")
 
 	@Test
 	fun testTautologies() {
