@@ -12,13 +12,16 @@ import com.benjishults.bitnots.model.util.InternTableWithOther
  * @param arity the arity of the function
  * @return a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.
  */
-fun Fn(name: String, arity: Int = 1) = FunctionConstructor.intern(name, arity)
+fun Fn(name: String, arity: Int = 1): FunctionConstructor {
+    require(arity > 0)
+    return FunctionConstructor.intern(name, arity)
+}
 
 /**
  * @param name the name of the constant
  * @return a Function of no arguments with the given name name.  If a constant already exists with this name, that one is returned.
  */
-fun Const(name: String) = Fn(name, 0)(emptyArray())
+fun Const(name: String) = FunctionConstructor.intern(name, 0)(emptyArray())
 
 /**
  * Represents a simple function term in the language.  A constant is represented by a function of no arguments.

@@ -101,7 +101,7 @@ class Sub private constructor(private val map: Map<Variable<*>, Term<*>>) : Subs
             "{" + map.entries.fold(mutableListOf<String>())
             {
                 s, t ->
-                s.also { it.add("${t.value}/${t.key}") }
+                s.also { it.add("${t.key}\u2005\u21A6\u2005${t.value}") }
             }.joinToString(", ") + "}"
 
 }
