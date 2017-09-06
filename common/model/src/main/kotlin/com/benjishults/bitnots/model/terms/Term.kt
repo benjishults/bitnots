@@ -11,13 +11,22 @@ abstract class Term<C : TermConstructor>(val cons: C) {
     abstract fun unify(other: Term<*>, sub: Substitution = EmptySub): Substitution
 
     abstract fun applySub(substitution: Substitution): Term<*>
-    //	abstract operator fun contains(variable: Variable<*>): Boolean
-    abstract fun contains(variable: Variable<*>, sub: Substitution): Boolean
+    /**
+     * @param variable must not be bound by [sub]
+     */
+    fun contains(variable: Variable<*>, sub: Substitution): Boolean {
+        require(variable.applySub(sub) === variable) {
+            "When calling Term::contains, the variable argument (was $variable) must not occur in the substitution (was $sub)."
+        }
+        return containsInternal(variable, sub)
+    }
+
+    internal abstract fun containsInternal(variable: Variable<*>, sub: Substitution): Boolean
 
     abstract fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>>
     abstract fun getFreeVariables(): Set<FreeVariable>
     /**
      * maps free variables occurring in the receiver to the number of times the variable occurs in the receiver
      */
-//    abstract fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int>
+    //    abstract fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int>
 }

@@ -21,7 +21,8 @@ fun Fn(name: String, arity: Int = 1): FunctionConstructor {
  * @param name the name of the constant
  * @return a Function of no arguments with the given name name.  If a constant already exists with this name, that one is returned.
  */
-fun Const(name: String) = FunctionConstructor.intern(name, 0)(emptyArray())
+fun Const(name: String) =
+        FunctionConstructor.intern(name, 0)(emptyArray())
 
 /**
  * Represents a simple function term in the language.  A constant is represented by a function of no arguments.
@@ -33,7 +34,11 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
     private val freeVars by lazy { mutableSetOf<FreeVariable>() }
     private var dirtyFreeVars = true
 
-    class FunctionConstructor private constructor(name: String, val arity: Int = 0) : TermConstructor(name) {
+    class FunctionConstructor private constructor(
+            name: String,
+            val arity: Int = 0
+    ) : TermConstructor(name) {
+
         companion object : InternTableWithOther<FunctionConstructor, Int>({ name, arity -> FunctionConstructor(name, arity) })
 
         operator fun invoke(arguments: Array<Term<*>>): Function {
@@ -67,42 +72,37 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
         }
     }
 
-    /**
-     * @param variable must not be bound by sub
-     */
-    override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
-        return getFreeVariables().any {
-            it.contains(variable, sub)
-        }
-    }
-
-    override fun unify(other: Term<*>, sub: Substitution): Substitution {
-        if (other is Function) {
-            if (other.cons === cons) {
-                return arguments.foldIndexed(sub) { i, s, t ->
-                    t.unify(other.arguments[i], s).takeIf {
-                        it !== NotUnifiable
-                    } ?: return NotUnifiable
-                }
-            } else {
-                return NotUnifiable
+    override fun containsInternal(variable: Variable<*>, sub: Substitution): Boolean =
+            getFreeVariables().any {
+                it.containsInternal(variable, sub)
             }
-        } else if (other is FreeVariable)
-            return other.unify(this, sub)
-        else
-            return NotUnifiable
-    }
 
-    override fun getFreeVariables(): Set<FreeVariable> {
-        return arguments.takeIf {
-            dirtyFreeVars
-        }?.fold(freeVars.also {
-            dirtyFreeVars = false
-        }) { s, t ->
-            s += t.getFreeVariables()
-            s
-        } ?: freeVars
-    }
+    override fun unify(other: Term<*>, sub: Substitution): Substitution =
+            if (other is Function) {
+                if (other.cons === cons) {
+                    arguments.foldIndexed(sub) { i, s, t ->
+                        t.unify(other.arguments[i], s).takeIf {
+                            it !== NotUnifiable
+                        } ?: NotUnifiable
+                    }
+                } else {
+                    NotUnifiable
+                }
+            } else if (other is FreeVariable)
+                other.unify(this, sub)
+            else
+                NotUnifiable
+
+    override fun getFreeVariables(): Set<FreeVariable> =
+            if (dirtyFreeVars)
+                arguments.fold(freeVars.also {
+                    dirtyFreeVars = false
+                }) { s: MutableSet<FreeVariable>, t ->
+                    s += t.getFreeVariables()
+                    s
+                }
+            else
+                freeVars
 
 //    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
 //            arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
@@ -129,16 +129,16 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
     override fun toString() = "(${cons.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
 
     override fun equals(other: Any?): Boolean {
-        if (other === null) return false
-        if (other::class === this::class) {
-            if ((other as Function).arguments.size == this.arguments.size) {
-                for (index in 0..this.arguments.size - 1) {
-                    if (other.arguments[index] != this.arguments[index])
-                        return false
-                }
-                return true
+        if (other === null)
+            return false
+        if (other is Function && other.arguments.size == this.arguments.size) {
+            for (index in 0..this.arguments.size - 1) {
+                if (other.arguments[index] != this.arguments[index])
+                    return false
             }
+            return true
         }
         return false
     }
+
 }

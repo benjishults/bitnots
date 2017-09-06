@@ -55,38 +55,34 @@ class Sub private constructor(private val map: Map<Variable<*>, Term<*>>) : Subs
         return map[v] ?: v
     }
 
-    override fun plus(other: Substitution): Substitution {
-        return when (other) {
-            NotUnifiable -> NotUnifiable
-            EmptySub -> this
-            is Sub -> {
-                val keys = map.keys.toSet()
-                val newMap = mutableMapOf<Variable<*>, Term<*>>()
+    override fun plus(other: Substitution): Substitution =
+            when (other) {
+                NotUnifiable -> NotUnifiable
+                EmptySub -> this
+                is Sub -> {
+                    val keys = map.keys.toSet()
+                    val newMap = mutableMapOf<Variable<*>, Term<*>>()
 
-                map.entries.map { (v, term) ->
-                    // apply arg to value in receiver
-                    term.applySub(other).let {
-                        if (it !== v)
-                            newMap[v] = it
-                        else
-                            newMap -= v
+                    map.entries.map { (v, term) ->
+                        // apply arg to value in receiver
+                        term.applySub(other).let {
+                            if (it !== v)
+                                newMap[v] = it
+                            else
+                                newMap -= v
+                        }
                     }
-                }
-
-                other.map.entries.map { (v, term) ->
-                    // if arg covers more variables, add them
-                    if (v !in keys) {
-                        newMap.put(v, term)
+                    other.map.entries.map { (v, term) ->
+                        // if arg covers more variables, add them
+                        if (v !in keys) {
+                            newMap.put(v, term)
+                        }
                     }
+                    Sub(newMap)
                 }
-
-                Sub(newMap)
             }
-        }
-    }
 
-    override fun equals(other: Any?): Boolean // = this === other
-    {
+    override fun equals(other: Any?): Boolean {
         // return true if each is more general than the other... i.e. if they are *equivalent*.
         other?.let {
             return (other is Sub &&
@@ -98,10 +94,12 @@ class Sub private constructor(private val map: Map<Variable<*>, Term<*>>) : Subs
     }
 
     override fun toString(): String =
-            "{" + map.entries.fold(mutableListOf<String>())
-            {
-                s, t ->
-                s.also { it.add("${t.key}\u2005\u21A6\u2005${t.value}") }
-            }.joinToString(", ") + "}"
-
+            buildString {
+                append("{")
+                        .append(map.entries.fold(mutableListOf<String>()) {
+                            s, t ->
+                            s.also { it.add("${t.key}\u2005\u21A6\u2005${t.value}") }
+                        }.joinToString(", "))
+                        .append("}")
+            }
 }

@@ -9,24 +9,30 @@ import com.benjishults.bitnots.model.util.InternTable
 
 sealed class Variable<C : TermConstructor>(name: C) : Term<C>(name) {
 
-    override fun applySub(substitution: Substitution): Term<*> = substitution[this]
+    override fun applySub(substitution: Substitution): Term<*> =
+            substitution[this]
 
-    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = if (this in boundVars) setOf() else setOf(this)
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
+            if (this in boundVars)
+                setOf()
+            else
+                setOf(this)
 
-    override fun toString(): String {
-        return cons.name
-    }
+    override fun toString(): String = cons.name
 }
 
 class BoundVariable private constructor(name: String) : Variable<BVConstructor>(BVConstructor(name)) {
-    override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
+    override fun containsInternal(variable: Variable<*>, sub: Substitution): Boolean {
         TODO()
     }
 
-
     class BVConstructor(name: String) : TermConstructor(name)
 
-    override fun unify(other: Term<*>, sub: Substitution): Substitution = if (other === this) sub else NotUnifiable
+    override fun unify(other: Term<*>, sub: Substitution): Substitution =
+            if (other === this)
+                sub
+            else
+                NotUnifiable
 
     override fun getFreeVariables(): Set<FreeVariable> = emptySet()
 //    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
@@ -40,17 +46,16 @@ fun BV(name: String): BoundVariable = BoundVariable.intern(name)
 class FreeVariable private constructor(name: String) : Variable<FVConstructor>(FVConstructor(name)) {
 
     /**
-     * @param variable must not be bound by sub
+     * @param variable must not be bound by [sub]
      */
-    override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
-        return if (this === variable)
-            true
-        else {
-            sub[this].let {
-                it !== this && it.contains(variable, sub)
+    override fun containsInternal(variable: Variable<*>, sub: Substitution): Boolean =
+            if (this === variable)
+                true
+            else {
+                sub[this].let {
+                    it !== this && it.containsInternal(variable, sub)
+                }
             }
-        }
-    }
 
     class FVConstructor(name: String) : TermConstructor(name)
 
