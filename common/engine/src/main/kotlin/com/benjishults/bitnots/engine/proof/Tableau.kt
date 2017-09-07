@@ -27,7 +27,9 @@ class Tableau(val root: TableauNode) {
     fun isClosed() = root.isClosed()
 
     fun unify(): MultiBranchCloser? {
-
+        root.breadthFirst { node ->
+            true
+         }
         return null
     }
 

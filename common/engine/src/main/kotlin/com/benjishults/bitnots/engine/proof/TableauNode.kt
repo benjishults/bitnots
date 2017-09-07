@@ -17,57 +17,12 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula<*>>> = 
     val allFormulas = mutableListOf<SignedFormula<out Formula<*>>>().also { list ->
         parent?.toAncestors { list.addAll(it.newFormulas.filter { it is SimpleSignedFormula<*> }) }
     }
-
-    // apply alpha rules
-    init {
-        while (true) {
-            val toAdd: MutableList<SignedFormula<out Formula<*>>> = mutableListOf()
-            newFormulas.iterator().let {
-                while (it.hasNext()) {
-                    val current = it.next()
-                    if (current is AlphaFormula) {
-                        it.remove()
-                        toAdd.addAll(current.generateChildren());
-                    }
-                }
-            }
-            if (toAdd.isEmpty())
-                break
-            else
-                newFormulas.addAll(toAdd)
-        }
-    }
-
-    // apply regularity
-    init {
-        newFormulas.iterator().let { iter ->
-            while (iter.hasNext()) {
-                iter.next().let {
-                    if (it in allFormulas)
-                        iter.remove()
-                }
-            }
-        }
-    }
-
     val closers = mutableListOf<Substitution>()
 
-    // generate closers
     init {
-        allFormulas.filter {
-            it.sign
-        }.forEach { above ->
-            newFormulas.filter {
-                !it.sign
-            }.forEach {
-                above.formula.unify(it.formula).let {
-                    closers.add(it)
-                }
-            }
-        }
-    }
-
-    init {
+        applyAllAlphas()
+        applyRegularity()
+        generateClosers()
         allFormulas.addAll(newFormulas)
     }
 
@@ -101,6 +56,61 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula<*>>> = 
             return true
         } else
             return false
+    }
+
+    /**
+     * Finds all branch closers at every descendant of the receiver and stores them at the highest node at which all formulas involved occur.
+     */
+    fun findAllClosers() {
+
+    }
+
+    fun extendMbc() {
+
+    }
+
+    private fun generateClosers() {
+        allFormulas.filter {
+            it.sign
+        }.forEach { above ->
+            newFormulas.filter {
+                !it.sign
+            }.forEach {
+                above.formula.unify(it.formula).let {
+                    closers.add(it)
+                }
+            }
+        }
+    }
+
+    private fun applyAllAlphas() {
+        while (true) {
+            val toAdd: MutableList<SignedFormula<out Formula<*>>> = mutableListOf()
+            newFormulas.iterator().let {
+                while (it.hasNext()) {
+                    val current = it.next()
+                    if (current is AlphaFormula) {
+                        it.remove()
+                        toAdd.addAll(current.generateChildren());
+                    }
+                }
+            }
+            if (toAdd.isEmpty())
+                break
+            else
+                newFormulas.addAll(toAdd)
+        }
+    }
+
+    private fun applyRegularity() {
+        newFormulas.iterator().let { iter ->
+            while (iter.hasNext()) {
+                iter.next().let {
+                    if (it in allFormulas)
+                        iter.remove()
+                }
+            }
+        }
     }
 
     override fun toString(): String {

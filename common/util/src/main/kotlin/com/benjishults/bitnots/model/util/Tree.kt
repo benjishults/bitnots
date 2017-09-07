@@ -12,7 +12,9 @@ abstract class TreeNode<T : TreeNode<T>>(var parent: T?, val children: MutableLi
     }
 
     fun breadthFirst(function: (T) -> Boolean): T? {
-        return breadthFirstHelper(Queue<T>().also { it.enqueue(this as T) }, function)
+        return breadthFirstHelper(Queue<T>().also {
+            it.enqueue(this as T)
+        }, function)
     }
 
     // queue is not empty
@@ -21,7 +23,9 @@ abstract class TreeNode<T : TreeNode<T>>(var parent: T?, val children: MutableLi
         if (function(node)) {
             return node
         } else {
-            node.children.forEach { queue.enqueue(it) }
+            node.children.forEach {
+                queue.enqueue(it)
+            }
             if (queue.isEmpty()) {
                 return null;
             }
@@ -49,7 +53,9 @@ abstract class TreeNode<T : TreeNode<T>>(var parent: T?, val children: MutableLi
             return this
         } else {
             children.forEachIndexed { i, n ->
-                n.preOrderWithPathHelper(function, path + i)?.also { return it }
+                n.preOrderWithPathHelper(function, path + i)?.also {
+                    return it
+                }
             }
         }
         return null
@@ -57,7 +63,9 @@ abstract class TreeNode<T : TreeNode<T>>(var parent: T?, val children: MutableLi
 
     fun allLeaves(): List<T> {
         val value: MutableList<T> = mutableListOf()
-        breadthFirstHelper(Queue<T>().also { it.enqueue(this as T) }) {
+        breadthFirstHelper(Queue<T>().also {
+            it.enqueue(this as T)
+        }) {
             if (it.children.isEmpty())
                 value.add(it);
             return@breadthFirstHelper false;
