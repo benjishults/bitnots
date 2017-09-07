@@ -7,6 +7,6 @@ import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.inference.rules.createSignedFormula
 
 class NegativeImplies(implies: Implies) : AlphaFormula<Implies>(implies, false) {
-	override fun generateChildren(): List<SignedFormula<out Formula<*>>> =
-			listOf(formula.antecedent.createSignedFormula(true), formula.consequent.createSignedFormula(false))
+    override fun generateChildren(): List<SignedFormula<Formula<*>>> =
+            listOf(formula.antecedent.createSignedFormula(true), formula.consequent.createSignedFormula(false))
 }

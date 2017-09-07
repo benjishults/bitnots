@@ -1,3 +1,7 @@
+import com.benjishults.bitnots.engine.proof.FolTableau
+import com.benjishults.bitnots.engine.proof.FolTableauNode
+import com.benjishults.bitnots.engine.proof.PropositionalTableau
+import com.benjishults.bitnots.engine.proof.PropositionalTableauNode
 import com.benjishults.bitnots.engine.proof.Tableau
 import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.inference.rules.SignedFormula
@@ -10,17 +14,30 @@ class TableauStepCountTests {
 
     @Test
     fun testProps() {
-        testClaims(Claim.PROP_CLAIMS)
-    }
-    
-    @Test
-    fun testFols() {
-        testClaims(Claim.FOL_CLAIMS)
+        testClaims(Claim.PROP_CLAIMS, { n: PropositionalTableauNode ->
+            PropositionalTableau<PropositionalTableauNode>(n)
+        }) {
+            forms, p ->
+            PropositionalTableauNode(forms, p)
+        }
     }
 
-    private fun testClaims(claims: Array<Claim>) {
+    @Test
+    fun testFols() {
+        testClaims<FolTableauNode, FolTableau>(Claim.FOL_CLAIMS, { n: FolTableauNode ->
+            FolTableau(n)
+        }) {
+            forms, p: FolTableauNode? ->
+            FolTableauNode(forms, p)
+        }
+    }
+
+    private fun <N : TableauNode, T : Tableau<N>> testClaims(
+            claims: Array<Claim>,
+            tabFactory: (N) -> T,
+            nodeFactory: (MutableList<SignedFormula<Formula<*>>>, N?) -> N) {
         for (claim in claims) {
-            Tableau(TableauNode(ArrayList<SignedFormula<out Formula<*>>>().also {
+            tabFactory(nodeFactory(ArrayList<SignedFormula<Formula<*>>>().also {
                 it.add(claim.formula.createSignedFormula())
             }, null)).also { tableau ->
                 for (step in claim.steps downTo 1) {

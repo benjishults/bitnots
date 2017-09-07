@@ -7,5 +7,5 @@ import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.inference.rules.createSignedFormula
 
 class PositiveOr(or: Or) : BetaFormula<Or>(or, true) {
-	override fun generateChildren(): List<SignedFormula<out Formula<*>>> = formula.formulas.map { it.createSignedFormula(true) }
+	override fun generateChildren() = formula.formulas.map { it.createSignedFormula(true) }
 }

@@ -8,7 +8,7 @@ import com.benjishults.bitnots.inference.rules.BetaFormula
 import com.benjishults.bitnots.inference.rules.SignedFormula
 
 class PositiveTfae(tfae: Tfae) : BetaFormula<Tfae>(tfae, false) {
-	override fun generateChildren(): List<SignedFormula<out Formula<*>>> =
+	override fun generateChildren() =
 			listOf(PositiveAnd(And(*formula.formulas)),
 					PositiveAnd(And(*formula.formulas.map { Not(it) }.toTypedArray())))
 }

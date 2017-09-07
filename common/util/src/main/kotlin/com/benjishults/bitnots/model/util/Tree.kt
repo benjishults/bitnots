@@ -1,30 +1,30 @@
 package com.benjishults.bitnots.model.util
 
+interface TreeNode {
+    var parent: TreeNode?
+    val children: MutableList<TreeNode>
 
-abstract class TreeNode<T : TreeNode<T>>(var parent: T?, val children: MutableList<T> = mutableListOf()) {
-
-    fun toAncestors(function: (T) -> Unit) {
+    fun <T : TreeNode> toAncestors(function: (T) -> Unit) {
         function(this as T)
-        val parentT = parent
-        parentT?.let {
-            parentT.toAncestors(function)
+        parent?.let {
+            it.toAncestors(function)
         }
     }
 
-    fun breadthFirst(function: (T) -> Boolean): T? {
+    fun <T : TreeNode> breadthFirst(function: (T) -> Boolean): T? {
         return breadthFirstHelper(Queue<T>().also {
             it.enqueue(this as T)
         }, function)
     }
 
     // queue is not empty
-    private tailrec fun breadthFirstHelper(queue: Queue<T>, function: (T) -> Boolean): T? {
+    private tailrec fun <T : TreeNode> breadthFirstHelper(queue: Queue<T>, function: (T) -> Boolean): T? {
         val node = queue.dequeue()
         if (function(node)) {
             return node
         } else {
             node.children.forEach {
-                queue.enqueue(it)
+                queue.enqueue(it as T)
             }
             if (queue.isEmpty()) {
                 return null;
@@ -33,7 +33,7 @@ abstract class TreeNode<T : TreeNode<T>>(var parent: T?, val children: MutableLi
         }
     }
 
-    fun preOrder(function: (T) -> Boolean): T? {
+    fun <T : TreeNode> preOrder(function: (T) -> Boolean): T? {
 
         if (function(this as T)) {
             return this
@@ -45,10 +45,10 @@ abstract class TreeNode<T : TreeNode<T>>(var parent: T?, val children: MutableLi
         return null
     }
 
-    fun preOrderWithPath(function: (T, List<Int>) -> Boolean): T? =
+    fun <T : TreeNode> preOrderWithPath(function: (T, List<Int>) -> Boolean): T? =
             preOrderWithPathHelper(function, listOf(0))
 
-    private fun preOrderWithPathHelper(function: (T, List<Int>) -> Boolean, path: List<Int>): T? {
+    private fun <T : TreeNode> preOrderWithPathHelper(function: (T, List<Int>) -> Boolean, path: List<Int>): T? {
         if (function(this as T, path)) {
             return this
         } else {
@@ -61,7 +61,7 @@ abstract class TreeNode<T : TreeNode<T>>(var parent: T?, val children: MutableLi
         return null
     }
 
-    fun allLeaves(): List<T> {
+    fun <T : TreeNode> allLeaves(): List<T> {
         val value: MutableList<T> = mutableListOf()
         breadthFirstHelper(Queue<T>().also {
             it.enqueue(this as T)
@@ -73,3 +73,8 @@ abstract class TreeNode<T : TreeNode<T>>(var parent: T?, val children: MutableLi
         return value
     }
 }
+
+open class TreeNodeImpl(
+        override var parent: TreeNode?,
+        override val children: MutableList<TreeNode> = mutableListOf()
+) : TreeNode

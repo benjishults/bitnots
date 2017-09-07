@@ -1,6 +1,5 @@
 package com.benjishults.bitnots.engine.proof
 
-import com.benjishults.bitnots.engine.unifier.MultiBranchCloser
 import com.benjishults.bitnots.inference.rules.AlphaFormula
 import com.benjishults.bitnots.inference.rules.ClosingFormula
 import com.benjishults.bitnots.inference.rules.SignedFormula
@@ -9,15 +8,34 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.TreeNode
+import com.benjishults.bitnots.model.util.TreeNodeImpl
 
-class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula<*>>> = mutableListOf(),
-                  parent: TableauNode?) : TreeNode<TableauNode>(parent) {
+interface TableauNode {
+
+    val newFormulas: MutableList<SignedFormula<Formula<*>>>
+    fun isClosed(): Boolean
+
+}
+
+open class PropositionalTableauNode(
+        override val newFormulas: MutableList<SignedFormula<Formula<*>>> = mutableListOf(),
+        parent: PropositionalTableauNode?
+) : TreeNode by TreeNodeImpl(parent), TableauNode {
+
+    var closed: Boolean = newFormulas.any { it is ClosingFormula } || hasCriticalPair()
 
     // starts as proper ancestors and new ones are added after processing
-    val allFormulas = mutableListOf<SignedFormula<out Formula<*>>>().also { list ->
-        parent?.toAncestors { list.addAll(it.newFormulas.filter { it is SimpleSignedFormula<*> }) }
+    // TODO see if I can get rid of this or improve it with shared structure
+    val allFormulas = mutableListOf<SignedFormula<Formula<*>>>().also { list ->
+        parent?.toAncestors<PropositionalTableauNode> { node ->
+            list.addAll(node.newFormulas.filter {
+                it is SimpleSignedFormula<*>
+            })
+        }
     }
-    val closers = mutableListOf<Substitution>()
+    val initialClosers by lazy {
+        mutableListOf<Substitution>()
+    }
 
     init {
         applyAllAlphas()
@@ -26,8 +44,18 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula<*>>> = 
         allFormulas.addAll(newFormulas)
     }
 
-    var closed: Boolean = newFormulas.any { it is ClosingFormula } || hasCriticalPair()
+    override fun isClosed(): Boolean {
+        if (closed ||
+                (children.isNotEmpty() && children.all {
+                    (it as PropositionalTableauNode).isClosed()
+                })) {
+            closed = true
+            return true
+        } else
+            return false
+    }
 
+    @Suppress("USELESS_CAST")
     fun hasCriticalPair(): Boolean {
         val pos: MutableList<PropositionalVariable> = mutableListOf()
         val neg: MutableList<PropositionalVariable> = mutableListOf()
@@ -42,33 +70,7 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula<*>>> = 
         return pos.any { p -> neg.any { it === p } }
     }
 
-    fun findCloser(): MultiBranchCloser? {
-
-        return null;
-    }
-
-    fun isClosed(): Boolean {
-        if (closed ||
-                (children.isNotEmpty() && children.all {
-                    (it).isClosed()
-                })) {
-            closed = true
-            return true
-        } else
-            return false
-    }
-
-    /**
-     * Finds all branch closers at every descendant of the receiver and stores them at the highest node at which all formulas involved occur.
-     */
-    fun findAllClosers() {
-
-    }
-
-    fun extendMbc() {
-
-    }
-
+    // TODO refactor to get more behaviors out of this class
     private fun generateClosers() {
         allFormulas.filter {
             it.sign
@@ -77,7 +79,7 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula<*>>> = 
                 !it.sign
             }.forEach {
                 above.formula.unify(it.formula).let {
-                    closers.add(it)
+                    initialClosers.add(it)
                 }
             }
         }
@@ -85,7 +87,7 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula<*>>> = 
 
     private fun applyAllAlphas() {
         while (true) {
-            val toAdd: MutableList<SignedFormula<out Formula<*>>> = mutableListOf()
+            val toAdd: MutableList<SignedFormula<Formula<*>>> = mutableListOf()
             newFormulas.iterator().let {
                 while (it.hasNext()) {
                     val current = it.next()
@@ -132,6 +134,24 @@ class TableauNode(val newFormulas: MutableList<SignedFormula<out Formula<*>>> = 
             if (children.isNotEmpty())
                 children.joinToString("\n")
         }.toString();
+    }
+
+}
+
+open class FolTableauNode(
+        newFormulas: MutableList<SignedFormula<Formula<*>>> = mutableListOf(),
+        parent: FolTableauNode?
+) : PropositionalTableauNode(newFormulas, parent) {
+
+    /**
+     * Finds all branch closers at every descendant of the receiver and stores them at the highest node at which all formulas involved occur.
+     */
+    fun findAllClosers() {
+
+    }
+
+    fun extendMbc() {
+
     }
 
 }

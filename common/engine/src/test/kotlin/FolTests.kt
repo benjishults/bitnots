@@ -1,3 +1,5 @@
+import com.benjishults.bitnots.engine.proof.FolTableau
+import com.benjishults.bitnots.engine.proof.FolTableauNode
 import com.benjishults.bitnots.engine.proof.Tableau
 import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.inference.rules.SignedFormula
@@ -7,12 +9,9 @@ import com.benjishults.bitnots.model.formulas.fol.ForAll
 import com.benjishults.bitnots.model.formulas.fol.ForSome
 import com.benjishults.bitnots.model.formulas.fol.Pred
 import com.benjishults.bitnots.model.formulas.propositional.And
-import com.benjishults.bitnots.model.formulas.propositional.Falsity
 import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Or
 import com.benjishults.bitnots.model.formulas.propositional.Prop
-import com.benjishults.bitnots.model.formulas.propositional.Tfae
-import com.benjishults.bitnots.model.formulas.propositional.Truth
 import com.benjishults.bitnots.model.terms.BV
 import com.benjishults.bitnots.model.terms.Fn
 import org.junit.Assert
@@ -68,7 +67,7 @@ class FolTests {
                         x, x2, x3, x4, y), a), steps = 8))
 
         for (claim in claims) {
-            val tableau = Tableau(TableauNode(ArrayList<SignedFormula<out Formula<*>>>().also {
+            val tableau = FolTableau(FolTableauNode(ArrayList<SignedFormula<Formula<*>>>().also {
                 it.add(claim.formula.createSignedFormula())
             }, null))
             for (step in claim.steps downTo 1) {
@@ -88,7 +87,7 @@ class FolTests {
         val claims = arrayOf<Claim>()
 
         for (claim in claims) {
-            val tableau = Tableau(TableauNode(ArrayList<SignedFormula<out Formula<*>>>().also {
+            val tableau = FolTableau(FolTableauNode(ArrayList<SignedFormula<Formula<*>>>().also {
                 it.add(claim.formula.createSignedFormula())
             }, null))
             for (step in claim.steps downTo 1) {

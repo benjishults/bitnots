@@ -51,10 +51,10 @@ class DigraphWorker<T>(val G: DirectedGraph) {
 				if (cycle != null) {
 					var first = - 1
 					var last = -1
-					for ( v in cycle!!) {
+					for ( vert in cycle!!) {
 						if (first == -1)
-							first = v;
-						last = v;
+							first = vert;
+						last = vert;
 					}
 					if (first != last) {
 						assert(false);

@@ -8,7 +8,7 @@ import com.benjishults.bitnots.inference.rules.SignedFormula
 
 
 class NegativeIff(iff: Iff) : BetaFormula<Iff>(iff, false) {
-	override fun generateChildren(): List<SignedFormula<out Formula<*>>> =
+	override fun generateChildren(): List<SignedFormula<Formula<*>>> =
 			listOf(NegativeImplies(Implies(formula.first, formula.second)),
 					NegativeImplies(Implies(formula.second, formula.first)))
 }
