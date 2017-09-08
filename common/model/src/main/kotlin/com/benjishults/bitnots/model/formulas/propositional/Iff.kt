@@ -11,11 +11,16 @@ class Iff(val first: Formula<*>, val second: Formula<*>) : PropositionalFormula(
         TODO()
     }
 
+    override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
+        TODO()
+    }
+
     override fun applySub(substitution: Substitution): Formula<FormulaConstructor> {
         TODO()
     }
 
-	override fun getFreeVariables(): Set<FreeVariable> = first.getFreeVariables().union(second.getFreeVariables())
+
+    override fun getFreeVariables(): Set<FreeVariable> = first.getFreeVariables().union(second.getFreeVariables())
 
 	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
 			first.getVariablesUnboundExcept(boundVars).union(second.getVariablesUnboundExcept(boundVars))

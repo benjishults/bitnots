@@ -1,7 +1,5 @@
 import com.benjishults.bitnots.engine.proof.FolTableau
 import com.benjishults.bitnots.engine.proof.FolTableauNode
-import com.benjishults.bitnots.engine.proof.Tableau
-import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.inference.rules.createSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula

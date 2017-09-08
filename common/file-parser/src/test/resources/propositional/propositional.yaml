@@ -1,0 +1,88 @@
+propVars:
+    - A
+    - A1
+    - A11
+    - A12
+    - B
+    - B1
+    - B2
+    - C
+    - E
+    - F
+    - P
+    - Q
+    - R
+
+
+
+claims:
+# new idea:
+    - formula: 
+        cons: Implies
+        arguments: 
+            - cons: Tfae
+              arguments: 
+                - cons: A
+                  A, B, C]
+            - cons: Implies
+              arguments: [B, A]
+      steps: 1
+# old idea:
+    - formula: Tfae(P, P, P)
+      steps: 2
+    - formula: Implies(And(A, B), Iff(A, B))
+      steps: 1
+    - formula: Or(Iff(A, B), A, B)
+      steps: 1
+    - formula: Implies(Implies(A, B), Implies(A, B))
+      steps: 1
+    - formula: Implies(Falsity, P)
+      steps: 0
+    - formula: Implies(P, P)
+      steps: 0
+    - formula: Or(P, Not(P))
+      steps: 0
+    - formula: And(Truth, Truth)
+      steps: 1
+    - formula: Implies(Falsity, Falsity)
+      steps: 0
+    - formula: Implies(Falsity, Truth)
+      steps: 0
+    - formula: Implies(Truth, Truth)
+      steps: 0
+    - formula: Truth
+      steps: 0
+    - formula: Implies(Implies(Truth, Falsity), Falsity)
+      steps: 1
+    - formula: Tfae(A, B, C)
+      provable: false
+    - formula: Implies(Or(R, P), Or(And(P, Q), R))
+      provable: false
+    - formula: Implies(And(Implies(And(A, B), C), Implies(Truth, A)), C)
+      provable: false
+    - formula: |
+         Implies(And(
+            Implies(And(A, B), C),
+            Implies(And(A1, A2), A),
+            Implies(And(A11, A12), A1),
+            Implies(Truth, A11),
+            Implies(Truth, A12),
+            Implies(Truth, A2),
+            Implies(And(B1, B2), B),
+            Implies(Truth, B1),
+            Implies(And(E, F), C)),
+            C)
+      provable: false
+    - formula: Implies(A, Or(C, B))
+      provable: false
+    - formula: Implies(Or(A, B), Or(C, B))
+      provable: false
+    - formula: Implies(Or(A, B), Or(C, B))
+      provable: false
+    - formula: Implies(Or(A, B), Implies(A, B))
+      provable: false
+    - formula: And(Truth, Falsity)
+      provable: false
+    - formula: Falsity
+      provable: false
+

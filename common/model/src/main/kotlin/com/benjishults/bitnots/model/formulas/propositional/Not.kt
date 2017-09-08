@@ -8,7 +8,9 @@ import com.benjishults.bitnots.model.unifier.NotUnifiable
 import com.benjishults.bitnots.model.unifier.Substitution
 
 class Not(val argument: Formula<*>) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.not.name)) {
-	override fun unify(other: Formula<*>, sub: Substitution): Substitution = if (other is Not) argument.unify(other.argument, sub) else NotUnifiable
+    override fun contains(variable: Variable<*>, sub: Substitution) = argument.contains(variable, sub)
+
+    override fun unify(other: Formula<*>, sub: Substitution): Substitution = if (other is Not) argument.unify(other.argument, sub) else NotUnifiable
 
 	override fun getFreeVariables(): Set<FreeVariable> = argument.getFreeVariables()
 

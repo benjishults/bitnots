@@ -14,9 +14,13 @@ import com.benjishults.bitnots.model.formulas.propositional.Truth
 import com.benjishults.bitnots.model.terms.BV
 import com.benjishults.bitnots.model.terms.Fn
 
-val MAX_STEPS: Int = 10
+val DEFAULT_MAX_STEPS: Int = 10
 
-data class Claim(val formula: Formula<*>, val provable: Boolean = true, val steps: Int = MAX_STEPS) {
+data class Claim(
+        val formula: Formula<*>,
+        val provable: Boolean = true,
+        val gamma: Int = 0,
+        val steps: Int = DEFAULT_MAX_STEPS) {
 
     companion object {
         val A = Prop("A")

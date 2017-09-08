@@ -6,16 +6,24 @@
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
-    
+
     <artifactId>common</artifactId>
-    
+
     <packaging>pom</packaging>
-    
+
     <name>BITNOTS :: Common</name>
 
     <modules>
         <module>util</module>
+        <module>test</module>
+        <!-- TODO rename from "model" to "language" -->
+        <!-- TODO separate propositional from fol from pra from set from equality, etc. -->
         <module>model</module>
+        <module>theory</module>
+<!-- 
+        <module>file-parser</module>
+        <module>tptp-parser</module>
+ -->
         <module>inference</module>
         <module>engine</module>
     </modules>
