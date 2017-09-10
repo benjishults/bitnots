@@ -26,12 +26,14 @@ fun <T : Formula<*>> T.createSignedFormula(sign: Boolean = false): SignedFormula
     var leastParameters = Int.MAX_VALUE
     var const: Constructor<out SignedFormula<T>>? = null
     val clazz = Class.forName("com.benjishults.bitnots.inference.rules.concrete.${if (sign) "Positive" else "Negative"}${this::class.simpleName}") // as Class<out SignedFormula<T>>
+    @Suppress("UNCHECKED_CAST")
     for (constructor in clazz.constructors as Array<Constructor<out SignedFormula<T>>>) {
         if (leastParameters > constructor.parameterCount) {
             leastParameters = constructor.parameterCount
             const = constructor //  as Constructor<out SignedFormula<T>>
         }
     }
+    @Suppress("UNCHECKED_CAST")
     when (leastParameters) {
         0 -> return const?.newInstance() ?: throw ClassNotFoundException()
         1 -> return const?.newInstance(this) ?: throw ClassNotFoundException()

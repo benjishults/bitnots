@@ -1,5 +1,6 @@
 package com.benjishults.bitnots.model.util
 
+@Suppress("UNCHECKED_CAST")
 interface TreeNode {
     var parent: TreeNode?
     val children: MutableList<TreeNode>
