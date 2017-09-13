@@ -38,12 +38,15 @@ class TptpFile(val inputs: List<TptpInput>) {
         override fun parse(tokenizer: TptpTokenizer): TptpFile {
             return TptpFile(generateSequence {
                 try {
-                    tokenizer.parseKeyword()
+                    tokenizer.peekKeyword()
                 } catch (e: Exception) {
-                    null
+                    if (e.message == UNEXPECTED_END_OF_INPUT)
+                        null
+                    else
+                        throw e
                 }?.let {
                     when (it) {
-                        "cnf" -> CnfAnnotatedFormula.parse(tokenizer.backup())
+                        "cnf" -> CnfAnnotatedFormula.parse(tokenizer)
                         else -> error("Parsing for '${it}' not yet implemented.")
                     }
                 }
@@ -84,20 +87,20 @@ data class CnfAnnotatedFormula(val name: String, val formulaRole: String, val fo
 
     companion object : InnerParser<CnfAnnotatedFormula> {
         override fun parse(tokenizer: TptpTokenizer): CnfAnnotatedFormula {
-            TptpTokenizer.ensure("cnf", tokenizer.nextToken())
-            TptpTokenizer.ensure("(", tokenizer.nextToken())
+            TptpTokenizer.ensure("cnf", tokenizer.popToken())
+            TptpTokenizer.ensure("(", tokenizer.popToken())
             return CnfAnnotatedFormula(
-                    tokenizer.nextToken().also {
-                        TptpTokenizer.ensure(",", tokenizer.nextToken())
+                    tokenizer.popToken().also {
+                        TptpTokenizer.ensure(",", tokenizer.popToken())
                     },
-                    tokenizer.nextToken().also {
-                        TptpTokenizer.ensure(",", tokenizer.nextToken())
+                    tokenizer.popToken().also {
+                        TptpTokenizer.ensure(",", tokenizer.popToken())
                     },
                     Clause.parse(tokenizer).also {
-                        when (tokenizer.nextToken()) {
+                        when (tokenizer.popToken()) {
                             "," -> tokenizer.moveToEndParen()
                             ")" -> {
-                                // continue
+                                TptpTokenizer.ensure(".", tokenizer.popToken())
                             }
                         }
                     })
@@ -111,11 +114,12 @@ class Clause(val literals: List<SignedFormula<*>>) {
     companion object : InnerParser<Clause> {
         override fun parse(tokenizer: TptpTokenizer): Clause {
             return Clause(
-                    tokenizer.nextToken().let {
+                    tokenizer.peek().let {
                         if (it == "(") {
-                            Disjunct.parse(tokenizer).also { TptpTokenizer.ensure(")", tokenizer.nextToken()) }
+                            tokenizer.popToken()
+                            Disjunct.parse(tokenizer).also { TptpTokenizer.ensure(")", tokenizer.popToken()) }
                         } else {
-                            Disjunct.parse(tokenizer.backup())
+                            Disjunct.parse(tokenizer)
                         }
                     })
         }
@@ -128,11 +132,13 @@ class Disjunct {
     companion object : InnerParser<List<SignedFormula<*>>> {
         override fun parse(tokenizer: TptpTokenizer): List<SignedFormula<*>> {
             return generateSequence(Literal.parse(tokenizer)) {
-                tokenizer.nextToken().let {
+                tokenizer.peek().let {
                     when (it) {
-                        "|" -> Literal.parse(tokenizer)
+                        "|" -> {
+                            tokenizer.popToken()
+                            Literal.parse(tokenizer)
+                        }
                         in InnerParser.punctuation -> {
-                            tokenizer.backup()
                             null
                         }
                         else -> error("Unexpected token: '$it'.")
@@ -148,7 +154,8 @@ class Literal {
     companion object : InnerParser<SignedFormula<*>> {
 
         override fun parse(tokenizer: TptpTokenizer): SignedFormula<*> =
-                if (tokenizer.nextToken() == "~") {
+                if (tokenizer.peek() == "~") {
+                    tokenizer.popToken()
                     TptpFofFof.parse(tokenizer).let {
                         when (it) {
                             is PropositionalVariable -> NegativePropositionalVariable(it)
@@ -157,7 +164,7 @@ class Literal {
                         }
                     }
                 } else {
-                    TptpFofFof.parse(tokenizer.backup()).let {
+                    TptpFofFof.parse(tokenizer).let {
                         when (it) {
                             is PropositionalVariable -> PositivePropositionalVariable(it)
                             is Predicate -> PositivePredicate(it)
@@ -171,24 +178,28 @@ class Literal {
 
 fun <V> parse(tokenizer: TptpTokenizer, upperFactory: (String) -> V, closedFactory: (String) -> V, argsFactory: (String, Int, List<Term<*>>) -> V): V {
     // function(lower), constant (lower), or variable (upper)
-    return tokenizer.nextToken().let { name ->
+    return tokenizer.popToken().let { name ->
         name.first().let { first ->
             if (first.isUpperCase()) {
                 upperFactory(name)
             } else if (first.isLowerCase()) {
-                tokenizer.nextToken().let { next ->
+                tokenizer.peek().let { next ->
                     when (next) {
                         "(" -> {
-                            tokenizer.nextToken().let {
+                            tokenizer.popToken()
+                            tokenizer.peek().let {
                                 if (it == ")") {
+                                    tokenizer.popToken()
                                     closedFactory(name)
                                 } else {
-                                    generateSequence(parse(tokenizer.backup(), { FV(it) }, { Const(it) }, { name, arity, args -> Fn(name, arity)(args) })) {
-                                        tokenizer.nextToken().let {
+                                    generateSequence(TptpFofTerm.parse(tokenizer)) {
+                                        tokenizer.popToken().let {
                                             when (it) {
                                                 ")" -> null
-                                                "," -> parse(tokenizer, { FV(it) }, { Const(it) }, { name, arity, args -> Fn(name, arity)(args) })
-                                                else -> parse(tokenizer.backup(), { FV(it) }, { Const(it) }, { name, arity, args -> Fn(name, arity)(args) })
+                                                "," -> {
+                                                    TptpFofTerm.parse(tokenizer)
+                                                }
+                                                else -> error("Expected punctuation no '$it'.") // TptpFofTerm.parse(tokenizer)
                                             }
                                         }
                                     }.asIterable().toList().let {
@@ -197,9 +208,7 @@ fun <V> parse(tokenizer: TptpTokenizer, upperFactory: (String) -> V, closedFacto
                                 }
                             }
                         }
-                        in InnerParser.punctuation -> closedFactory(name).also {
-                            tokenizer.backup()
-                        }
+                        in InnerParser.punctuation -> closedFactory(name)
                         else -> error("Unexpected '$next'.")
                     }
                 }

@@ -12,7 +12,12 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
     companion object {
         private val keywords = arrayOf("fof", "cnf", "thf", "tff", "include")
         val punctuation = listOf('(', ')', ',', '.', '[', ']', ':')
+
         private val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<->", "~|", "~&", "*", "+")
+        private val singleCharOperators = arrayOf('!', '?', '~', '&', '|', '*', '+')
+        private val operatorStartChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+')
+        private val operatorChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+', '>', '-')
+
         private val predicates = arrayOf("!=", "\$true", "\$false")
         fun ensure(expected: String, actual: String, message: String = "Expected '$expected' but found '$actual'.") {
             if (actual != expected)
@@ -32,15 +37,7 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
     }
 
     /**
-     * allows to backup up to a single token
-     */
-    fun backup(): TptpTokenizer = this.also {
-        check(backup === null && lastToken !== null) { "backup improperly requested" }
-        backup = lastToken
-    }
-
-    /**
-     * moves to next line of non-whitespace and puts cursor at the first non-whitespace character of the line
+     * moves the cursor to the beginning of the next line
      */
     private fun nextLine() {
         line = reader.readLine()?.reader()?.buffered()
@@ -48,52 +45,93 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
         atStartOfLine = true
     }
 
+    /**
+     * moves the cursor to the next character in the stream.  This will skip newlines.
+     */
     private fun nextChar(): Int {
-        nextChar = line?.read().takeIf {
-            it != -1
-        }.also {
-            atStartOfLine = false
-        } ?: run {
-            line = reader.readLine()?.reader()?.buffered()
-            atStartOfLine = true
-            line?.read() ?: -1
-        }
+        nextChar = line?.let { line ->
+            line.read().takeIf {
+                it != -1
+            }?.also {
+                atStartOfLine = false
+            } ?: run {
+                atStartOfLine = true
+                generateSequence {
+                    this.line = reader.readLine()?.reader()?.buffered()
+                    this.line.let { line ->
+                        if (line === null) {
+                            this.nextChar = -1
+                            null
+                        } else {
+                            line.read().let {
+                                if (it == -1) {
+                                    -1
+                                } else {
+                                    nextChar = it
+                                    null
+                                }
+                            }
+                        }
+                    }
+                }.forEach {}
+                nextChar
+            } // can't be null
+        } ?: -1
         return nextChar
     }
 
-    /**
-     * @param atStartOfLine true if nextChar is known to be the first character of a line
-     */
     private tailrec fun skipWhitespace() {
         if (nextChar == -1)
             return
-        nextChar.toChar().let {
-            if (atStartOfLine) {
-                if (it == '%') {
-                    nextLine()
-                    skipWhitespace()
-                }
-                return
-            } else if (!it.isWhitespace())
-                return
-            else {
-                skipWhitespace()
-                return
-            }
+        else if (atStartOfLine && nextChar.toChar() == '%') {
+            nextLine()
+            return skipWhitespace()
+        } else if (!nextChar.toChar().isWhitespace())
+            return
+        else {
+            nextChar()
+            return skipWhitespace()
         }
     }
 
-    fun parseKeyword(): String {
-        return nextToken().takeIf {
-            it in keywords
-        } ?: error("Keyword expected.")
+    fun peekKeyword(): String =
+            peek().takeIf {
+                it in keywords
+            } ?: error("Keyword expected.")
+
+    private fun readOperator(): String = buildOperator(nextChar.toChar().toString())
+
+    private fun buildOperator(operator: String): String =
+            nextChar().takeIf { it != -1 }?.let { char ->
+                (operator + char.toChar().toString()).let {
+                    if (operators.any { op -> op.startsWith(it) }) {
+                        return buildOperator(it)
+                    } else if (operator in operators) {
+                        return operator
+                    } else {
+                        error("Unexpected operator '$it'.")
+                    }
+                }
+            } ?: operator.takeIf { it in operators } ?: error("Unexpected end of stream at '$operator'.")
+
+    /**
+     * allows to backup up to a single token
+     */
+    private fun backup(): TptpTokenizer = this.also {
+        check(backup === null && lastToken !== null) { "backup improperly requested" }
+        backup = lastToken
     }
 
-    fun nextToken(): String {
+    fun peek(): String = backup ?: popToken().also { backup() }
+
+    fun popToken(): String {
         return backup?.also { backup = null } ?: run {
-            check(nextChar != -1)
+            check(nextChar != -1) { UNEXPECTED_END_OF_INPUT }
             nextChar.toChar().let {
                 when (it) {
+                    in operatorStartChars -> {
+                        readOperator()
+                    }
                     '\'' -> {
                         // return value should not contain the outer single quotes
                         TODO("one or more of ([\\40-\\46\\50-\\133\\135-\\176]|[\\\\]['\\\\]) followed by '")
@@ -138,7 +176,7 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
         var openParens = 1
         while (openParens > 0) {
             try {
-                when (nextToken()) {
+                when (popToken()) {
                     ")" -> openParens--
                     "(" -> openParens++
                     else -> {
