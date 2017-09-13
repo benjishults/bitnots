@@ -11,7 +11,7 @@ import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
 interface Tableau<out T : TableauNode> {
     val root: T
     fun isClosed() = root.isClosed()
-    fun step()
+    fun step(): Boolean
 
 
 }
@@ -33,8 +33,8 @@ open class PropositionalTableau<T : PropositionalTableauNode>(
         }
     }
 
-    override fun step() {
-        applyBeta<PropositionalTableauNode> { fs, le -> PropositionalTableauNode(fs, le) }
+    override fun step(): Boolean {
+        return applyBeta<PropositionalTableauNode> { fs, le -> PropositionalTableauNode(fs, le) }
     }
 
     fun <T : PropositionalTableauNode> applyBeta(nodeFactory: (MutableList<SignedFormula<*>>, T) -> T): Boolean {
@@ -74,11 +74,12 @@ open class FolTableau(root: FolTableauNode) : PropositionalTableau<FolTableauNod
         return null
     }
 
-    override fun step() {
-        if (!applyDelta() && !applyBeta<FolTableauNode> { fs, le -> FolTableauNode(fs, le) }) {
-            applyGamma() && unify() !== null
-        }
-    }
+    override fun step(): Boolean =
+            if (!applyDelta() && !applyBeta<FolTableauNode> { fs, le -> FolTableauNode(fs, le) }) {
+                applyGamma()
+            } else {
+                true
+            }
 
     // TODO make this splice
     private fun applyDelta(): Boolean {

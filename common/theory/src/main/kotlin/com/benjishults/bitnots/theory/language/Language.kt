@@ -2,20 +2,19 @@ package com.benjishults.bitnots.theory.language
 
 import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
 import com.benjishults.bitnots.model.formulas.propositional.Prop
+import com.benjishults.bitnots.model.formulas.fol.Predicate
+import com.benjishults.bitnots.model.terms.Function
 
 interface Language {
+}
+
+class FolLanguage(predicates: List<Predicate>, functions: List<Function>) : Language {
+    
 }
 
 class PropositionalLanguage(propositions: List<PropositionalVariable> = emptyList()) : Language {
 
     val propositions: MutableList<PropositionalVariable> = propositions.toMutableList()
-
-    fun addAll(names: Iterable<String>) {
-        // TODO what to do about name changes?  I need to throw an exception here.
-        propositions.addAll(names.map {
-            Prop(it)
-        })
-    }
 
     override fun toString(): String = buildString {
         append("[")

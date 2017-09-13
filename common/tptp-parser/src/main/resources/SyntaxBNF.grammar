@@ -1,0 +1,602 @@
+%header%
+GRAMMARTYPE = "LL"
+
+%tokens%
+
+%productions%
+
+
+TPTP_file_            ::= _TPTP_input_*
+TPTP_input_           ::= _annotated_formula_ | _include_
+
+
+annotated_formula_    ::= _thf_annotated_ | _tfx_annotated_ | _tff_annotated_ |
+                           _tcf_annotated_ | _fof_annotated_ | _cnf_annotated_ |
+                           _tpi_annotated_
+
+tpi_annotated_        ::= tpi(_name_,_formula_role_,_tpi_formula_ _annotations_).
+tpi_formula_          ::= _fof_formula_
+thf_annotated_        ::= thf(_name_,_formula_role_,_thf_formula_
+                           _annotations_).
+tfx_annotated_        ::= tfx(_name_,_formula_role_,_tfx_formula_
+                           _annotations_).
+tff_annotated_        ::= tff(_name_,_formula_role_,_tff_formula_
+                           _annotations_).
+tcf_annotated_        ::= tcf(_name_,_formula_role_,_tcf_formula_
+                           _annotations_).
+fof_annotated_        ::= fof(_name_,_formula_role_,_fof_formula_
+                           _annotations_).
+cnf_annotated_        ::= cnf(_name_,_formula_role_,_cnf_formula_
+                           _annotations_).
+annotations_          ::= ,_source_ _optional_info_ | _null_
+
+
+formula_role_         ::= _lower_word_
+formula_role_         :== axiom | hypothesis | definition | assumption |
+                           lemma | theorem | corollary | conjecture |
+                           negated_conjecture | plain | type |
+                           fi_domain | fi_functors | fi_predicates | unknown
+
+
+thf_formula_          ::= _thf_logic_formula_ | _thf_sequent_
+thf_logic_formula_    ::= _thf_binary_formula_ | _thf_unitary_formula_ |
+                           _thf_type_formula_ | _thf_subtype_
+thf_binary_formula_   ::= _thf_binary_pair_ | _thf_binary_tuple_ |
+                           _thf_binary_type_
+
+
+thf_binary_pair_      ::= _thf_unitary_formula_ _thf_pair_connective_
+                           _thf_unitary_formula_
+thf_binary_tuple_     ::= _thf_or_formula_ | _thf_and_formula_ |
+                           _thf_apply_formula_
+thf_or_formula_       ::= _thf_unitary_formula_ _vline_ _thf_unitary_formula_ |
+                           _thf_or_formula_ _vline_ _thf_unitary_formula_
+thf_and_formula_      ::= _thf_unitary_formula_ & _thf_unitary_formula_ |
+                           _thf_and_formula_ & _thf_unitary_formula_
+
+
+
+
+thf_apply_formula_    ::= _thf_unitary_formula_ @ _thf_unitary_formula_ |
+                           _thf_apply_formula_ @ _thf_unitary_formula_
+
+
+
+
+thf_unitary_formula_  ::= _thf_quantified_formula_ | _thf_unary_formula_ |
+                           _thf_atom_ | _thf_conditional_ | _thf_let_ |
+                           _thf_tuple_ | (_thf_logic_formula_)
+
+thf_quantified_formula_ ::= _thf_quantification_ _thf_unitary_formula_
+thf_quantification_   ::= _thf_quantifier_ [_thf_variable_list_] :
+thf_variable_list_    ::= _thf_variable_ | _thf_variable_,_thf_variable_list_
+thf_variable_         ::= _thf_typed_variable_ | _variable_
+thf_typed_variable_   ::= _variable_ : _thf_top_level_type_
+
+
+thf_unary_formula_    ::= _thf_unary_connective_ (_thf_logic_formula_)
+thf_atom_             ::= _thf_function_ | _variable_ | _defined_term_ |
+                           _thf_conn_term_
+
+
+
+thf_function_         ::= _atom_ | _functor_(_thf_arguments_) |
+                           _defined_functor_(_thf_arguments_) |
+                           _system_functor_(_thf_arguments_)
+
+
+thf_conn_term_        ::= _thf_pair_connective_ | _assoc_connective_ |
+                           _thf_unary_connective_
+
+
+
+thf_conditional_      ::= $ite(_thf_logic_formula_,_thf_logic_formula_,
+                            _thf_logic_formula_)
+
+
+thf_let_              ::= $let(_thf_unitary_formula_,_thf_formula_)
+thf_let_              :== $let(_thf_let_defns_,_thf_formula_)
+thf_let_defns_        :== _thf_let_defn_ | [_thf_let_defn_list_]
+thf_let_defn_list_    :== _thf_let_defn_ | _thf_let_defn_,_thf_let_defn_list_
+thf_let_defn_         :== _thf_let_quantified_defn_ | _thf_let_plain_defn_
+thf_let_quantified_defn_ :== _thf_quantification_ (_thf_let_plain_defn_)
+thf_let_plain_defn_   :== _thf_let_defn_LHS_ _assignment_ _thf_formula_
+thf_let_defn_LHS_     :== _constant_ | _functor_(_fof_arguments_) | 
+                           _thf_tuple_
+
+thf_arguments_        ::= _thf_formula_list_
+
+
+thf_type_formula_     ::= _thf_typeable_formula_ : _thf_top_level_type_
+thf_typeable_formula_ ::= _thf_atom_ | (_thf_logic_formula_)
+thf_subtype_          ::= _thf_atom_ _subtype_sign_ _thf_atom_
+
+
+thf_type_formula_     :== _constant_ : _thf_top_level_type_
+
+
+thf_top_level_type_   ::= _thf_unitary_type_ | _thf_mapping_type_ |
+                           _thf_apply_type_
+
+
+thf_unitary_type_     ::= _thf_unitary_formula_
+thf_apply_type_       ::= _thf_apply_formula_
+thf_binary_type_      ::= _thf_mapping_type_ | _thf_xprod_type_ |
+                           _thf_union_type_
+thf_mapping_type_     ::= _thf_unitary_type_ _arrow_ _thf_unitary_type_ |
+                           _thf_unitary_type_ _arrow_ _thf_mapping_type_
+thf_xprod_type_       ::= _thf_unitary_type_ _star_ _thf_unitary_type_ |
+                           _thf_xprod_type_ _star_ _thf_unitary_type_
+thf_union_type_       ::= _thf_unitary_type_ _plus_ _thf_unitary_type_ |
+                           _thf_union_type_ _plus_ _thf_unitary_type_
+
+
+thf_sequent_          ::= _thf_tuple_ _gentzen_arrow_ _thf_tuple_ |
+                           (_thf_sequent_)
+
+
+
+
+thf_tuple_            ::= [] | [_thf_formula_list_] | 
+                           {} | {_thf_formula_list_}
+thf_formula_list_     ::= _thf_logic_formula_ |
+                           _thf_logic_formula_,_thf_formula_list_
+
+
+logic_defn_rule_      :== _logic_defn_LHS_ _assignment_ _logic_defn_RHS_
+logic_defn_LHS_       :== _logic_defn_value_ | _thf_top_level_type_  | _name_
+logic_defn_LHS_       :== $constants | $quantification | $consequence |
+                           $modalities
+
+
+
+logic_defn_RHS_       :== _logic_defn_value_ | _thf_unitary_formula_
+logic_defn_value_     :== _defined_constant_
+logic_defn_value_     :== $rigid | $flexible |
+                           $constant | $varying | $cumulative | $decreasing |
+                           $local | $global |
+                           $modal_system_K | $modal_system_T | $modal_system_D |
+                           $modal_system_S4 | $modal_system_S5 |
+                           $modal_axiom_K | $modal_axiom_T | $modal_axiom_B |
+                           $modal_axiom_D | $modal_axiom_4 | $modal_axiom_5
+
+
+
+tfx_formula_          ::= _tfx_logic_formula_ | _thf_sequent_
+tfx_logic_formula_    ::= _thf_logic_formula_ 
+
+
+
+
+tff_formula_          ::= _tff_logic_formula_ | _tff_typed_atom_ |
+                           _tff_sequent_
+tff_logic_formula_    ::= _tff_binary_formula_ | _tff_unitary_formula_ |
+                           _tff_subtype_
+tff_binary_formula_   ::= _tff_binary_nonassoc_ | _tff_binary_assoc_
+tff_binary_nonassoc_  ::= _tff_unitary_formula_ _binary_connective_
+                           _tff_unitary_formula_
+tff_binary_assoc_     ::= _tff_or_formula_ | _tff_and_formula_
+tff_or_formula_       ::= _tff_unitary_formula_ _vline_ _tff_unitary_formula_ |
+                           _tff_or_formula_ _vline_ _tff_unitary_formula_
+tff_and_formula_      ::= _tff_unitary_formula_ & _tff_unitary_formula_ |
+                           _tff_and_formula_ & _tff_unitary_formula_
+tff_unitary_formula_  ::= _tff_quantified_formula_ | _tff_unary_formula_ |
+                           _tff_atomic_formula_ | _tff_conditional_ | 
+                           _tff_let_ | (_tff_logic_formula_)
+
+tff_quantified_formula_ ::= _fof_quantifier_ [_tff_variable_list_] :
+                           _tff_unitary_formula_
+tff_variable_list_    ::= _tff_variable_ | _tff_variable_,_tff_variable_list_
+tff_variable_         ::= _tff_typed_variable_ | _variable_
+tff_typed_variable_   ::= _variable_ : _tff_atomic_type_
+tff_unary_formula_    ::= _unary_connective_ _tff_unitary_formula_ |
+                           _fof_infix_unary_
+tff_atomic_formula_   ::= _fof_atomic_formula_
+tff_conditional_      ::= $ite_f(_tff_logic_formula_,_tff_logic_formula_,
+                           _tff_logic_formula_)
+tff_let_              ::= $let_tf(_tff_let_term_defns_,_tff_formula_) |
+                           $let_ff(_tff_let_formula_defns_,_tff_formula_)
+
+tff_let_term_defns_   ::= _tff_let_term_defn_ | [_tff_let_term_list_]
+tff_let_term_list_    ::= _tff_let_term_defn_ |
+                           _tff_let_term_defn_,_tff_let_term_list_
+tff_let_term_defn_    ::= ! [_tff_variable_list_] : _tff_let_term_defn_ |
+                           _tff_let_term_binding_
+tff_let_term_binding_ ::= _fof_plain_term_ = _fof_term_ | 
+                           (_tff_let_term_binding_)
+tff_let_formula_defns_ ::= _tff_let_formula_defn_ | [_tff_let_formula_list_]
+tff_let_formula_list_ ::= _tff_let_formula_defn_ |
+                           _tff_let_formula_defn_,_tff_let_formula_list_
+tff_let_formula_defn_ ::= ! [_tff_variable_list_] : _tff_let_formula_defn_ |
+                           _tff_let_formula_binding_
+tff_let_formula_binding_ ::= _fof_plain_atomic_formula_ <=> 
+                           _tff_unitary_formula_ | (_tff_let_formula_binding_)
+
+tff_sequent_          ::= _tff_formula_tuple_ _gentzen_arrow_
+                           _tff_formula_tuple_ | (_tff_sequent_)
+
+tff_formula_tuple_    ::= [] | [_tff_formula_tuple_list_]
+tff_formula_tuple_list_ ::= _tff_logic_formula_ |
+                           _tff_logic_formula_,_tff_formula_tuple_list_
+
+
+tff_typed_atom_       ::= _untyped_atom_ : _tff_top_level_type_ |
+                           (_tff_typed_atom_)
+
+tff_subtype_          ::= _untyped_atom_ _subtype_sign_ _atom_ 
+
+
+tff_top_level_type_   ::= _tff_atomic_type_ | _tff_mapping_type_ |
+                           _tf1_quantified_type_ | (_tff_top_level_type_)
+tf1_quantified_type_  ::= !> [_tff_variable_list_] : _tff_monotype_
+tff_monotype_         ::= _tff_atomic_type_ | (_tff_mapping_type_)
+tff_unitary_type_     ::= _tff_atomic_type_ | (_tff_xprod_type_)
+tff_atomic_type_      ::= _type_constant_ | _defined_type_ |
+                           _type_functor_(_tff_type_arguments_) | _variable_
+tff_type_arguments_   ::= _tff_atomic_type_ |
+                           _tff_atomic_type_,_tff_type_arguments_
+
+
+
+tff_mapping_type_     ::= _tff_unitary_type_ _arrow_ _tff_atomic_type_
+tff_xprod_type_       ::= _tff_unitary_type_ _star_ _tff_atomic_type_ |
+                           _tff_xprod_type_ _star_ _tff_atomic_type_
+
+
+
+tcf_formula_          ::= _tcf_logic_formula_ | _tff_typed_atom_
+tcf_logic_formula_    ::= _tcf_quantified_formula_ | _cnf_formula_
+tcf_quantified_formula_ ::= ! [_tff_variable_list_] : _cnf_formula_
+
+
+
+fof_formula_          ::= _fof_logic_formula_ | _fof_sequent_
+fof_logic_formula_    ::= _fof_binary_formula_ | _fof_unitary_formula_
+
+fof_binary_formula_   ::= _fof_binary_nonassoc_ | _fof_binary_assoc_
+
+
+fof_binary_nonassoc_  ::= _fof_unitary_formula_ _binary_connective_
+                           _fof_unitary_formula_
+
+fof_binary_assoc_     ::= _fof_or_formula_ | _fof_and_formula_
+fof_or_formula_       ::= _fof_unitary_formula_ _vline_ _fof_unitary_formula_ |
+                           _fof_or_formula_ _vline_ _fof_unitary_formula_
+fof_and_formula_      ::= _fof_unitary_formula_ & _fof_unitary_formula_ |
+                           _fof_and_formula_ & _fof_unitary_formula_
+
+
+fof_unitary_formula_  ::= _fof_quantified_formula_ | _fof_unary_formula_ |
+                           _fof_atomic_formula_ | (_fof_logic_formula_)
+
+fof_quantified_formula_ ::= _fof_quantifier_ [_fof_variable_list_] :
+                           _fof_unitary_formula_
+fof_variable_list_    ::= _variable_ | _variable_,_fof_variable_list_
+fof_unary_formula_    ::= _unary_connective_ _fof_unitary_formula_ |
+                           _fof_infix_unary_
+
+fof_infix_unary_      ::= _fof_term_ _infix_inequality_ _fof_term_
+fof_atomic_formula_   ::= _fof_plain_atomic_formula_ | 
+                           _fof_defined_atomic_formula_ |
+                           _fof_system_atomic_formula_
+fof_plain_atomic_formula_ ::= _fof_plain_term_
+fof_plain_atomic_formula_ :== _proposition_ | _predicate_(_fof_arguments_)
+fof_defined_atomic_formula_ ::= _fof_defined_plain_formula_ | 
+                           _fof_defined_infix_formula_
+fof_defined_plain_formula_ ::= _fof_defined_plain_term_
+fof_defined_plain_formula_ :== _defined_proposition_ | 
+                           _defined_predicate_(_fof_arguments_)
+fof_defined_infix_formula_ ::= _fof_term_ _defined_infix_pred_ _fof_term_
+
+fof_system_atomic_formula_ ::= _fof_system_term_
+
+
+
+
+
+fof_plain_term_       ::= _constant_ | _functor_(_fof_arguments_)
+
+fof_defined_term_     ::= _defined_term_ | _fof_defined_atomic_term_
+fof_defined_atomic_term_  ::= _fof_defined_plain_term_
+
+
+
+fof_defined_plain_term_   ::= _defined_constant_ | 
+                           _defined_functor_(_fof_arguments_)
+
+fof_system_term_      ::= _system_constant_ | _system_functor_(_fof_arguments_)
+
+fof_arguments_        ::= _fof_term_ | _fof_term_,_fof_arguments_
+
+
+
+
+
+fof_term_             ::= _fof_function_term_ | _variable_ | 
+                           _tff_conditional_term_ | _tff_let_term_ | 
+                           _tff_tuple_term_
+fof_function_term_    ::= _fof_plain_term_ | _fof_defined_term_ | 
+                           _fof_system_term_
+
+
+tff_conditional_term_ ::= $ite_t(_tff_logic_formula_,_fof_term_,_fof_term_)
+
+
+tff_let_term_         ::= $let_ft(_tff_let_formula_defns_,_fof_term_) |
+                           $let_tt(_tff_let_term_defns_,_fof_term_)
+
+tff_tuple_term_       ::= {} | {_fof_arguments_}
+
+
+fof_sequent_          ::= _fof_formula_tuple_ _gentzen_arrow_
+                           _fof_formula_tuple_ | (_fof_sequent_)
+
+fof_formula_tuple_    ::= [] | [_fof_formula_tuple_list_]
+fof_formula_tuple_list_ ::= _fof_logic_formula_ |
+                           _fof_logic_formula_,_fof_formula_tuple_list_
+
+
+cnf_formula_          ::= _disjunction_ | (_disjunction_)
+disjunction_          ::= _literal_ | _disjunction_ _vline_ _literal_
+literal_              ::= _fof_atomic_formula_ | ~ _fof_atomic_formula_ |
+                           _fof_infix_unary_
+
+
+
+thf_quantifier_       ::= _fof_quantifier_ | _th0_quantifier_ |
+                           _th1_quantifier_
+
+th1_quantifier_       ::= !> | ?*
+th0_quantifier_       ::= ^ | @+ | @-
+thf_pair_connective_  ::= _infix_equality_ | _infix_inequality_ |
+                           _binary_connective_ | _assignment_
+thf_unary_connective_ ::= _unary_connective_ | _th1_unary_connective_
+th1_unary_connective_ ::= !! | ?? | @@+ | @@- | @=
+
+subtype_sign_         ::= <<
+
+
+
+fof_quantifier_       ::= ! | ?
+binary_connective_    ::= <=> | => | <= | <~> | ~_vline_ | ~&
+assoc_connective_     ::= _vline_ | &
+unary_connective_     ::= ~
+
+gentzen_arrow_        ::= -->
+assignment_           ::= :=
+
+
+type_constant_        ::= _type_functor_
+type_functor_         ::= _atomic_word_
+defined_type_         ::= _atomic_defined_word_
+defined_type_         :== $oType | $o | $iType | $i | $tType |
+                           $real | $rat | $int
+
+
+
+
+
+system_type_          :== _atomic_system_word_
+
+
+atom_                 ::= _untyped_atom_ | _defined_constant_
+untyped_atom_         ::= _constant_ | _system_constant_
+
+defined_proposition_  :== _atomic_defined_word_
+defined_proposition_  :== $true | $false
+defined_predicate_    :== _atomic_defined_word_
+defined_predicate_    :== $distinct |
+                           $less | $lesseq | $greater | $greatereq |
+                           $is_int | $is_rat |
+                           $box_P | $box_i | $box_int | $box |
+                           $dia_P | $dia_i | $dia_int | $dia
+
+
+
+defined_infix_pred_   ::= _infix_equality_ | _assignment_
+infix_equality_       ::= =
+infix_inequality_     ::= !=
+
+constant_             ::= _functor_
+functor_              ::= _atomic_word_
+system_constant_      ::= _system_functor_
+system_functor_       ::= _atomic_system_word_
+defined_constant_     ::= _defined_functor_
+defined_functor_      ::= _atomic_defined_word_
+defined_functor_      :== $uminus | $sum | $difference | $product |
+                           $quotient | $quotient_e | $quotient_t | $quotient_f |
+                           $remainder_e | $remainder_t | $remainder_f |
+                           $floor | $ceiling | $truncate | $round |
+                           $to_int | $to_rat | $to_real
+defined_term_         ::= _number_ | _distinct_object_
+variable_             ::= _upper_word_
+
+
+source_               ::= _general_term_
+source_               :== _dag_source_ | _internal_source_ |
+                           _external_source_ | unknown | [_sources_]
+
+
+sources_              :== _source_ | _source_,_sources_
+
+
+dag_source_           :== _name_ | _inference_record_
+inference_record_     :== inference(_inference_rule_,_useful_info_,
+                           _inference_parents_)
+inference_rule_       :== _atomic_word_
+
+
+
+
+
+
+inference_parents_    :== [] | [_parent_list_]
+parent_list_          :== _parent_info_ | _parent_info_,_parent_list_
+parent_info_          :== _source_ _parent_details_
+parent_details_       :== :_general_list_ | _null_
+internal_source_      :== introduced(_intro_type_ _optional_info_)
+intro_type_           :== definition | axiom_of_choice | tautology | assumption
+
+
+external_source_      :== _file_source_ | _theory_ | _creator_source_
+file_source_          :== file(_file_name_ _file_info_)
+file_info_            :== ,_name_ | _null_
+theory_               :== theory(_theory_name_ _optional_info_)
+theory_name_          :== equality | ac
+
+
+
+creator_source_       :== creator(_creator_name_ _optional_info_)
+creator_name_         :== _atomic_word_
+
+
+optional_info_        ::= ,_useful_info_ | _null_
+useful_info_          ::= _general_list_
+useful_info_          :== [] | [_info_items_]
+info_items_           :== _info_item_ | _info_item_,_info_items_
+info_item_            :== _formula_item_ | _inference_item_ |
+                           _general_function_
+
+formula_item_         :== _description_item_ | _iquote_item_
+description_item_     :== description(_atomic_word_)
+iquote_item_          :== iquote(_atomic_word_)
+
+
+
+
+inference_item_       :== _inference_status_ | _assumptions_record_ |
+                           _new_symbol_record_ | _refutation_
+inference_status_     :== status(_status_value_) | _inference_info_
+
+status_value_         :== suc | unp | sap | esa | sat | fsa | thm | eqv | tac |
+                           wec | eth | tau | wtc | wth | cax | sca | tca | wca |
+                           cup | csp | ecs | csa | cth | ceq | unc | wcc | ect |
+                           fun | uns | wuc | wct | scc | uca | noc
+
+
+
+
+
+
+inference_info_       :== _inference_rule_(_atomic_word_,_general_list_)
+
+
+assumptions_record_   :== assumptions([_name_list_])
+
+
+refutation_           :== refutation(_file_source_)
+
+new_symbol_record_    :== new_symbols(_atomic_word_,[_new_symbol_list_])
+new_symbol_list_      :== _principal_symbol_ |
+                           _principal_symbol_,_new_symbol_list_
+
+principal_symbol_   :== _functor_ | _variable_
+
+
+include_              ::= include(_file_name_ _formula_selection_).
+formula_selection_    ::= ,[_name_list_] | _null_
+name_list_            ::= _name_ | _name_,_name_list_
+
+
+general_term_         ::= _general_data_ | _general_data_:_general_term_ |
+                           _general_list_
+general_data_         ::= _atomic_word_ | _general_function_ |
+                           _variable_ | _number_ | _distinct_object_ |
+                           _formula_data_
+general_function_     ::= _atomic_word_(_general_terms_)
+
+
+general_data_         :== bind(_variable_,_formula_data_)
+formula_data_         ::= $thf(_thf_formula_) | $tff(_tff_formula_) |
+                           $fof(_fof_formula_) | $cnf(_cnf_formula_) |
+                           $fot(_fof_term_)
+general_list_         ::= [] | [_general_terms_]
+general_terms_        ::= _general_term_ | _general_term_,_general_terms_
+
+
+name_                 ::= _atomic_word_ | _integer_
+
+atomic_word_          ::= _lower_word_ | _single_quoted_
+
+
+
+
+
+
+atomic_defined_word_  ::= _dollar_word_
+atomic_system_word_   ::= _dollar_dollar_word_
+number_               ::= _integer_ | _rational_ | _real_
+
+
+
+file_name_            ::= _single_quoted_
+null_                 ::=
+
+
+comment_              ::- _comment_line_|_comment_block_
+comment_line_         ::- [%]_printable_char_*
+comment_block_        ::: [/][*]_not_star_slash_[*][*]*[/]
+not_star_slash_       ::: ([^*]*[*][*]*[^/*])*[^*]*
+
+
+single_quoted_        ::- _single_quote_ _sq_char_ _sq_char_*_single_quote_
+
+
+distinct_object_      ::- _double_quote_ _do_char_*_double_quote_
+
+
+dollar_word_          ::- _dollar_ _lower_word_
+dollar_dollar_word_   ::- _dollar_ _dollar_ _lower_word_
+upper_word_           ::- _upper_alpha_ _alpha_numeric_*
+lower_word_           ::- _lower_alpha_ _alpha_numeric_*
+
+
+vline_                ::- [|]
+star_                 ::- [*]
+plus_                 ::- [+]
+arrow_                ::- [>]
+less_sign_            ::- [<]
+
+
+real_                 ::- (_signed_real_|_unsigned_real_)
+signed_real_          ::- _sign_ _unsigned_real_
+unsigned_real_        ::- (_decimal_fraction_|_decimal_exponent_)
+rational_             ::- (_signed_rational_|_unsigned_rational_)
+signed_rational_      ::- _sign_ _unsigned_rational_
+unsigned_rational_    ::- _decimal_ _slash_ _positive_decimal_
+integer_              ::- (_signed_integer_|_unsigned_integer_)
+signed_integer_       ::- _sign_ _unsigned_integer_
+unsigned_integer_     ::- _decimal_
+decimal_              ::- (_zero_numeric_|_positive_decimal_)
+positive_decimal_     ::- _non_zero_numeric_ _numeric_*
+decimal_exponent_     ::- (_decimal_|_decimal_fraction_)_exponent_ _exp_integer_
+decimal_fraction_     ::- _decimal_ _dot_decimal_
+dot_decimal_          ::- _dot_ _numeric_ _numeric_*
+exp_integer_          ::- (_signed_exp_integer_|_unsigned_exp_integer_)
+signed_exp_integer_   ::- _sign_ _unsigned_exp_integer_
+unsigned_exp_integer_ ::- _numeric_ _numeric_*
+
+
+percentage_sign_      ::: [%]
+double_quote_         ::: ["]
+do_char_              ::: ([\40-\41\43-\133\135-\176]|[\\]["\\])
+single_quote_         ::: [']
+
+sq_char_              ::: ([\40-\46\50-\133\135-\176]|[\\]['\\])
+sign_                 ::: [+-]
+dot_                  ::: [.]
+exponent_             ::: [Ee]
+slash_                ::: [/]
+zero_numeric_         ::: [0]
+non_zero_numeric_     ::: [1-9]
+numeric_              ::: [0-9]
+lower_alpha_          ::: [a-z]
+upper_alpha_          ::: [A-Z]
+alpha_numeric_        ::: (_lower_alpha_|_upper_alpha_|_numeric_|[_])
+dollar_               ::: [$]
+printable_char_       ::: .
+
+
+
+viewable_char_        ::: [.\n]
+

@@ -40,13 +40,21 @@ class TableauStepCountTests {
             tabFactory(nodeFactory(ArrayList<SignedFormula<Formula<*>>>().also {
                 it.add(claim.formula.createSignedFormula())
             }, null)).also { tableau ->
-                for (step in claim.steps downTo 1) {
-                    Assert.assertFalse("${claim.formula} is unexpectedly proved before ${claim.steps - step + 1} steps",
-                            tableau.isClosed())
-                    tableau.step()
+                if (claim.steps !== NoCount) {
+                    println("WARN: in some logics, this could run forever.")
+                    while (true) {
+                        if (tableau.isClosed())
+                            break
+                        if (!tableau.step())
+                            Assert.fail("Failed to prove ${claim.formula} with unlimited steps.")
+                    }
+                } else {
+                    for (step in claim.steps.toInt() downTo 1) {
+                        Assert.assertFalse("${claim.formula} is unexpectedly proved before ${claim.steps.toInt() - step + 1} steps",
+                                tableau.isClosed())
+                        tableau.step()
+                    }
                 }
-                Assert.assertTrue("${claim.formula} is unexpectedly ${"un".takeIf { claim.provable } ?: ""}proved after ${claim.steps} steps",
-                        tableau.isClosed() xor !claim.provable)
             }
         }
     }

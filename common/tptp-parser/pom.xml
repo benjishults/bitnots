@@ -33,6 +33,10 @@
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>theory</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>inference</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>tptp</groupId>

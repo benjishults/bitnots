@@ -12,8 +12,8 @@ import com.benjishults.bitnots.model.util.InternTableWithOther
 
 
 /**
- * @param name the name of the function
- * @param arity the arity of the function
+ * @param name the name of the predicate
+ * @param arity the arity of the predicate. Must be > 0.  Otherwise, you want a PropositionalVariable.
  * @return a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.
  */
 fun Pred(name: String, arity: Int = 1): PredicateConstructor {
@@ -26,11 +26,11 @@ fun Pred(name: String, arity: Int = 1): PredicateConstructor {
  * @param name the FunctionConstructor for the term
  * @param arguments the arguments in the function term
  */
-class Predicate private constructor(name: PredicateConstructor, var arguments: Array<Term<*>>) : Formula<PredicateConstructor>(name) {
+class Predicate private constructor(name: PredicateConstructor, var arguments: List<Term<*>>) : Formula<PredicateConstructor>(name) {
+
     override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
         TODO()
     }
-
 
     private val freeVars by lazy { mutableSetOf<FreeVariable>() }
     private var dirtyFreeVars = true
@@ -38,34 +38,34 @@ class Predicate private constructor(name: PredicateConstructor, var arguments: A
     class PredicateConstructor private constructor(name: String, val arity: Int = 1) : FormulaConstructor(name) {
         companion object : InternTableWithOther<PredicateConstructor, Int>({ name, arity -> PredicateConstructor(name, arity) })
 
-        operator fun invoke(arguments: Array<Term<*>>): Predicate {
+        operator fun invoke(arguments: List<Term<*>>): Predicate {
             check(arguments.size == arity)
             return Predicate(this, arguments)
         }
 
         operator fun invoke(argument: Term<*>): Predicate {
             check(1 == arity)
-            return Predicate(this, arrayOf(argument))
+            return Predicate(this, listOf(argument))
         }
 
         operator fun invoke(arg1: Term<*>, arg2: Term<*>): Predicate {
             check(2 == arity)
-            return Predicate(this, arrayOf(arg1, arg2))
+            return Predicate(this, listOf(arg1, arg2))
         }
 
         operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>): Predicate {
             check(3 == arity)
-            return Predicate(this, arrayOf(arg1, arg2, arg3))
+            return Predicate(this, listOf(arg1, arg2, arg3))
         }
 
         operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>, arg4: Term<*>): Predicate {
             check(4 == arity)
-            return Predicate(this, arrayOf(arg1, arg2, arg3, arg4))
+            return Predicate(this, listOf(arg1, arg2, arg3, arg4))
         }
 
         operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>, arg4: Term<*>, arg5: Term<*>): Predicate {
             check(5 == arity)
-            return Predicate(this, arrayOf(arg1, arg2, arg3, arg4, arg5))
+            return Predicate(this, listOf(arg1, arg2, arg3, arg4, arg5))
         }
     }
 
@@ -117,7 +117,7 @@ class Predicate private constructor(name: PredicateConstructor, var arguments: A
     override fun applySub(substitution: Substitution) =
             constructor(arguments.map {
                 it.applySub(substitution)
-            }.toTypedArray())
+            })
 
 //    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>) =
 //            arguments.fold(mutableSetOf<Variable<*>>()) { s, t ->

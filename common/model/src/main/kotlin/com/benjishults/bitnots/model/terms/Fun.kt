@@ -22,14 +22,14 @@ fun Fn(name: String, arity: Int = 1): FunctionConstructor {
  * @return a Function of no arguments with the given name name.  If a constant already exists with this name, that one is returned.
  */
 fun Const(name: String) =
-        FunctionConstructor.intern(name, 0)(emptyArray())
+        FunctionConstructor.intern(name, 0)(emptyList())
 
 /**
  * Represents a simple function term in the language.  A constant is represented by a function of no arguments.
  * @param name the FunctionConstructor for the term
  * @param arguments the arguments in the function term
  */
-class Function private constructor(name: FunctionConstructor, var arguments: Array<Term<*>>) : Term<FunctionConstructor>(name) {
+class Function private constructor(name: FunctionConstructor, var arguments: List<Term<*>>) : Term<FunctionConstructor>(name) {
 
     private val freeVars by lazy { mutableSetOf<FreeVariable>() }
     private var dirtyFreeVars = true
@@ -41,34 +41,34 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
 
         companion object : InternTableWithOther<FunctionConstructor, Int>({ name, arity -> FunctionConstructor(name, arity) })
 
-        operator fun invoke(arguments: Array<Term<*>>): Function {
+        operator fun invoke(arguments: List<Term<*>>): Function {
             check(arguments.size == arity)
             return Function(this, arguments)
         }
 
         operator fun invoke(argument: Term<*>): Function {
             check(1 == arity)
-            return Function(this, arrayOf(argument))
+            return Function(this, listOf(argument))
         }
 
         operator fun invoke(arg1: Term<*>, arg2: Term<*>): Function {
             check(2 == arity)
-            return Function(this, arrayOf(arg1, arg2))
+            return Function(this, listOf(arg1, arg2))
         }
 
         operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>): Function {
             check(3 == arity)
-            return Function(this, arrayOf(arg1, arg2, arg3))
+            return Function(this, listOf(arg1, arg2, arg3))
         }
 
         operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>, arg4: Term<*>): Function {
             check(4 == arity)
-            return Function(this, arrayOf(arg1, arg2, arg3, arg4))
+            return Function(this, listOf(arg1, arg2, arg3, arg4))
         }
 
         operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>, arg4: Term<*>, arg5: Term<*>): Function {
             check(5 == arity)
-            return Function(this, arrayOf(arg1, arg2, arg3, arg4, arg5))
+            return Function(this, listOf(arg1, arg2, arg3, arg4, arg5))
         }
     }
 
@@ -117,7 +117,7 @@ class Function private constructor(name: FunctionConstructor, var arguments: Arr
     override fun applySub(substitution: Substitution) =
             cons(arguments.map {
                 it.applySub(substitution)
-            }.toTypedArray())
+            })
 
     override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>) =
             arguments.fold(mutableSetOf<Variable<*>>()) { s, t ->
