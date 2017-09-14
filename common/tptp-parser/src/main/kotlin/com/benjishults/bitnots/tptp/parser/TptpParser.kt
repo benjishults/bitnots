@@ -15,8 +15,9 @@ import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.Term
 import java.nio.file.Path
+import com.benjishults.bitnots.inference.rules.SimpleSignedFormula
 
-val UNEXPECTED_END_OF_INPUT = "Unexpected end of input."
+const val UNEXPECTED_END_OF_INPUT = "Unexpected end of input."
 
 interface InnerParser<out T> {
     companion object {
@@ -27,9 +28,6 @@ interface InnerParser<out T> {
     }
 
     fun parse(tokenizer: TptpTokenizer): T
-//    fun parse(tokenizer: TptpTokenizer, firstToken: String): T {
-//        error("Unexpected call to parse(TptpTokenizer, String)" }
-//    }
 }
 
 class TptpFile(val inputs: List<TptpInput>) {
@@ -47,6 +45,7 @@ class TptpFile(val inputs: List<TptpInput>) {
                 }?.let {
                     when (it) {
                         "cnf" -> CnfAnnotatedFormula.parse(tokenizer)
+                        "fof" -> FofAnnotatedFormula.parse(tokenizer)
                         else -> error("Parsing for '${it}' not yet implemented.")
                     }
                 }
@@ -76,14 +75,11 @@ enum class FormulaRoles {
     unknown
 }
 
-sealed class AnnotatedFormula : TptpInput() {
-}
+sealed class AnnotatedFormula : TptpInput()
 
-class Include : TptpInput() {
+class Include : TptpInput()
 
-}
-
-data class CnfAnnotatedFormula(val name: String, val formulaRole: String, val formula: Clause) : AnnotatedFormula() {
+data class CnfAnnotatedFormula(val name: String, val formulaRole: String, val clause: List<SimpleSignedFormula<*>>) : AnnotatedFormula() {
 
     companion object : InnerParser<CnfAnnotatedFormula> {
         override fun parse(tokenizer: TptpTokenizer): CnfAnnotatedFormula {
@@ -109,69 +105,28 @@ data class CnfAnnotatedFormula(val name: String, val formulaRole: String, val fo
 
 }
 
-class Clause(val literals: List<SignedFormula<*>>) {
+data class FofAnnotatedFormula(val name: String, val formulaRole: String, val formula: Formula<*>) : AnnotatedFormula() {
 
-    companion object : InnerParser<Clause> {
-        override fun parse(tokenizer: TptpTokenizer): Clause {
-            return Clause(
-                    tokenizer.peek().let {
-                        if (it == "(") {
-                            tokenizer.popToken()
-                            Disjunct.parse(tokenizer).also { TptpTokenizer.ensure(")", tokenizer.popToken()) }
-                        } else {
-                            Disjunct.parse(tokenizer)
+    companion object : InnerParser<FofAnnotatedFormula> {
+        override fun parse(tokenizer: TptpTokenizer): FofAnnotatedFormula {
+            TptpTokenizer.ensure("cnf", tokenizer.popToken())
+            TptpTokenizer.ensure("(", tokenizer.popToken())
+            return FofAnnotatedFormula(
+                    tokenizer.popToken().also {
+                        TptpTokenizer.ensure(",", tokenizer.popToken())
+                    },
+                    tokenizer.popToken().also {
+                        TptpTokenizer.ensure(",", tokenizer.popToken())
+                    },
+                    TptpFofFof.parse(tokenizer).also {
+                        when (tokenizer.popToken()) {
+                            "," -> tokenizer.moveToEndParen()
+                            ")" -> {
+                                TptpTokenizer.ensure(".", tokenizer.popToken())
+                            }
                         }
                     })
         }
-
-    }
-}
-
-class Disjunct {
-
-    companion object : InnerParser<List<SignedFormula<*>>> {
-        override fun parse(tokenizer: TptpTokenizer): List<SignedFormula<*>> {
-            return generateSequence(Literal.parse(tokenizer)) {
-                tokenizer.peek().let {
-                    when (it) {
-                        "|" -> {
-                            tokenizer.popToken()
-                            Literal.parse(tokenizer)
-                        }
-                        in InnerParser.punctuation -> {
-                            null
-                        }
-                        else -> error("Unexpected token: '$it'.")
-                    }
-                }
-            }.asIterable().toList()
-        }
-    }
-}
-
-class Literal {
-
-    companion object : InnerParser<SignedFormula<*>> {
-
-        override fun parse(tokenizer: TptpTokenizer): SignedFormula<*> =
-                if (tokenizer.peek() == "~") {
-                    tokenizer.popToken()
-                    TptpFofFof.parse(tokenizer).let {
-                        when (it) {
-                            is PropositionalVariable -> NegativePropositionalVariable(it)
-                            is Predicate -> NegativePredicate(it)
-                            else -> error("Unexpected type of formula '${it::class.simpleName}'.")
-                        }
-                    }
-                } else {
-                    TptpFofFof.parse(tokenizer).let {
-                        when (it) {
-                            is PropositionalVariable -> PositivePropositionalVariable(it)
-                            is Predicate -> PositivePredicate(it)
-                            else -> error("Unexpected type of formula '${it::class.simpleName}'.")
-                        }
-                    }
-                }
     }
 
 }
@@ -219,29 +174,28 @@ fun <V> parse(tokenizer: TptpTokenizer, upperFactory: (String) -> V, closedFacto
     }
 }
 
-class TptpFofTerm {
-    companion object : InnerParser<Term<*>> {
-        override fun parse(tokenizer: TptpTokenizer): Term<*> =
-                parse(tokenizer, { FV(it) }, { Const(it) }, { name, arity, args -> Fn(name, arity)(args) })
-    }
+object TptpFofTerm : InnerParser<Term<*>> {
+    override fun parse(tokenizer: TptpTokenizer): Term<*> =
+            parse(tokenizer, { FV(it) }, { Const(it) }, { name, arity, args -> Fn(name, arity)(args) })
 }
 
-class TptpFofFof {
-    companion object : InnerParser<Formula<*>> {
-        override fun parse(tokenizer: TptpTokenizer): Formula<*> =
-                parse(tokenizer, { Prop(it) }, { Prop(it) }, { name, arity, args -> Pred(name, arity)(args) })
-    }
+object TptpCnfFof : InnerParser<Formula<*>> {
+    override fun parse(tokenizer: TptpTokenizer): Formula<*> =
+            parse(tokenizer, { Prop(it) }, { Prop(it) }, { name, arity, args -> Pred(name, arity)(args) })
+}
+
+object TptpFofFof : InnerParser<Formula<*>> {
+    override fun parse(tokenizer: TptpTokenizer): Formula<*> =
+            parse(tokenizer, { Prop(it) }, { Prop(it) }, { name, arity, args -> Pred(name, arity)(args) })
 }
 
 /**
  * NOTE: In TPTP, function symbols and predicate symbols should be disjoint in order to avoid parsing trouble.
  */
-class TptpParser {
-    companion object {
-        fun parseFile(file: Path): TptpFile {
-            file.toFile().reader().buffered().use {
-                return TptpFile.parse(TptpTokenizer(it))
-            }
+object TptpParser {
+    fun parseFile(file: Path): TptpFile {
+        file.toFile().reader().buffered().use {
+            return TptpFile.parse(TptpTokenizer(it))
         }
     }
 }

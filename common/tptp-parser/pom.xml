@@ -39,17 +39,6 @@
         </dependency>
 
         <dependency>
-            <groupId>tptp</groupId>
-            <artifactId>tptp-parser</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
-            <version>2.7.6</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>test</artifactId>
             <scope>test</scope>
