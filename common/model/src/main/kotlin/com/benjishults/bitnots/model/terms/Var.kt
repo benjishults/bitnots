@@ -42,6 +42,7 @@ class BoundVariable private constructor(name: String) : Variable<BVConstructor>(
 }
 
 fun BV(name: String): BoundVariable = BoundVariable.intern(name)
+fun BVU(name: String): BoundVariable = BoundVariable.new(name)
 
 class FreeVariable private constructor(name: String) : Variable<FVConstructor>(FVConstructor(name)) {
 
@@ -88,3 +89,4 @@ class FreeVariable private constructor(name: String) : Variable<FVConstructor>(F
 }
 
 fun FV(name: String): FreeVariable = FreeVariable.intern(name)
+fun FVU(name: String): FreeVariable = FreeVariable.new(name)

@@ -12,6 +12,7 @@ import com.benjishults.bitnots.model.util.InternTableWithOther
 
 
 /**
+ * Returns a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.
  * @param name the name of the predicate
  * @param arity the arity of the predicate. Must be > 0.  Otherwise, you want a PropositionalVariable.
  * @return a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.
@@ -19,6 +20,17 @@ import com.benjishults.bitnots.model.util.InternTableWithOther
 fun Pred(name: String, arity: Int = 1): PredicateConstructor {
     require(arity > 0)
     return PredicateConstructor.intern(name, arity)
+}
+
+/**
+ * Returns a PredicateConstructor with a unique name close to the given name.
+ * @param name the name of the predicate
+ * @param arity the arity of the predicate. Must be > 0.  Otherwise, you want a PropositionalVariable.
+ * @return a PredicateConstructor with a unique name close to the given name.
+ */
+fun PredU(name: String, arity: Int = 1): PredicateConstructor {
+    require(arity > 0)
+    return PredicateConstructor.new(name, arity)
 }
 
 /**
@@ -35,7 +47,7 @@ class Predicate private constructor(name: PredicateConstructor, var arguments: L
     private val freeVars by lazy { mutableSetOf<FreeVariable>() }
     private var dirtyFreeVars = true
 
-    class PredicateConstructor private constructor(name: String, val arity: Int = 1) : FormulaConstructor(name) {
+    open class PredicateConstructor(name: String, val arity: Int = 1) : FormulaConstructor(name) {
         companion object : InternTableWithOther<PredicateConstructor, Int>({ name, arity -> PredicateConstructor(name, arity) })
 
         operator fun invoke(arguments: List<Term<*>>): Predicate {

@@ -11,6 +11,7 @@ open class FormulaConstructor(val name: String) {
 
     override fun hashCode() = name.hashCode()
 
+    // used by logical constructs
     companion object : InternTable<FormulaConstructor>({ name -> FormulaConstructor(name) })
 
 }

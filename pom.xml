@@ -11,6 +11,7 @@
     <description>BITNOTS is the name of this system</description>
 
     <modules>
+        <module>parent</module>
         <module>common</module>
         <module>services</module>
     </modules>

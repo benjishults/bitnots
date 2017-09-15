@@ -1,21 +1,15 @@
 package com.benjishults.bitnots.tptp.parser
 
-import com.benjishults.bitnots.inference.rules.SignedFormula
-import com.benjishults.bitnots.inference.rules.concrete.NegativePredicate
-import com.benjishults.bitnots.inference.rules.concrete.NegativePropositionalVariable
-import com.benjishults.bitnots.inference.rules.concrete.PositivePredicate
-import com.benjishults.bitnots.inference.rules.concrete.PositivePropositionalVariable
+import com.benjishults.bitnots.inference.rules.SimpleSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.Pred
-import com.benjishults.bitnots.model.formulas.fol.Predicate
 import com.benjishults.bitnots.model.formulas.propositional.Prop
-import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
+import com.benjishults.bitnots.model.terms.BoundVariable
 import com.benjishults.bitnots.model.terms.Const
 import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.Term
 import java.nio.file.Path
-import com.benjishults.bitnots.inference.rules.SimpleSignedFormula
 
 const val UNEXPECTED_END_OF_INPUT = "Unexpected end of input."
 
@@ -24,10 +18,18 @@ interface InnerParser<out T> {
         val keywords = arrayOf("fof", "cnf", "thf", "tff", "include")
         val punctuation = arrayOf("(", ")", ",", ".", "[", "]", ":")
         val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<->", "~|", "~&", "*", "+")
+        val binaryConnective = arrayOf("<=>", "=>", "<=", "<->", "~|", "~&")
         val predicates = arrayOf("!=", "\$true", "\$false")
     }
 
     fun parse(tokenizer: TptpTokenizer): T
+}
+
+interface FofInnerParser<out T> : InnerParser<T> {
+
+    override fun parse(tokenizer: TptpTokenizer) = parse(tokenizer, emptySet())
+
+    fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): T
 }
 
 class TptpFile(val inputs: List<TptpInput>) {
@@ -95,9 +97,7 @@ data class CnfAnnotatedFormula(val name: String, val formulaRole: String, val cl
                     Clause.parse(tokenizer).also {
                         when (tokenizer.popToken()) {
                             "," -> tokenizer.moveToEndParen()
-                            ")" -> {
-                                TptpTokenizer.ensure(".", tokenizer.popToken())
-                            }
+                            ")" -> TptpTokenizer.ensure(".", tokenizer.popToken())
                         }
                     })
         }
@@ -121,15 +121,15 @@ data class FofAnnotatedFormula(val name: String, val formulaRole: String, val fo
                     TptpFofFof.parse(tokenizer).also {
                         when (tokenizer.popToken()) {
                             "," -> tokenizer.moveToEndParen()
-                            ")" -> {
-                                TptpTokenizer.ensure(".", tokenizer.popToken())
-                            }
+                            ")" -> TptpTokenizer.ensure(".", tokenizer.popToken())
                         }
                     })
         }
     }
 
 }
+
+
 
 fun <V> parse(tokenizer: TptpTokenizer, upperFactory: (String) -> V, closedFactory: (String) -> V, argsFactory: (String, Int, List<Term<*>>) -> V): V {
     // function(lower), constant (lower), or variable (upper)
@@ -151,9 +151,7 @@ fun <V> parse(tokenizer: TptpTokenizer, upperFactory: (String) -> V, closedFacto
                                         tokenizer.popToken().let {
                                             when (it) {
                                                 ")" -> null
-                                                "," -> {
-                                                    TptpFofTerm.parse(tokenizer)
-                                                }
+                                                "," -> TptpFofTerm.parse(tokenizer)
                                                 else -> error("Expected punctuation no '$it'.") // TptpFofTerm.parse(tokenizer)
                                             }
                                         }
@@ -180,11 +178,6 @@ object TptpFofTerm : InnerParser<Term<*>> {
 }
 
 object TptpCnfFof : InnerParser<Formula<*>> {
-    override fun parse(tokenizer: TptpTokenizer): Formula<*> =
-            parse(tokenizer, { Prop(it) }, { Prop(it) }, { name, arity, args -> Pred(name, arity)(args) })
-}
-
-object TptpFofFof : InnerParser<Formula<*>> {
     override fun parse(tokenizer: TptpTokenizer): Formula<*> =
             parse(tokenizer, { Prop(it) }, { Prop(it) }, { name, arity, args -> Pred(name, arity)(args) })
 }

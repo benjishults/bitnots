@@ -8,6 +8,7 @@ import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.InternTableWithOther
 
 /**
+ * Returns a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.
  * @param name the name of the function
  * @param arity the arity of the function
  * @return a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.
@@ -18,11 +19,31 @@ fun Fn(name: String, arity: Int = 1): FunctionConstructor {
 }
 
 /**
+ * Returns a FunctionConstructor with the given arity and a unique name similar to [name].
+ * @param name the name of the function
+ * @param arity the arity of the function
+ * @return a FunctionConstructor with the given arity and a unique name similar to [name].
+ */
+fun FnU(name: String, arity: Int = 1): FunctionConstructor {
+    require(arity > 0)
+    return FunctionConstructor.new(name, arity)
+}
+
+/**
+ * Returns a Function of no arguments with the given name.  If a constant already exists with this name, that one is returned.
  * @param name the name of the constant
- * @return a Function of no arguments with the given name name.  If a constant already exists with this name, that one is returned.
+ * @return a Function of no arguments with the given name.  If a constant already exists with this name, that one is returned.
  */
 fun Const(name: String) =
         FunctionConstructor.intern(name, 0)(emptyList())
+
+/**
+ * Returns a Function of no arguments with a unique name similar to the given name.
+ * @param name the name of the constant
+ * @return a Function of no arguments with a unique name similar to the given name.
+ */
+fun ConstU(name: String) =
+        FunctionConstructor.new(name, 0)(emptyList())
 
 /**
  * Represents a simple function term in the language.  A constant is represented by a function of no arguments.

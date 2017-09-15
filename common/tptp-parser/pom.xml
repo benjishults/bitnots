@@ -59,12 +59,4 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>bitnots-local</id>
-            <name>file-parser</name>
-            <url>file:${project.basedir}/repo</url>
-        </repository>
-    </repositories>
-
 </project>
