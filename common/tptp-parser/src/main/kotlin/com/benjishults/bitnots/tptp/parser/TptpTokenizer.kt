@@ -150,6 +150,8 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
 //                                append(nextChar.toChar())
                                 append(readAlphaNumeric())
                             }
+                        }.also {
+                            nextChar()
                         }
                     }
                     '"' -> {

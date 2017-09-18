@@ -34,7 +34,7 @@ class ParserTest {
                 val path = TptpFileFetcher.findProblemFile(TptpDomain.PLA, TptpFormulaForm.FOF, 24, 1)
 
                 TptpParser.parseFile(path).let {
-                    Assert.assertEquals(16, it.inputs.size)
+                    Assert.assertEquals(53, it.inputs.size)
                     Assert.assertTrue(it.inputs.all { it is FofAnnotatedFormula })
                     Assert.assertTrue((it.inputs.last() as FofAnnotatedFormula).formulaRole == "conjecture")
                 }
