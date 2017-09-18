@@ -10,6 +10,10 @@ import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.Term
 import java.nio.file.Path
+import com.benjishults.bitnots.tptp.files.TptpFileFetcher
+import com.benjishults.bitnots.tptp.files.TptpDomain
+import com.benjishults.bitnots.tptp.files.TptpFormulaForm
+import com.benjishults.bitnots.tptp.TptpProperties
 
 const val UNEXPECTED_END_OF_INPUT = "Unexpected end of input."
 
@@ -32,32 +36,25 @@ interface FofInnerParser<out T> : InnerParser<T> {
     fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): T
 }
 
-class TptpFile(val inputs: List<TptpInput>) {
+class TptpFile(val inputs: List<AnnotatedFormula>) {
 
     companion object : InnerParser<TptpFile> {
         override fun parse(tokenizer: TptpTokenizer): TptpFile {
-            return TptpFile(generateSequence {
-                try {
-                    tokenizer.peekKeyword()
-                } catch (e: Exception) {
-                    if (e.message == UNEXPECTED_END_OF_INPUT)
-                        null
-                    else
-                        throw e
-                }?.let {
-                    when (it) {
-                        "cnf" -> CnfAnnotatedFormula.parse(tokenizer)
-                        "fof" -> FofAnnotatedFormula.parse(tokenizer)
-                        else -> error("Parsing for '${it}' not yet implemented.")
-                    }
-                }
-            }.asIterable().toList())
+            return TptpFile(
+                    mutableListOf<AnnotatedFormula>().apply {
+                        tokenizer.peekKeyword().let {
+                            when (it) {
+                                "cnf" -> add(CnfAnnotatedFormula.parse(tokenizer))
+                                "fof" -> add(FofAnnotatedFormula.parse(tokenizer))
+                                "include" -> addAll(Include.parse(tokenizer))
+                                else -> error("Parsing for '${it}' not yet implemented.")
+                            }
+                        }
+                    })
         }
     }
 
 }
-
-sealed class TptpInput
 
 enum class FormulaRoles {
     axiom,
@@ -77,11 +74,39 @@ enum class FormulaRoles {
     unknown
 }
 
-sealed class AnnotatedFormula : TptpInput()
+sealed class AnnotatedFormula(open val name: String = "")
 
-class Include : TptpInput()
+data class Include(val axioms: List<AnnotatedFormula>) {
+    companion object : InnerParser<List<AnnotatedFormula>> {
+        override fun parse(tokenizer: TptpTokenizer): List<AnnotatedFormula> {
+            TptpTokenizer.ensure("include", tokenizer.popToken())
+            TptpTokenizer.ensure("(", tokenizer.popToken())
 
-data class CnfAnnotatedFormula(val name: String, val formulaRole: String, val clause: List<SimpleSignedFormula<*>>) : AnnotatedFormula() {
+            return tokenizer.popToken().substring("Axioms/".length).let {
+                TptpFile.parse(TptpTokenizer(
+                        TptpFileFetcher.findAxiomsFile(
+                                TptpDomain.valueOf(it.substring(0, 3)),
+                                TptpFormulaForm.findByForm(it.substring(6, 7).first()),
+                                Integer.parseInt(it.substring(3, 6), 10),
+                                Integer.valueOf(it.substring(7, it.indexOf('.'))))
+                                .toFile()
+                                .reader().buffered()))
+                        .inputs
+                        .run {
+                            tokenizer.parseCommaSeparatedListOfStringsToEndParen().takeIf {
+                                it.isNotEmpty()
+                            }?.let { include ->
+                                filter {
+                                    it.name in include
+                                }.toList()
+                            } ?: this
+                        }
+            }
+        }
+    }
+}
+
+data class CnfAnnotatedFormula(override val name: String, val formulaRole: String, val clause: List<SimpleSignedFormula<*>>) : AnnotatedFormula() {
 
     companion object : InnerParser<CnfAnnotatedFormula> {
         override fun parse(tokenizer: TptpTokenizer): CnfAnnotatedFormula {
@@ -105,11 +130,11 @@ data class CnfAnnotatedFormula(val name: String, val formulaRole: String, val cl
 
 }
 
-data class FofAnnotatedFormula(val name: String, val formulaRole: String, val formula: Formula<*>) : AnnotatedFormula() {
+data class FofAnnotatedFormula(override val name: String, val formulaRole: String, val formula: Formula<*>) : AnnotatedFormula() {
 
     companion object : InnerParser<FofAnnotatedFormula> {
         override fun parse(tokenizer: TptpTokenizer): FofAnnotatedFormula {
-            TptpTokenizer.ensure("cnf", tokenizer.popToken())
+            TptpTokenizer.ensure("fof", tokenizer.popToken())
             TptpTokenizer.ensure("(", tokenizer.popToken())
             return FofAnnotatedFormula(
                     tokenizer.popToken().also {
@@ -128,8 +153,6 @@ data class FofAnnotatedFormula(val name: String, val formulaRole: String, val fo
     }
 
 }
-
-
 
 fun <V> parse(tokenizer: TptpTokenizer, upperFactory: (String) -> V, closedFactory: (String) -> V, argsFactory: (String, Int, List<Term<*>>) -> V): V {
     // function(lower), constant (lower), or variable (upper)

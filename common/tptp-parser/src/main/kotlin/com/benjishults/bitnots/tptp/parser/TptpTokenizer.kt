@@ -19,10 +19,11 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
         private val operatorChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+', '>', '-')
 
         private val predicates = arrayOf("!=", "\$true", "\$false")
-        fun ensure(expected: String, actual: String, message: String = "Expected '$expected' but found '$actual'.") {
-            if (actual != expected)
-                error(message)
-        }
+        fun ensure(expected: String, actual: String, message: String = "Expected '$expected' but found '$actual'.") =
+                if (actual != expected)
+                    error(message)
+                else
+                    actual
     }
 
     private var nextChar: Int = -1
@@ -134,7 +135,15 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
                     }
                     '\'' -> {
                         // return value should not contain the outer single quotes
-                        TODO("one or more of ([\\40-\\46\\50-\\133\\135-\\176]|[\\\\]['\\\\]) followed by '")
+//                        TODO("one or more of ([\\40-\\46\\50-\\133\\135-\\176]|[\\\\]['\\\\]) followed by '")
+                        nextChar()
+                        buildString {
+                            append(readAlphaNumeric())
+                            while (nextChar.toChar() != '\'') {
+//                                append(nextChar.toChar())
+                                append(readAlphaNumeric())
+                            }
+                        }
                     }
                     '"' -> {
                         // distinct_object
@@ -185,6 +194,30 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
             } catch (e: Exception) {
             }
         }
+    }
+
+    /**
+     * Assumes that the cursor is looking at a comma or a string followed by a comma-separated list of words followed by a close paren.  Returns the list of strings.
+     * Moves the cursor past the next unmatched close paren from here
+     */
+    fun parseCommaSeparatedListOfStringsToEndParen(): List<String> {
+        backup = null
+        return generateSequence {
+            popToken().let { token ->
+                when (token) {
+                    ")" -> null
+                    "," -> token
+                    else -> {
+                        if (token.first().isLetter())
+                            token
+                        else
+                            error("Unexpected token encountered: '$token'.")
+                    }
+                }
+            }
+        }.filter {
+            it != ","
+        }.toList()
     }
 
     private fun readAlphaNumeric(): String =

@@ -59,8 +59,9 @@ enum class TptpDomain(val field: String, val subfield: String) {
     PUZ("Other", "Puzzles"),
     MSC("Other", "Miscellaneous");
 
-    fun findBySubfield(subfield: String) = values().find { it.subfield == subfield }
-
+    companion object {
+        fun findBySubfield(subfield: String) = values().find { it.subfield == subfield }
+    }
 }
 
 enum class TptpFormulaForm(val form: Char) {
@@ -70,30 +71,36 @@ enum class TptpFormulaForm(val form: Char) {
     TFF_WITH_ARITHMETIC('='),
     THF('^');
 
-    fun findByForm(form: Char) = values().find { it.form == form }
+    companion object {
+        fun findByForm(form: Char) = values().find { it.form == form } ?: error("Malformed formula form: '$form'.")
+    }
 
 }
 
-class TptpFileFetcher {
+object TptpFileFetcher {
 
     // A regular expression for recognizing problem file names is "[A-Z]{3}[0-9]{3}[-+^=_][1-9][0-9]*(\.[0-9]{3})*\.p".
     // A regular expression for recognizing axiom file names is "[A-Z]{3}[0-9]{3}[-+^=_][1-9][0-9]*\.ax".
 
-    companion object {
-        val FILE_SYSTEM = FileSystems.getDefault()
-        fun formatAxiomatizationNumber(version: Int): String =
-                String.format("%03d", version)
-    }
+    val FILE_SYSTEM = FileSystems.getDefault()
+    private fun padToThreeDigits(version: Int) =
+            String.format("%03d", version)
+
+    fun findProblemFile(domain: TptpDomain, form: TptpFormulaForm, problemNumber: Int = 1, version: Int = 0, size: Int = -1): Path =
+            FILE_SYSTEM.getPath(TptpProperties.getBaseFolderName() as String,
+                    "Problems", domain.toString(),
+                    "${domain.toString()}${padToThreeDigits(problemNumber)}${form.form}$version${if (size >= 0) ".${padToThreeDigits(size)}" else ""}.p")
 
     fun findAxiomsFile(domain: TptpDomain, form: TptpFormulaForm, axiomatizationNumber: Int = 1, version: Int = 0): Path =
             if (domain === TptpDomain.SET && axiomatizationNumber == 7) {
                 FILE_SYSTEM.getPath(TptpProperties.getBaseFolderName() as String,
                         "Axioms",
-                        domain.toString() + formatAxiomatizationNumber(axiomatizationNumber),
-                        "${domain.toString()}${formatAxiomatizationNumber(axiomatizationNumber)}${form.form}$version.ax")
+                        domain.toString() + padToThreeDigits(axiomatizationNumber),
+                        "${domain.toString()}${padToThreeDigits(axiomatizationNumber)}${form.form}$version.ax")
             } else
                 FILE_SYSTEM.getPath(TptpProperties.getBaseFolderName() as String,
                         "Axioms",
-                        "${domain.toString()}${formatAxiomatizationNumber(axiomatizationNumber)}${form.form}$version.ax")
+                        "${domain.toString()}${padToThreeDigits(axiomatizationNumber)}${form.form}$version.ax")
+
 }
 
