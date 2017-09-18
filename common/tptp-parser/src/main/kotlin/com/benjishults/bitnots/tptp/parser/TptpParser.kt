@@ -23,6 +23,7 @@ interface InnerParser<out T> {
         val punctuation = arrayOf("(", ")", ",", ".", "[", "]", ":")
         val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<->", "~|", "~&", "*", "+")
         val binaryConnective = arrayOf("<=>", "=>", "<=", "<->", "~|", "~&")
+        val unitaryFormulaInitial = arrayOf("?", "!", "~", "(")
         val predicates = arrayOf("!=", "\$true", "\$false")
     }
 
@@ -42,12 +43,21 @@ class TptpFile(val inputs: List<AnnotatedFormula>) {
         override fun parse(tokenizer: TptpTokenizer): TptpFile {
             return TptpFile(
                     mutableListOf<AnnotatedFormula>().apply {
-                        tokenizer.peekKeyword().let {
-                            when (it) {
-                                "cnf" -> add(CnfAnnotatedFormula.parse(tokenizer))
-                                "fof" -> add(FofAnnotatedFormula.parse(tokenizer))
-                                "include" -> addAll(Include.parse(tokenizer))
-                                else -> error("Parsing for '${it}' not yet implemented.")
+                        while (true) {
+                            try {
+                                tokenizer.peekKeyword()
+                            } catch (e: Exception) {
+                                if (e.message == tokenizer.finishMessage(UNEXPECTED_END_OF_INPUT))
+                                    break
+                                else
+                                    throw e
+                            }.let {
+                                when (it) {
+                                    "cnf" -> add(CnfAnnotatedFormula.parse(tokenizer))
+                                    "fof" -> add(FofAnnotatedFormula.parse(tokenizer))
+                                    "include" -> addAll(Include.parse(tokenizer))
+                                    else -> error(tokenizer.finishMessage("Parsing for '${it}' not yet implemented"))
+                                }
                             }
                         }
                     })
@@ -90,17 +100,17 @@ data class Include(val axioms: List<AnnotatedFormula>) {
                                 Integer.parseInt(it.substring(3, 6), 10),
                                 Integer.valueOf(it.substring(7, it.indexOf('.'))))
                                 .toFile()
-                                .reader().buffered()))
-                        .inputs
-                        .run {
-                            tokenizer.parseCommaSeparatedListOfStringsToEndParen().takeIf {
-                                it.isNotEmpty()
-                            }?.let { include ->
-                                filter {
-                                    it.name in include
-                                }.toList()
-                            } ?: this
-                        }
+                                .reader().buffered(), it)
+                ).inputs.run {
+                    tokenizer.parseCommaSeparatedListOfStringsToEndParen().takeIf {
+                        TptpTokenizer.ensure(".", tokenizer.popToken())
+                        it.isNotEmpty()
+                    }?.let { include ->
+                        filter {
+                            it.name in include
+                        }.toList()
+                    } ?: this
+                }
             }
         }
     }
@@ -175,7 +185,7 @@ fun <V> parse(tokenizer: TptpTokenizer, upperFactory: (String) -> V, closedFacto
                                             when (it) {
                                                 ")" -> null
                                                 "," -> TptpFofTerm.parse(tokenizer)
-                                                else -> error("Expected punctuation no '$it'.") // TptpFofTerm.parse(tokenizer)
+                                                else -> error(tokenizer.finishMessage("Expected punctuation no '$it'")) // TptpFofTerm.parse(tokenizer)
                                             }
                                         }
                                     }.asIterable().toList().let {
@@ -185,11 +195,11 @@ fun <V> parse(tokenizer: TptpTokenizer, upperFactory: (String) -> V, closedFacto
                             }
                         }
                         in InnerParser.punctuation -> closedFactory(name)
-                        else -> error("Unexpected '$next'.")
+                        else -> error(tokenizer.finishMessage("Unexpected '$next'"))
                     }
                 }
             } else {
-                error("Unexpected '$name'.")
+                error(tokenizer.finishMessage("Unexpected '$name'"))
             }
         }
     }
@@ -211,7 +221,7 @@ object TptpCnfFof : InnerParser<Formula<*>> {
 object TptpParser {
     fun parseFile(file: Path): TptpFile {
         file.toFile().reader().buffered().use {
-            return TptpFile.parse(TptpTokenizer(it))
+            return TptpFile.parse(TptpTokenizer(it, file.toString()))
         }
     }
 }

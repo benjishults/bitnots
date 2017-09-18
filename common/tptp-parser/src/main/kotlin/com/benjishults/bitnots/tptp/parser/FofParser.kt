@@ -2,11 +2,13 @@ package com.benjishults.bitnots.tptp.parser
 
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.ForAll
-import com.benjishults.bitnots.model.formulas.fol.Pred
 import com.benjishults.bitnots.model.formulas.fol.ForSome
+import com.benjishults.bitnots.model.formulas.fol.Pred
 import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
 import com.benjishults.bitnots.model.formulas.fol.equality.Equals
 import com.benjishults.bitnots.model.formulas.propositional.And
+import com.benjishults.bitnots.model.formulas.propositional.Iff
+import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.formulas.propositional.Or
 import com.benjishults.bitnots.model.formulas.propositional.Prop
@@ -17,68 +19,123 @@ import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.Term
 
-enum class AssociativeLogicalBinaryConnector(val bin: Char) {
-    SPACE(' '),
-    AND('&'),
-    OR('|');
+data class TptpFormulaWrapper(val formula: Formula<*>, val type: TptpProduction)
+
+sealed class TptpProduction
+
+open class Binary : TptpProduction()
+open class Unitary : TptpProduction()
+
+object Assoc : Binary()
+object NonAssoc : Binary()
+object Unary : Unitary()
+object Paren : Unitary()
+object Quantified : Unitary()
+object Atomic : Unitary()
+
+sealed class BinaryConnector(open val connector: String) {
+
+    abstract class NonAssociativeBinaryConnector(override val connector: String) : BinaryConnector(connector)
+    abstract class AssociativeBinaryConnector(override val connector: String) : BinaryConnector(connector)
+
+    object NoConnector : BinaryConnector(" ")
+
+    object AndConnector : AssociativeBinaryConnector("&")
+    object OrConnector : AssociativeBinaryConnector("|")
+
+    object IffConnector : NonAssociativeBinaryConnector("<=>")
+    object ImpliesConnector : NonAssociativeBinaryConnector("=>")
+    object ReverseImpliesConnector : NonAssociativeBinaryConnector("<=")
+    object XorConnector : NonAssociativeBinaryConnector("<->")
+    object NorConnector : NonAssociativeBinaryConnector("~|")
+    object NandConnector : NonAssociativeBinaryConnector("~&")
 
     companion object {
-        @JvmStatic
-        fun fromChar(bin: Char): AssociativeLogicalBinaryConnector = values().find { it.bin == bin } ?: error("No binary connector for '$bin'.")
+        fun values() = BinaryConnector::class.nestedClasses.filter { it.isFinal && !it.isCompanion }.map { it.objectInstance as BinaryConnector }.toList()
+        fun forString(connector: String) = values().firstOrNull { it.connector == connector }
     }
+
 }
 
 object TptpFofFof : FofInnerParser<Formula<*>> {
     override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula<*> =
             tokenizer.peek().let {
                 if (it == "[")
-                    error("Sequents not yet supported.")
+                    error(tokenizer.finishMessage("Sequents not yet supported"))
                 else
-                    TptpLogicFof.parse(tokenizer, bvs)
+                    TptpLogicFof.parse(tokenizer, bvs).formula
             }
 }
 
-object TptpLogicFof : FofInnerParser<Formula<*>> {
-    override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula<*> =
-            // TODO this is kind of ugly. refactor
+object TptpLogicFof : FofInnerParser<TptpFormulaWrapper> {
+    override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): TptpFormulaWrapper =
             tokenizer.peek().let {
-                if (it.first().isLetter()) {
-                    generateSequence(TptpUnitaryFof.parse(tokenizer, bvs) to AssociativeLogicalBinaryConnector.SPACE) { (_, bin) ->
+                if (it.first().isLetter() || it in InnerParser.unitaryFormulaInitial) {
+                    generateSequence(TptpUnitaryFof.parse(tokenizer, bvs) to BinaryConnector.NoConnector as BinaryConnector) { (formWrapper, bin) ->
                         tokenizer.peek().let {
-                            if (it.first() == bin.bin) {
-                                tokenizer.popToken().run {
-                                    TptpUnitaryFof.parse(tokenizer, bvs) to bin
+                            BinaryConnector.forString(it)?.let { connector ->
+                                if (bin === BinaryConnector.NoConnector) {
+                                    tokenizer.popToken()
+                                    TptpUnitaryFof.parse(tokenizer, bvs) to connector
+                                } else if (connector === bin) {
+                                    if (bin is BinaryConnector.AssociativeBinaryConnector) {
+                                        tokenizer.popToken()
+                                        TptpUnitaryFof.parse(tokenizer, bvs) to bin
+                                    } else {
+                                        error(tokenizer.finishMessage("The connector '$connector' is not associative"))
+                                    }
+                                } else {
+                                    error(tokenizer.finishMessage("Expected '$bin.connector' but found '$connector.connector'"))
                                 }
-                            } else if (bin == AssociativeLogicalBinaryConnector.SPACE) {
-                                tokenizer.popToken().run {
-                                    TptpUnitaryFof.parse(tokenizer, bvs) to AssociativeLogicalBinaryConnector.fromChar(it.first())
-                                }
-                            } else error("Encountered '$it' while looking for '$bin'.")
+                            } ?: if (it == ")" || it == ",") {
+                                null
+                            } else {
+                                error(tokenizer.finishMessage("Unexpected: '$it'"))
+                            }
                         }
                     }.toList().run {
                         when (last().second) {
-                            AssociativeLogicalBinaryConnector.SPACE -> first().first
-                            AssociativeLogicalBinaryConnector.OR -> Or(*this.map { it.first }.toTypedArray())
-                            AssociativeLogicalBinaryConnector.AND -> And(*this.map { it.first }.toTypedArray())
+                            BinaryConnector.NoConnector ->
+                                TptpFormulaWrapper(first().first.formula, Atomic)
+
+                            BinaryConnector.OrConnector ->
+                                TptpFormulaWrapper(Or(*this.map {
+                                    it.first.formula
+                                }.toTypedArray()), Assoc)
+                            BinaryConnector.AndConnector ->
+                                TptpFormulaWrapper(And(*this.map {
+                                    it.first.formula
+                                }.toTypedArray()), Assoc)
+
+                            BinaryConnector.IffConnector ->
+                                TptpFormulaWrapper(Iff(first().first.formula, last().first.formula), NonAssoc)
+                            BinaryConnector.NandConnector ->
+                                TptpFormulaWrapper(Not(And(first().first.formula, last().first.formula)), NonAssoc)
+                            BinaryConnector.NorConnector ->
+                                TptpFormulaWrapper(Not(Or(first().first.formula, last().first.formula)), NonAssoc)
+                            BinaryConnector.XorConnector ->
+                                TptpFormulaWrapper(Not(Iff(first().first.formula, last().first.formula)), NonAssoc)
+                            BinaryConnector.ReverseImpliesConnector ->
+                                TptpFormulaWrapper(Implies(last().first.formula, first().first.formula), NonAssoc)
+                            BinaryConnector.ImpliesConnector ->
+                                TptpFormulaWrapper(Implies(first().first.formula, last().first.formula), NonAssoc)
+                            else ->
+                                error(tokenizer.finishMessage("Should not be possible"))
                         }
                     }
                 } else {
-                    when (it) {
-                        "?", "!" -> QuantifiedFormula.parse(tokenizer, bvs)
-                        "~" -> TptpFofNotParser.parse(tokenizer, bvs)
-                        else -> error("Unexpected character at beginning of logic FOF: '${it}'.")
-                    }
+                    error(tokenizer.finishMessage("Unexpected character at beginning of logic FOF: '${it}'"))
                 }
             }
 }
 
 data class Functor(val cons: String, val args: List<Functor>) {
-    fun toFormula(bvs: Set<BoundVariable>): Formula<*> =
+    fun toFormula(bvs: Set<BoundVariable>): TptpFormulaWrapper =
             if (args.isEmpty())
-                Prop(cons)
+                TptpFormulaWrapper(Prop(cons), Atomic)
             else
                 args.map { it.toTerm(bvs) }.toList().let {
-                    Pred(cons, it.size)(it)
+                    TptpFormulaWrapper(Pred(cons, it.size)(it), Atomic)
                 }
 
 
@@ -100,7 +157,7 @@ data class Functor(val cons: String, val args: List<Functor>) {
     companion object {
         fun parse(tokenizer: TptpTokenizer): Functor =
                 tokenizer.popToken().let { functor ->
-                    require(functor.first().isLetter()) { "Expected functor when parsing '$functor'." }
+                    require(functor.first().isLetter()) { tokenizer.finishMessage("Expected functor when parsing '$functor'") }
                     Functor(functor, generateSequence(tokenizer.peek().let {
                         if (it == "(") {
                             tokenizer.popToken()
@@ -114,15 +171,15 @@ data class Functor(val cons: String, val args: List<Functor>) {
                             } else if (it == ")") {
                                 null
                             } else
-                                error("Expecting ',' or '), but found '$it'.")
+                                error(tokenizer.finishMessage("Expecting ',' or '), but found '$it'"))
                         }
                     }.toList())
                 }
     }
 }
 
-object TptpUnitaryFof : FofInnerParser<Formula<*>> {
-    override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula<*> =
+object TptpUnitaryFof : FofInnerParser<TptpFormulaWrapper> {
+    override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): TptpFormulaWrapper =
             tokenizer.peek().let {
                 if (it.first().isLetter()) {
                     // we are either facing a predicate (or propositional variable) or an inequality
@@ -133,18 +190,23 @@ object TptpUnitaryFof : FofInnerParser<Formula<*>> {
                         tokenizer.peek().let {
                             if (it == "!=") {
                                 tokenizer.popToken()
-                                Not(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs)))
+                                TptpFormulaWrapper(Not(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs))), Unary)
                             } else
                                 first.toFormula(bvs)
                         }
                     }
                 } else {
                     when (it) {
-                        "?", "!" -> QuantifiedFormula.parse(tokenizer, bvs)
-                        "~" -> TptpFofNotParser.parse(tokenizer, bvs)
-                        "[" -> error("Sequents not yet supported.")
-                        "(" -> TptpLogicFof.parse(tokenizer, bvs).also { TptpTokenizer.ensure(")", tokenizer.popToken()) }
-                        else -> error("Unexpected character at beginning of FOF '${it}'.")
+                        "?", "!" -> TptpFormulaWrapper(QuantifiedFormula.parse(tokenizer, bvs), Quantified)
+                        "~" -> TptpFormulaWrapper(TptpFofNotParser.parse(tokenizer, bvs), Unary)
+                        "[" -> error(tokenizer.finishMessage("Sequents not yet supported"))
+                        "(" -> {
+                            tokenizer.popToken()
+                            TptpFormulaWrapper(TptpLogicFof.parse(tokenizer, bvs).formula, Paren).also {
+                                TptpTokenizer.ensure(")", tokenizer.popToken())
+                            }
+                        }
+                        else -> error(tokenizer.finishMessage("Unexpected character at beginning of FOF '${it}'"))
                     }
                 }
             }
@@ -153,7 +215,7 @@ object TptpUnitaryFof : FofInnerParser<Formula<*>> {
 object TptpFofNotParser : FofInnerParser<Not> {
     override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Not {
         TptpTokenizer.ensure("~", tokenizer.popToken())
-        return Not(TptpUnitaryFof.parse(tokenizer, bvs))
+        return Not(TptpUnitaryFof.parse(tokenizer, bvs).formula)
     }
 }
 
@@ -163,15 +225,17 @@ object QuantifiedFormula : FofInnerParser<VarBindingFormula> {
                 when (it) {
                     "!" -> {
                         parseBoundVars(tokenizer).let {
-                            ForAll(TptpUnitaryFof.parse(tokenizer, bvs + it), *it.toTypedArray())
+                            TptpTokenizer.ensure(":", tokenizer.popToken())
+                            ForAll(TptpUnitaryFof.parse(tokenizer, bvs + it).formula, *it.toTypedArray())
                         }
                     }
                     "?" -> {
                         parseBoundVars(tokenizer).let {
-                            ForSome(TptpUnitaryFof.parse(tokenizer, bvs + it), *it.toTypedArray())
+                            TptpTokenizer.ensure(":", tokenizer.popToken())
+                            ForSome(TptpUnitaryFof.parse(tokenizer, bvs + it).formula, *it.toTypedArray())
                         }
                     }
-                    else -> error("Expecting '!' or '?', got '$it'.")
+                    else -> error(tokenizer.finishMessage("Expecting '!' or '?', got '$it'"))
                 }
             }
 
@@ -182,7 +246,7 @@ object QuantifiedFormula : FofInnerParser<VarBindingFormula> {
                 when (it) {
                     "," -> parseBoundVar(tokenizer)
                     "]" -> null
-                    else -> error("Expected ',' or ,], but got '$it'.")
+                    else -> error(tokenizer.finishMessage("Expected ',' or ,], but got '$it'"))
                 }
             }
         }.toSet()
@@ -193,7 +257,7 @@ object QuantifiedFormula : FofInnerParser<VarBindingFormula> {
                 if (it.first().isUpperCase()) {
                     BV(it)
                 } else
-                    error("Expected upper-case word but got '$it'.")
+                    error(tokenizer.finishMessage("Expected upper-case word but got '$it'"))
             }
 }
 

@@ -33,7 +33,7 @@ object Disjunct : InnerParser<List<SimpleSignedFormula<*>>> {
                     in InnerParser.punctuation -> {
                         null
                     }
-                    else -> error("Unexpected token: '$it'.")
+                    else -> error(tokenizer.finishMessage("Unexpected token: '$it'"))
                 }
             }
         }.asIterable().toList()
@@ -49,7 +49,7 @@ object Literal : InnerParser<SimpleSignedFormula<*>> {
                     when (it) {
                         is PropositionalVariable -> NegativePropositionalVariable(it)
                         is Predicate -> NegativePredicate(it)
-                        else -> error("Unexpected type of formula '${it::class.simpleName}'.")
+                        else -> error(tokenizer.finishMessage("Unexpected type of formula '${it::class.simpleName}'"))
                     }
                 }
             } else {
@@ -57,7 +57,7 @@ object Literal : InnerParser<SimpleSignedFormula<*>> {
                     when (it) {
                         is PropositionalVariable -> PositivePropositionalVariable(it)
                         is Predicate -> PositivePredicate(it)
-                        else -> error("Unexpected type of formula '${it::class.simpleName}'.")
+                        else -> error(tokenizer.finishMessage("Unexpected type of formula '${it::class.simpleName}'"))
                     }
                 }
             }

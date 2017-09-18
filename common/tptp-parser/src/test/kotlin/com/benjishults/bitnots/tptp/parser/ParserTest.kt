@@ -7,7 +7,7 @@ import org.junit.Assert
 import org.junit.Test
 import java.nio.file.FileSystems
 
-class CnfParserTest {
+class ParserTest {
 
     private val path = FileSystems.getDefault().getPath("src/test/resources/PLA001-1.p")
 

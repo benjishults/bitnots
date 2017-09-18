@@ -7,7 +7,7 @@ import java.io.BufferedReader
  * @param predicates a map from predicate names to arity.  Propositional variables have arity 0.
  * @param functions a map from function names to arity.  Constants have arity 0.
  */
-class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String, Int> = emptyMap(), val functions: Map<String, Int> = emptyMap()) {
+class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val predicates: Map<String, Int> = emptyMap(), val functions: Map<String, Int> = emptyMap()) {
 
     companion object {
         private val keywords = arrayOf("fof", "cnf", "thf", "tff", "include")
@@ -26,6 +26,8 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
                     actual
     }
 
+    private var lineNo: Int = 0
+
     private var nextChar: Int = -1
     private var line: BufferedReader? = null
     private var atStartOfLine = true
@@ -42,6 +44,7 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
      */
     private fun nextLine() {
         line = reader.readLine()?.reader()?.buffered()
+        lineNo++
         nextChar()
         atStartOfLine = true
     }
@@ -59,6 +62,7 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
                 atStartOfLine = true
                 generateSequence {
                     this.line = reader.readLine()?.reader()?.buffered()
+                    lineNo++
                     this.line.let { line ->
                         if (line === null) {
                             this.nextChar = -1
@@ -98,7 +102,10 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
     fun peekKeyword(): String =
             peek().takeIf {
                 it in keywords
-            } ?: error("Keyword expected.")
+            } ?: error(finishMessage("Keyword expected"))
+
+
+    fun finishMessage(begin: String) = begin + " at line $lineNo or $fileName."
 
     private fun readOperator(): String = buildOperator(nextChar.toChar().toString())
 
@@ -110,16 +117,16 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
                     } else if (operator in operators) {
                         return operator
                     } else {
-                        error("Unexpected operator '$it'.")
+                        error(finishMessage("Unexpected operator '$it'"))
                     }
                 }
-            } ?: operator.takeIf { it in operators } ?: error("Unexpected end of stream at '$operator'.")
+            } ?: operator.takeIf { it in operators } ?: error(finishMessage("Unexpected end of stream at '$operator'"))
 
     /**
      * allows to backup up to a single token
      */
     private fun backup(): TptpTokenizer = this.also {
-        check(backup === null && lastToken !== null) { "backup improperly requested" }
+        check(backup === null && lastToken !== null) { finishMessage("backup improperly requested") }
         backup = lastToken
     }
 
@@ -127,7 +134,7 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
 
     fun popToken(): String {
         return backup?.also { backup = null } ?: run {
-            check(nextChar != -1) { UNEXPECTED_END_OF_INPUT }
+            check(nextChar != -1) { finishMessage(UNEXPECTED_END_OF_INPUT) }
             nextChar.toChar().let {
                 when (it) {
                     in operatorStartChars -> {
@@ -148,10 +155,10 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
                     '"' -> {
                         // distinct_object
                         // return value should contain the outer double quotes
-                        TODO("zero or more of ([\\40-\\41\\43-\\133\\135-\\176]|[\\\\][\"\\\\]) followed by \"")
+                        TODO(finishMessage("zero or more of ([\\40-\\41\\43-\\133\\135-\\176]|[\\\\][\"\\\\]) followed by \""))
                     }
                     '$' -> {
-                        TODO("check for double dollar word or lower word")
+                        TODO(finishMessage("check for double dollar word or lower word"))
                     }
                     in 'a'..'z' -> {
                         readAlphaNumeric()
@@ -163,8 +170,14 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
                         nextChar()
                         it.toString()
                     }
+                    in '0'..'9' -> {
+                        readNumber()
+                    }
+                    '-' -> {
+                        readNumber()
+                    }
                     else -> {
-                        error("I was not prepared for '$it'.")
+                        error(finishMessage("I was not prepared for '$it'"))
                     }
                 }
             }.also {
@@ -208,10 +221,10 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
                     ")" -> null
                     "," -> token
                     else -> {
-                        if (token.first().isLetter())
+                        if (token.first().isLetter() || token.first().isDigit())
                             token
                         else
-                            error("Unexpected token encountered: '$token'.")
+                            error(finishMessage("Unexpected token encountered: '$token'"))
                     }
                 }
             }
@@ -241,6 +254,32 @@ class TptpTokenizer(val reader: BufferedReader) { //, val predicates: Map<String
                                     append(it)
                                     true
                                 }
+                                in '0'..'9' -> {
+                                    append(it)
+                                    true
+                                }
+                                in punctuation -> {
+                                    false
+                                }
+                                else -> {
+                                    skipWhitespace()
+                                    false
+                                }
+                            }
+                        }
+                }) {
+                }
+            }
+
+    private fun readNumber(): String =
+            buildString {
+                append(nextChar.toChar())
+                while (nextChar().let {
+                    if (it == -1) {
+                        false
+                    } else
+                        it.toChar().let {
+                            when (it) {
                                 in '0'..'9' -> {
                                     append(it)
                                     true
