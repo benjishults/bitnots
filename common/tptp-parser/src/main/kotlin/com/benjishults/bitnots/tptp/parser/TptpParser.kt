@@ -116,7 +116,7 @@ data class Include(val axioms: List<AnnotatedFormula>) {
     }
 }
 
-data class CnfAnnotatedFormula(override val name: String, val formulaRole: String, val clause: List<SimpleSignedFormula<*>>) : AnnotatedFormula() {
+data class CnfAnnotatedFormula(override val name: String, val formulaRole: FormulaRoles, val clause: List<SimpleSignedFormula<*>>) : AnnotatedFormula() {
 
     companion object : InnerParser<CnfAnnotatedFormula> {
         override fun parse(tokenizer: TptpTokenizer): CnfAnnotatedFormula {
@@ -126,7 +126,7 @@ data class CnfAnnotatedFormula(override val name: String, val formulaRole: Strin
                     tokenizer.popToken().also {
                         TptpTokenizer.ensure(",", tokenizer.popToken())
                     },
-                    tokenizer.popToken().also {
+                    FormulaRoles.valueOf(tokenizer.popToken()).also {
                         TptpTokenizer.ensure(",", tokenizer.popToken())
                     },
                     Clause.parse(tokenizer).also {
@@ -140,7 +140,7 @@ data class CnfAnnotatedFormula(override val name: String, val formulaRole: Strin
 
 }
 
-data class FofAnnotatedFormula(override val name: String, val formulaRole: String, val formula: Formula<*>) : AnnotatedFormula() {
+data class FofAnnotatedFormula(override val name: String, val formulaRole: FormulaRoles, val formula: Formula<*>) : AnnotatedFormula() {
 
     companion object : InnerParser<FofAnnotatedFormula> {
         override fun parse(tokenizer: TptpTokenizer): FofAnnotatedFormula {
@@ -150,7 +150,7 @@ data class FofAnnotatedFormula(override val name: String, val formulaRole: Strin
                     tokenizer.popToken().also {
                         TptpTokenizer.ensure(",", tokenizer.popToken())
                     },
-                    tokenizer.popToken().also {
+                    FormulaRoles.valueOf(tokenizer.popToken()).also {
                         TptpTokenizer.ensure(",", tokenizer.popToken())
                     },
                     TptpFofFof.parse(tokenizer).also {

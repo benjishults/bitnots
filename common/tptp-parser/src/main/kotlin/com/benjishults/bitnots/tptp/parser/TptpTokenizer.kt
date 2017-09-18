@@ -28,6 +28,9 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
 
     private var lineNo: Int = 0
 
+    /**
+     * TODO document what this really is
+     */
     private var nextChar: Int = -1
     private var line: BufferedReader? = null
     private var atStartOfLine = true
@@ -104,23 +107,26 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
                 it in keywords
             } ?: error(finishMessage("Keyword expected"))
 
-
     fun finishMessage(begin: String) = begin + " at line $lineNo or $fileName."
 
     private fun readOperator(): String = buildOperator(nextChar.toChar().toString())
 
-    private fun buildOperator(operator: String): String =
-            nextChar().takeIf { it != -1 }?.let { char ->
+    tailrec private fun buildOperator(operator: String): String =
+            nextChar().takeIf {
+                it != -1
+            }?.let { char ->
                 (operator + char.toChar().toString()).let {
                     if (operators.any { op -> op.startsWith(it) }) {
                         return buildOperator(it)
                     } else if (operator in operators) {
-                        return operator
+                        operator
                     } else {
                         error(finishMessage("Unexpected operator '$it'"))
                     }
                 }
-            } ?: operator.takeIf { it in operators } ?: error(finishMessage("Unexpected end of stream at '$operator'"))
+            } ?: operator.takeIf {
+                it in operators
+            } ?: error(finishMessage("Unexpected end of stream at '$operator'"))
 
     /**
      * allows to backup up to a single token

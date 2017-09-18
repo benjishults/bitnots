@@ -39,6 +39,11 @@
             <artifactId>test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>tptp-parser</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

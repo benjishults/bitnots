@@ -33,6 +33,11 @@
 
             <dependency>
                 <groupId>com.benjishults.bitnots</groupId>
+                <artifactId>tptp-parser</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.benjishults.bitnots</groupId>
                 <artifactId>theory</artifactId>
                 <version>${project.version}</version>
             </dependency>

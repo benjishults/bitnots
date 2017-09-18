@@ -22,8 +22,8 @@
         <module>theory</module>
 <!-- 
         <module>file-parser</module>
-        <module>tptp-parser</module>
  -->
+        <module>tptp-parser</module>
         <module>inference</module>
         <module>engine</module>
     </modules>
