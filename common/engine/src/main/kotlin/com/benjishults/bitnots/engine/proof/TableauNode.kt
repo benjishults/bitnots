@@ -20,9 +20,7 @@ interface TableauNode {
 open class PropositionalTableauNode(
         override val newFormulas: MutableList<SignedFormula<Formula<*>>> = mutableListOf(),
         parent: PropositionalTableauNode?
-) : TreeNode by TreeNodeImpl(parent), TableauNode {
-
-    var closed: Boolean = newFormulas.any { it is ClosingFormula } || hasCriticalPair()
+) : TreeNodeImpl(parent), TableauNode {
 
     // starts as proper ancestors and new ones are added after processing
     // TODO see if I can get rid of this or improve it with shared structure
@@ -33,6 +31,7 @@ open class PropositionalTableauNode(
             })
         }
     }
+
     val initialClosers by lazy {
         mutableListOf<Substitution>()
     }
@@ -43,13 +42,18 @@ open class PropositionalTableauNode(
         generateClosers()
         allFormulas.addAll(newFormulas)
     }
+    
+    private var _closed = false
+
+    val closed: Boolean
+        get() = _closed || newFormulas.any { it is ClosingFormula } || hasCriticalPair()
 
     override fun isClosed(): Boolean {
         if (closed ||
                 (children.isNotEmpty() && children.all {
                     (it as PropositionalTableauNode).isClosed()
                 })) {
-            closed = true
+            _closed = true
             return true
         } else
             return false

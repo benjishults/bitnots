@@ -1,3 +1,5 @@
+package com.benjishults.bitnots.theory
+
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.ForAll
 import com.benjishults.bitnots.model.formulas.fol.Pred

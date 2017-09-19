@@ -1,3 +1,5 @@
+package com.benjishults.bitnots.engine
+
 import com.benjishults.bitnots.model.terms.Const
 import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn

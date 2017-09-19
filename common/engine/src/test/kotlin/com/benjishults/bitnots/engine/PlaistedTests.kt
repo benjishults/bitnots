@@ -1,6 +1,5 @@
 package com.benjishults.bitnots.engine
 
-import NoCount
 import com.benjishults.bitnots.engine.proof.FolTableau
 import com.benjishults.bitnots.engine.proof.FolTableauNode
 import com.benjishults.bitnots.inference.rules.SignedFormula
@@ -13,10 +12,12 @@ import com.benjishults.bitnots.tptp.parser.FofAnnotatedFormula
 import com.benjishults.bitnots.tptp.parser.TptpParser
 import org.junit.Assert
 import org.junit.Test
+import org.junit.Ignore
 
 class PlaistedTests {
 
     @Test
+    @Ignore
     fun testFofPlaisted() {
         try {
             val path = TptpFileFetcher.findProblemFile(TptpDomain.PLA, TptpFormulaForm.FOF, 34, 1)

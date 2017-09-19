@@ -8,17 +8,17 @@ import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
 
-interface Tableau<out T : TableauNode> {
-    val root: T
+interface Tableau {
+    val root: TableauNode
     fun isClosed() = root.isClosed()
     fun step(): Boolean
 
 
 }
 
-open class PropositionalTableau<T : PropositionalTableauNode>(
-        override val root: T
-) : Tableau<T> {
+open class PropositionalTableau(
+        override open val root: PropositionalTableauNode
+) : Tableau {
     override fun toString(): String {
         return buildString {
             root.preOrderWithPath<PropositionalTableauNode> { n, path ->
@@ -57,7 +57,7 @@ open class PropositionalTableau<T : PropositionalTableauNode>(
 
 }
 
-open class FolTableau(root: FolTableauNode) : PropositionalTableau<FolTableauNode>(root) {
+open class FolTableau(override val root: FolTableauNode) : PropositionalTableau(root) {
 
     private fun createInitialSubstitutions() {
 //        root.dep { node ->
