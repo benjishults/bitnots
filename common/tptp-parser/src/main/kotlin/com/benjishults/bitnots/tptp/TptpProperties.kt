@@ -9,8 +9,8 @@ import java.util.Properties
 object TptpProperties : Properties() {
 
     init {
-        val tptpHome = System.getProperty("tptpHome") ?: System.getenv("TPTP_HOME")
-        load(File(tptpHome + File.pathSeparator + "tptp.properties").reader().buffered())
+        val config = System.getProperty("config") ?: "src/main/resources"
+        load(File(config + File.separator + "tptp.properties").reader().buffered())
     }
 
     fun getBaseFolderName() = get("tptp.base.folder")

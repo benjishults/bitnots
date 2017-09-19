@@ -3,11 +3,11 @@ package com.benjishults.bitnots.tptp.parser
 import java.io.BufferedReader
 
 /**
- * The client is expected to close the reader.
+ * The client is expected to close the reader.  This class is not thread safe.
  * @param predicates a map from predicate names to arity.  Propositional variables have arity 0.
  * @param functions a map from function names to arity.  Constants have arity 0.
  */
-class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val predicates: Map<String, Int> = emptyMap(), val functions: Map<String, Int> = emptyMap()) {
+class TptpTokenizer(private val reader: BufferedReader, val fileName: String) { //, val predicates: Map<String, Int> = emptyMap(), val functions: Map<String, Int> = emptyMap()) {
 
     companion object {
         private val keywords = arrayOf("fof", "cnf", "thf", "tff", "include")
@@ -18,7 +18,7 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
         private val operatorStartChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+')
         private val operatorChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+', '>', '-')
 
-        private val predicates = arrayOf("!=", "\$true", "\$false")
+        //        private val predicates = arrayOf("!=", "\$true", "\$false")
         fun ensure(expected: String, actual: String, message: String = "Expected '$expected' but found '$actual'.") =
                 if (actual != expected)
                     error(message)
@@ -28,10 +28,10 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
 
     private var lineNo: Int = 0
 
-    /**
-     * TODO document what this really is
-     */
-    private var nextChar: Int = -1
+    // this will be the value of the last call to popChar()
+    private var lastChar: Int = -1
+    // after the first call to popChar(), this will always be the value that will next be returned by popChar().
+    private var peekChar: Int = -1
     private var line: BufferedReader? = null
     private var atStartOfLine = true
     private var backup: String? = null
@@ -43,20 +43,24 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
     }
 
     /**
-     * moves the cursor to the beginning of the next line
+     * After a call here, peekChar will return the first character of the next line.
      */
     private fun nextLine() {
+        line?.close()
         line = reader.readLine()?.reader()?.buffered()
         lineNo++
-        nextChar()
+        // this will clear out what would have been the next char and prepares us for the new line
+        popChar()
         atStartOfLine = true
     }
 
     /**
      * moves the cursor to the next character in the stream.  This will skip newlines.
+     * The first call to this will erroneously return -1 so we get that out of the way in initialization.
      */
-    private fun nextChar(): Int {
-        nextChar = line?.let { line ->
+    private fun popChar(): Int {
+        lastChar = peekChar
+        peekChar = line?.let { line ->
             line.read().takeIf {
                 it != -1
             }?.also {
@@ -64,40 +68,42 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
             } ?: run {
                 atStartOfLine = true
                 generateSequence {
+                    line.close()
                     this.line = reader.readLine()?.reader()?.buffered()
                     lineNo++
                     this.line.let { line ->
                         if (line === null) {
-                            this.nextChar = -1
+                            peekChar = -1
                             null
                         } else {
                             line.read().let {
                                 if (it == -1) {
                                     -1
                                 } else {
-                                    nextChar = it
+                                    peekChar = it
                                     null
                                 }
                             }
                         }
                     }
                 }.forEach {}
-                nextChar
+                peekChar
             } // can't be null
         } ?: -1
-        return nextChar
+        return lastChar
     }
 
+    // This will move the cursor (if necessary) so that peekChar is a non-whitespace.  Only works after the first call to popChar().
     private tailrec fun skipWhitespace() {
-        if (nextChar == -1)
+        if (peekChar == -1)
             return
-        else if (atStartOfLine && nextChar.toChar() == '%') {
+        else if (atStartOfLine && peekChar.toChar() == '%') {
             nextLine()
             return skipWhitespace()
-        } else if (!nextChar.toChar().isWhitespace())
+        } else if (!peekChar.toChar().isWhitespace())
             return
         else {
-            nextChar()
+            popChar()
             return skipWhitespace()
         }
     }
@@ -107,26 +113,28 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
                 it in keywords
             } ?: error(finishMessage("Keyword expected"))
 
-    fun finishMessage(begin: String) = begin + " at line $lineNo or $fileName."
+    fun finishMessage(begin: String) = begin + " at line $lineNo of $fileName."
 
-    private fun readOperator(): String = buildOperator(nextChar.toChar().toString())
+    private fun readOperator(): String = buildOperator(popChar().toChar().toString())
 
-    tailrec private fun buildOperator(operator: String): String =
-            nextChar().takeIf {
-                it != -1
-            }?.let { char ->
-                (operator + char.toChar().toString()).let {
-                    if (operators.any { op -> op.startsWith(it) }) {
-                        return buildOperator(it)
-                    } else if (operator in operators) {
-                        operator
-                    } else {
-                        error(finishMessage("Unexpected operator '$it'"))
-                    }
-                }
-            } ?: operator.takeIf {
-                it in operators
-            } ?: error(finishMessage("Unexpected end of stream at '$operator'"))
+    tailrec private fun buildOperator(operator: String): String {
+        val nextChar = popChar()
+        if (nextChar != -1) {
+            val longerOperator = operator + nextChar.toChar().toString()
+            if (operators.any { op -> op.startsWith(longerOperator) }) {
+                return buildOperator(longerOperator)
+            } else if (longerOperator == InnerParser.inequality) {
+                return longerOperator
+            } else if (operator in operators) {
+                return operator
+            } else {
+                error(finishMessage("Unexpected operator '$longerOperator'"))
+            }
+        } else if (operator in operators)
+            return operator
+        else
+            error(finishMessage("Unexpected end of stream at '$operator'"))
+    }
 
     /**
      * allows to backup up to a single token
@@ -138,10 +146,11 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
 
     fun peek(): String = backup ?: popToken().also { backup() }
 
+    // only works after first call to popChar() so we take care of that in the initializer.
     fun popToken(): String {
         return backup?.also { backup = null } ?: run {
-            check(nextChar != -1) { finishMessage(UNEXPECTED_END_OF_INPUT) }
-            nextChar.toChar().let {
+            check(peekChar != -1) { finishMessage(UNEXPECTED_END_OF_INPUT) }
+            peekChar.toChar().let {
                 when (it) {
                     in operatorStartChars -> {
                         readOperator()
@@ -149,15 +158,15 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
                     '\'' -> {
                         // return value should not contain the outer single quotes
 //                        TODO("one or more of ([\\40-\\46\\50-\\133\\135-\\176]|[\\\\]['\\\\]) followed by '")
-                        nextChar()
+                        popChar()
                         buildString {
                             append(readAlphaNumeric())
-                            while (nextChar.toChar() != '\'') {
-//                                append(nextChar.toChar())
+                            while (peekChar != -1 && peekChar.toChar() != '\'') {
+                                append(popChar().toChar())
                                 append(readAlphaNumeric())
                             }
-                        }.also {
-                            nextChar()
+                            if (peekChar != -1 && peekChar.toChar() == '\'')
+                                popChar()
                         }
                     }
                     '"' -> {
@@ -175,7 +184,7 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
                         readAlphaNumeric()
                     }
                     in punctuation -> {
-                        nextChar()
+                        popChar()
                         it.toString()
                     }
                     in '0'..'9' -> {
@@ -196,7 +205,7 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
         }
     }
 
-    fun hasNextToken(): Boolean = backup !== null || nextChar != -1
+    fun hasNextToken(): Boolean = backup !== null || peekChar != -1
 
     /**
      * moves the cursor past the next unmatched close paren from here
@@ -213,6 +222,7 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
                     }
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -243,34 +253,29 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
 
     private fun readAlphaNumeric(): String =
             buildString {
-                append(nextChar.toChar())
-                while (nextChar().let {
+                while (peekChar.let {
                     if (it == -1) {
                         false
                     } else
                         it.toChar().let {
                             when (it) {
                                 in 'a'..'z' -> {
-                                    append(it)
+                                    append(popChar().toChar())
                                     true
                                 }
                                 in 'A'..'Z' -> {
-                                    append(it)
+                                    append(popChar().toChar())
                                     true
                                 }
                                 '_' -> {
-                                    append(it)
+                                    append(popChar().toChar())
                                     true
                                 }
                                 in '0'..'9' -> {
-                                    append(it)
+                                    append(popChar().toChar())
                                     true
                                 }
-                                in punctuation -> {
-                                    false
-                                }
                                 else -> {
-                                    skipWhitespace()
                                     false
                                 }
                             }
@@ -281,22 +286,17 @@ class TptpTokenizer(val reader: BufferedReader, val fileName: String) { //, val 
 
     private fun readNumber(): String =
             buildString {
-                append(nextChar.toChar())
-                while (nextChar().let {
+                while (peekChar.let {
                     if (it == -1) {
                         false
                     } else
                         it.toChar().let {
                             when (it) {
                                 in '0'..'9' -> {
-                                    append(it)
+                                    append(popChar().toChar())
                                     true
                                 }
-                                in punctuation -> {
-                                    false
-                                }
                                 else -> {
-                                    skipWhitespace()
                                     false
                                 }
                             }

@@ -23,8 +23,9 @@ interface InnerParser<out T> {
         val punctuation = arrayOf("(", ")", ",", ".", "[", "]", ":")
         val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<->", "~|", "~&", "*", "+")
         val binaryConnective = arrayOf("<=>", "=>", "<=", "<->", "~|", "~&")
+        val inequality = "!="
         val unitaryFormulaInitial = arrayOf("?", "!", "~", "(")
-        val predicates = arrayOf("!=", "\$true", "\$false")
+//        val predicates = arrayOf("!=", "\$true", "\$false")
     }
 
     fun parse(tokenizer: TptpTokenizer): T

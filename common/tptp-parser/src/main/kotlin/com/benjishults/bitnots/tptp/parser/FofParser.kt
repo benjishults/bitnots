@@ -70,63 +70,84 @@ object TptpFofFof : FofInnerParser<Formula<*>> {
 object TptpLogicFof : FofInnerParser<TptpFormulaWrapper> {
     override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): TptpFormulaWrapper =
             tokenizer.peek().let {
-                if (it.first().isLetter() || it in InnerParser.unitaryFormulaInitial) {
-                    generateSequence(TptpUnitaryFof.parse(tokenizer, bvs) to BinaryConnector.NoConnector as BinaryConnector) { (formWrapper, bin) ->
+                if (it.first().isLetter()) {
+                    // this could be an inequality so, parse a functor, check the next thing, and behave appropriately
+                    Functor.parse(tokenizer).let { first ->
                         tokenizer.peek().let {
-                            BinaryConnector.forString(it)?.let { connector ->
-                                if (bin === BinaryConnector.NoConnector) {
+                            when (it) {
+                                "!=" -> {
                                     tokenizer.popToken()
-                                    TptpUnitaryFof.parse(tokenizer, bvs) to connector
-                                } else if (connector === bin) {
-                                    if (bin is BinaryConnector.AssociativeBinaryConnector) {
-                                        tokenizer.popToken()
-                                        TptpUnitaryFof.parse(tokenizer, bvs) to bin
-                                    } else {
-                                        error(tokenizer.finishMessage("The connector '$connector' is not associative"))
-                                    }
-                                } else {
-                                    error(tokenizer.finishMessage("Expected '$bin.connector' but found '$connector.connector'"))
+                                    TptpFormulaWrapper(Not(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs))), Unary)
                                 }
-                            } ?: if (it == ")" || it == ",") {
-                                null
-                            } else {
-                                error(tokenizer.finishMessage("Unexpected: '$it'"))
+                                else -> {
+                                    // TODO check whether I ever use the second component of the formWrapper
+                                    parseAfterUnitaryFormula(first.toFormula(bvs), tokenizer, bvs)
+                                }
                             }
                         }
-                    }.toList().run {
-                        when (last().second) {
-                            BinaryConnector.NoConnector ->
-                                TptpFormulaWrapper(first().first.formula, Atomic)
-
-                            BinaryConnector.OrConnector ->
-                                TptpFormulaWrapper(Or(*this.map {
-                                    it.first.formula
-                                }.toTypedArray()), Assoc)
-                            BinaryConnector.AndConnector ->
-                                TptpFormulaWrapper(And(*this.map {
-                                    it.first.formula
-                                }.toTypedArray()), Assoc)
-
-                            BinaryConnector.IffConnector ->
-                                TptpFormulaWrapper(Iff(first().first.formula, last().first.formula), NonAssoc)
-                            BinaryConnector.NandConnector ->
-                                TptpFormulaWrapper(Not(And(first().first.formula, last().first.formula)), NonAssoc)
-                            BinaryConnector.NorConnector ->
-                                TptpFormulaWrapper(Not(Or(first().first.formula, last().first.formula)), NonAssoc)
-                            BinaryConnector.XorConnector ->
-                                TptpFormulaWrapper(Not(Iff(first().first.formula, last().first.formula)), NonAssoc)
-                            BinaryConnector.ReverseImpliesConnector ->
-                                TptpFormulaWrapper(Implies(last().first.formula, first().first.formula), NonAssoc)
-                            BinaryConnector.ImpliesConnector ->
-                                TptpFormulaWrapper(Implies(first().first.formula, last().first.formula), NonAssoc)
-                            else ->
-                                error(tokenizer.finishMessage("Should not be possible"))
-                        }
                     }
+                } else if (it in InnerParser.unitaryFormulaInitial) {
+                    parseAfterUnitaryFormula(TptpUnitaryFof.parse(tokenizer, bvs), tokenizer, bvs)
                 } else {
                     error(tokenizer.finishMessage("Unexpected character at beginning of logic FOF: '${it}'"))
                 }
             }
+}
+
+fun parseAfterUnitaryFormula(initial: TptpFormulaWrapper, tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): TptpFormulaWrapper {
+    // TODO check whether I ever use the second component of the formWrapper
+    return generateSequence(initial to BinaryConnector.NoConnector as BinaryConnector) { (formWrapper, bin) ->
+        tokenizer.peek().let {
+            BinaryConnector.forString(it)?.let { connector ->
+                if (bin === BinaryConnector.NoConnector) {
+                    tokenizer.popToken()
+                    TptpUnitaryFof.parse(tokenizer, bvs) to connector
+                } else if (connector === bin) {
+                    if (bin is BinaryConnector.AssociativeBinaryConnector) {
+                        tokenizer.popToken()
+                        TptpUnitaryFof.parse(tokenizer, bvs) to bin
+                    } else {
+                        error(tokenizer.finishMessage("The connector '$connector' is not associative"))
+                    }
+                } else {
+                    error(tokenizer.finishMessage("Expected '$bin.connector' but found '$connector.connector'"))
+                }
+            } ?: if (it == ")" || it == ",") {
+                null
+            } else {
+                error(tokenizer.finishMessage("Unexpected: '$it'"))
+            }
+        }
+    }.toList().run {
+        when (last().second) {
+            BinaryConnector.NoConnector ->
+                TptpFormulaWrapper(first().first.formula, Atomic)
+
+            BinaryConnector.OrConnector ->
+                TptpFormulaWrapper(Or(*this.map {
+                    it.first.formula
+                }.toTypedArray()), Assoc)
+            BinaryConnector.AndConnector ->
+                TptpFormulaWrapper(And(*this.map {
+                    it.first.formula
+                }.toTypedArray()), Assoc)
+
+            BinaryConnector.IffConnector ->
+                TptpFormulaWrapper(Iff(first().first.formula, last().first.formula), NonAssoc)
+            BinaryConnector.NandConnector ->
+                TptpFormulaWrapper(Not(And(first().first.formula, last().first.formula)), NonAssoc)
+            BinaryConnector.NorConnector ->
+                TptpFormulaWrapper(Not(Or(first().first.formula, last().first.formula)), NonAssoc)
+            BinaryConnector.XorConnector ->
+                TptpFormulaWrapper(Not(Iff(first().first.formula, last().first.formula)), NonAssoc)
+            BinaryConnector.ReverseImpliesConnector ->
+                TptpFormulaWrapper(Implies(last().first.formula, first().first.formula), NonAssoc)
+            BinaryConnector.ImpliesConnector ->
+                TptpFormulaWrapper(Implies(first().first.formula, last().first.formula), NonAssoc)
+            else ->
+                error(tokenizer.finishMessage("Should not be possible"))
+        }
+    }
 }
 
 data class Functor(val cons: String, val args: List<Functor>) {
