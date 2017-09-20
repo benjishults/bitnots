@@ -247,13 +247,13 @@ object QuantifiedFormula : FofInnerParser<VarBindingFormula> {
                     "!" -> {
                         parseBoundVars(tokenizer).let {
                             TptpTokenizer.ensure(":", tokenizer.popToken())
-                            ForAll(TptpUnitaryFof.parse(tokenizer, bvs + it).formula, *it.toTypedArray())
+                            ForAll(*it.toTypedArray(), formula = TptpUnitaryFof.parse(tokenizer, bvs + it).formula)
                         }
                     }
                     "?" -> {
                         parseBoundVars(tokenizer).let {
                             TptpTokenizer.ensure(":", tokenizer.popToken())
-                            ForSome(TptpUnitaryFof.parse(tokenizer, bvs + it).formula, *it.toTypedArray())
+                            ForSome(*it.toTypedArray(), formula = TptpUnitaryFof.parse(tokenizer, bvs + it).formula)
                         }
                     }
                     else -> error(tokenizer.finishMessage("Expecting '!' or '?', got '$it'"))

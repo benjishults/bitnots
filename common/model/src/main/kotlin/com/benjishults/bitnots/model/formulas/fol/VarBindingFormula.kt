@@ -6,29 +6,36 @@ import com.benjishults.bitnots.model.terms.BoundVariable
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
+import kotlin.reflect.KParameter
 
-abstract class VarBindingFormula(cons: FormulaConstructor, val formula: Formula<*>, vararg val variables: BoundVariable) : Formula<FormulaConstructor>(cons) {
+abstract class VarBindingFormula(cons: FormulaConstructor, vararg val variables: BoundVariable, val formula: Formula<*>) : Formula<FormulaConstructor>(cons) {
     override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
         TODO()
     }
 
     init {
-		require(variables.size > 0)
-	}
+        require(variables.size > 0)
+    }
 
-	override fun unify(other: Formula<*>, sub: Substitution): Substitution {
-		TODO()
-	}
+    override fun unify(other: Formula<*>, sub: Substitution): Substitution {
+        TODO()
+    }
 
-	override fun getFreeVariables(): Set<FreeVariable> = formula.getFreeVariables()
+    override fun getFreeVariables(): Set<FreeVariable> = formula.getFreeVariables()
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
-		return formula.getVariablesUnboundExcept(boundVars.plus(variables))
-	}
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
+        return formula.getVariablesUnboundExcept(boundVars.plus(variables))
+    }
 
-	override fun applySub(substitution: Substitution): Formula<FormulaConstructor> {
-		return this::class.constructors.first().call(formula.applySub(substitution), variables)
-	}
+    override fun applySub(substitution: Substitution): Formula<FormulaConstructor> {
+        return this::class.constructors.first().let { cons ->
+            cons.parameters.find { it.name == "formula" }?.let { formulaParam ->
+                cons.parameters.find { it.name == "variables" }?.let { variablesParam ->
+                    cons.callBy(mapOf(formulaParam to formula.applySub(substitution), variablesParam to variables))
+                } ?: error("No variables parameter found")
+            } ?: error("No formula parameter found")
+        }
+    }
 
-	override fun toString(): String = "(${constructor.name} (${variables.joinToString(" ")}) ${formula})"
+    override fun toString(): String = "(${constructor.name} (${variables.joinToString(" ")}) ${formula})"
 }

@@ -15,9 +15,8 @@ class Iff(val first: Formula<*>, val second: Formula<*>) : PropositionalFormula(
         TODO()
     }
 
-    override fun applySub(substitution: Substitution): Formula<FormulaConstructor> {
-        TODO()
-    }
+    override fun applySub(substitution: Substitution): Formula<FormulaConstructor> =
+        Iff(first.applySub(substitution), second.applySub(substitution))
 
 
     override fun getFreeVariables(): Set<FreeVariable> = first.getFreeVariables().union(second.getFreeVariables())

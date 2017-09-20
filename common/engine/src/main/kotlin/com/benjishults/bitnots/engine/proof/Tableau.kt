@@ -1,5 +1,6 @@
 package com.benjishults.bitnots.engine.proof
 
+import java.util.TreeSet
 import com.benjishults.bitnots.engine.unifier.MultiBranchCloser
 import com.benjishults.bitnots.inference.rules.BetaFormula
 import com.benjishults.bitnots.inference.rules.DeltaFormula
@@ -105,10 +106,11 @@ open class FolTableau(override val root: FolTableauNode) : PropositionalTableau(
 
     // TODO make this splice
     private fun applyGamma(): Boolean {
-        var gammas: MutableSet<Pair<GammaFormula<*>, FolTableauNode>> = java.util.TreeSet<Pair<GammaFormula<*>, FolTableauNode>>(Comparator<Pair<GammaFormula<*>, FolTableauNode>> {
-            o1: Pair<GammaFormula<*>, FolTableauNode>?, o2: Pair<GammaFormula<*>, FolTableauNode>? ->
-            o1!!.first.numberOfApplications.compareTo(o2!!.first.numberOfApplications)
-        })
+        var gammas: MutableSet<Pair<GammaFormula<*>, FolTableauNode>> =
+                TreeSet<Pair<GammaFormula<*>, FolTableauNode>>(
+                        Comparator<Pair<GammaFormula<*>, FolTableauNode>> { o1: Pair<GammaFormula<*>, FolTableauNode>?, o2: Pair<GammaFormula<*>, FolTableauNode>? ->
+                            o1!!.first.numberOfApplications.compareTo(o2!!.first.numberOfApplications)
+                        })
         root.breadthFirst<FolTableauNode> { node ->
             gammas.addAll(node.newFormulas.filterIsInstance<GammaFormula<*>>().map {
                 it to node

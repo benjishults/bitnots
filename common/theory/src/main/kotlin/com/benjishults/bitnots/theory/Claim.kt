@@ -18,92 +18,8 @@ import com.benjishults.bitnots.model.terms.Fn
 
 val DEFAULT_MAX_STEPS: Int = 10
 
-//sealed class CountSCRange(
-//        val first: CountSC,
-//        val last: CountSC,
-//        var step: Int = 1
-//) : ClosedRange<CountSC>, Iterator<CountSC> {
-//
-//    override val endInclusive: CountSC
-//        get() = last
-//
-//    override val start: CountSC
-//        get() = first
-//
-//    abstract infix fun step(step: Int): CountSCRange
-//
-//}
-//
-//object EmptyCountSCRange : CountSCRange(OneCount, ZeroCount) {
-//    override fun step(step: Int): CountSCRange = EmptyCountSCRange
-//
-//    override fun next(): CountSC =
-//            throw NoSuchElementException()
-//
-//    override fun hasNext(): Boolean = false
-//}
-//
-//class RationalRange(
-//        first: CountSC,
-//        last: CountSC,
-//        step: Int = 1
-//) : CountSCRange(first, last, step) {
-//    override fun step(step: Int): CountSCRange {
-//        return RationalRange(first, last, step.takeIf { this.step > 0 } ?: -step)
-//    }
-//
-//    init {
-//        check(step != 0) { "step must be nonzero.  was ${step}." }
-//        check(if (step > 0)
-//            first <= last
-//        else
-//            first >= last)
-//    }
-//
-//    private var next: CountSC? = start
-//
-//    override fun next(): CountSC = next?.let {
-//        
-//        (it + step).let {
-//            if (step.isPositive) {
-//                if (it <= last)
-//                    next = it
-//                else
-//                    next = null
-//            } else {
-//                if (it >= last)
-//                    next = it
-//                else
-//                    next = null
-//            }
-//
-//        }
-//        it
-//    } ?: throw NoSuchElementException()
-//
-//    override fun hasNext(): Boolean = next !== null
-//
-//}
-
 sealed class CountSC { // : Comparable<CountSC> {
     abstract fun toInt(): Int
-//    operator fun rangeTo(last: CountSC): CountSCRange {
-//        when (this) {
-//            is Count -> {
-//                when (last) {
-//                    is Count -> {
-//                        if (this.count > last.count) {
-//                            return EmptyCountSCRange
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        if (this > last)
-//            return EmptyRationalRange
-//        else
-//            return RationalRange(this, last)
-//    }
 }
 
 class Count(val count: Int = DEFAULT_MAX_STEPS) : CountSC() {
@@ -113,47 +29,18 @@ class Count(val count: Int = DEFAULT_MAX_STEPS) : CountSC() {
 
 object ZeroCount : CountSC() {
     override fun toInt(): Int = 0
-//    override fun compareTo(other: CountSC): Int =
-//            when (other) {
-//                is Count -> 0.compareTo(other.count)
-//                is ZeroCount -> 0
-//                is OneCount -> -1
-//                is TwoCount -> -2
-//                is NoCount -> throw IllegalArgumentException()
-//            }
 }
 
 object OneCount : CountSC() {
     override fun toInt(): Int = 1
-//    override fun compareTo(other: CountSC): Int =
-//            when (other) {
-//                is Count -> 1.compareTo(other.count)
-//                is ZeroCount -> 1
-//                is OneCount -> 0
-//                is TwoCount -> -1
-//                is NoCount -> throw IllegalArgumentException()
-//            }
 }
 
 object TwoCount : CountSC() {
     override fun toInt(): Int = 2
-//    override fun compareTo(other: CountSC): Int =
-//            when (other) {
-//                is Count -> 2.compareTo(other.count)
-//                is ZeroCount -> 2
-//                is OneCount -> 1
-//                is TwoCount -> 0
-//                is NoCount -> throw IllegalArgumentException()
-//            }
 }
 
 object NoCount : CountSC() {
     override fun toInt(): Int = throw IllegalStateException()
-//    override fun compareTo(other: CountSC): Int =
-//            if (other === NoCount)
-//                0
-//            else
-//                throw IllegalArgumentException()
 }
 
 data class Claim(
@@ -235,25 +122,64 @@ data class Claim(
         val FOL_CLAIMS = arrayOf(
                 Claim(Implies(
                         And(
-                                ForAll(Implies(P_(x), Q_(x)), x),
-                                ForSome(Implies(Q_(y), R_(y)), y)),
-                        ForSome(Implies(P_(z), R_(z)), z)
-                ), steps = Count(16)),
-                Claim(ForAll(ForSome(Implies(And(
-                        P_(a),
-                        E_(a),
-                        Implies(E_(x),
-                                Or(G(x), S(x, f(x)))),
-                        Implies(E_(x2),
-                                Or(G(x2), C_(f(x2)))),
-                        Implies(S(a, y), P_(y))),
-                        Or(
-                                And(P_(x3), G(x3)),
-                                And(P_(x4), C_(x4)))),
-                        x, x2, x3, x4, y), a), steps = Count(8))
+                                ForAll(x,
+                                        formula = Implies(P_(x), Q_(x))),
+                                ForSome(y,
+                                        formula = Implies(Q_(y), R_(y)))),
+                        ForSome(z,
+                                formula = Implies(P_(z), R_(z)))
+                ),
+                        steps = Count(20)),
+                Claim(ForAll(a,
+                        formula = ForSome(x, x2, x3, x4, y,
+                                formula = Implies(And(
+                                        P_(a),
+                                        E_(a),
+                                        Implies(E_(x),
+                                                Or(G(x), S(x, f(x)))),
+                                        Implies(E_(x2),
+                                                Or(G(x2), C_(f(x2)))),
+                                        Implies(S(a, y), P_(y))),
+                                        Or(
+                                                And(P_(x3), G(x3)),
+                                                And(P_(x4), C_(x4)))))),
+                        steps = Count(8)),
+                Claim(Implies(And(
+                        ForSome(x,
+                                formula = P_(x)),
+                        ForSome(x,
+                                formula = Q_(x))
+                ), ForSome(y, formula = And(P_(y), Q_(y)))),
+                        provable = false),
+                Claim(Implies(
+                        ForSome(x,
+                                formula = P_(x)),
+                        ForAll(x,
+                                formula = P_(x))),
+                        provable = false)
+                
                 /*
-                 */
+
+                                   */
         )
+        // this would require some set theory implementation
+//        val isContinuous = Pred("isContinuous", 3)
+//        val projection = Fn("projection", 3)
+//        val product = Fn("product", 2)
+//        val apply = Fn("apply", 2)
+//        val isOpenOnto = Pred("isOpenOnto", 3)
+//        val locallyCompact = Pred("locallyCompact", 1)
+//        val isFinite = Pred("isFinite", 1)
+//        val member = Pred("member", 2)
+//        val compact = Pred("compact", 1)
+//        val X = BV("X")
+//        val A_ = BV("A")
+//        val a_ = BV("a")
+//        
+//        
+//        val LOCALLY_COMPACT = arrayOf(
+//                Claim(Implies(And()), Implies(locallyCompact(product(X, A)))
+//        )
     }
 
 }

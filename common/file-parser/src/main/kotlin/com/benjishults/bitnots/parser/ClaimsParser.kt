@@ -1,7 +1,7 @@
 package com.benjishults.bitnots.parser
 
-import Claim
 import com.benjishults.bitnots.model.formulas.propositional.PropositionalFormula
+import com.benjishults.bitnots.theory.Claim
 import com.benjishults.bitnots.theory.language.Language
 import com.benjishults.bitnots.theory.language.PropositionalLanguage
 import java.io.InputStream

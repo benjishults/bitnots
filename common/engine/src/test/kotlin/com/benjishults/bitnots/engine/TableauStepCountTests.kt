@@ -39,7 +39,8 @@ class TableauStepCountTests {
     private fun <N : TableauNode, T : Tableau> testClaims(
             claims: Array<Claim>,
             tabFactory: (N) -> T,
-            nodeFactory: (MutableList<SignedFormula<Formula<*>>>, N?) -> N) {
+            nodeFactory: (MutableList<SignedFormula<Formula<*>>>, N?) -> N
+    ) {
         for (claim in claims) {
             tabFactory(nodeFactory(ArrayList<SignedFormula<Formula<*>>>().also {
                 it.add(claim.formula.createSignedFormula())
@@ -50,14 +51,24 @@ class TableauStepCountTests {
                         if (tableau.isClosed())
                             break
                         if (!tableau.step())
-                            Assert.fail("Failed to prove ${claim.formula} with unlimited steps.")
+                            if (claim.provable) {
+                                Assert.fail("Failed to prove ${claim.formula} with unlimited steps.")
+                            }
                     }
                 } else {
                     for (step in claim.steps.toInt() downTo 1) {
-                        Assert.assertFalse("${claim.formula} is unexpectedly proved before ${claim.steps.toInt() - step + 1} steps",
-                                tableau.isClosed())
+                        if (tableau.isClosed()) {
+                            Assert.fail("${claim.formula} is unexpectedly proved before ${claim.steps.toInt() - step + 1} steps")
+                        }
                         tableau.step()
                     }
+                }
+                if (claim.provable) {
+                    if (!tableau.isClosed()) {
+                        Assert.fail("Failed to prove ${claim.formula} with ${claim.steps.toInt()} steps.")
+                    }
+                } else if (tableau.isClosed()) {
+                    Assert.fail("Unexpectedly proved ${claim.formula}.")
                 }
             }
         }
