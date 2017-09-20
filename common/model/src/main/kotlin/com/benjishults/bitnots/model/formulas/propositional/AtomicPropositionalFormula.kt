@@ -11,6 +11,7 @@ abstract class AtomicPropositionalFormula(cons: FormulaConstructor) : Propositio
 
 	override fun unify(other: Formula<*>, sub: Substitution): Substitution = if (this == other) sub else NotUnifiable
 	override fun applySub(substitution: Substitution): Formula<FormulaConstructor> = this
+	override fun applySubDestructive(substitution: Substitution): Formula<FormulaConstructor> = this
 
     override fun contains(variable: Variable<*>, sub: Substitution) = false
 

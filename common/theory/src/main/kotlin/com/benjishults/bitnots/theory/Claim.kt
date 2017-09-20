@@ -18,92 +18,8 @@ import com.benjishults.bitnots.model.terms.Fn
 
 val DEFAULT_MAX_STEPS: Int = 10
 
-//sealed class CountSCRange(
-//        val first: CountSC,
-//        val last: CountSC,
-//        var step: Int = 1
-//) : ClosedRange<CountSC>, Iterator<CountSC> {
-//
-//    override val endInclusive: CountSC
-//        get() = last
-//
-//    override val start: CountSC
-//        get() = first
-//
-//    abstract infix fun step(step: Int): CountSCRange
-//
-//}
-//
-//object EmptyCountSCRange : CountSCRange(OneCount, ZeroCount) {
-//    override fun step(step: Int): CountSCRange = EmptyCountSCRange
-//
-//    override fun next(): CountSC =
-//            throw NoSuchElementException()
-//
-//    override fun hasNext(): Boolean = false
-//}
-//
-//class RationalRange(
-//        first: CountSC,
-//        last: CountSC,
-//        step: Int = 1
-//) : CountSCRange(first, last, step) {
-//    override fun step(step: Int): CountSCRange {
-//        return RationalRange(first, last, step.takeIf { this.step > 0 } ?: -step)
-//    }
-//
-//    init {
-//        check(step != 0) { "step must be nonzero.  was ${step}." }
-//        check(if (step > 0)
-//            first <= last
-//        else
-//            first >= last)
-//    }
-//
-//    private var next: CountSC? = start
-//
-//    override fun next(): CountSC = next?.let {
-//        
-//        (it + step).let {
-//            if (step.isPositive) {
-//                if (it <= last)
-//                    next = it
-//                else
-//                    next = null
-//            } else {
-//                if (it >= last)
-//                    next = it
-//                else
-//                    next = null
-//            }
-//
-//        }
-//        it
-//    } ?: throw NoSuchElementException()
-//
-//    override fun hasNext(): Boolean = next !== null
-//
-//}
-
 sealed class CountSC { // : Comparable<CountSC> {
     abstract fun toInt(): Int
-//    operator fun rangeTo(last: CountSC): CountSCRange {
-//        when (this) {
-//            is Count -> {
-//                when (last) {
-//                    is Count -> {
-//                        if (this.count > last.count) {
-//                            return EmptyCountSCRange
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        if (this > last)
-//            return EmptyRationalRange
-//        else
-//            return RationalRange(this, last)
-//    }
 }
 
 class Count(val count: Int = DEFAULT_MAX_STEPS) : CountSC() {
@@ -113,47 +29,18 @@ class Count(val count: Int = DEFAULT_MAX_STEPS) : CountSC() {
 
 object ZeroCount : CountSC() {
     override fun toInt(): Int = 0
-//    override fun compareTo(other: CountSC): Int =
-//            when (other) {
-//                is Count -> 0.compareTo(other.count)
-//                is ZeroCount -> 0
-//                is OneCount -> -1
-//                is TwoCount -> -2
-//                is NoCount -> throw IllegalArgumentException()
-//            }
 }
 
 object OneCount : CountSC() {
     override fun toInt(): Int = 1
-//    override fun compareTo(other: CountSC): Int =
-//            when (other) {
-//                is Count -> 1.compareTo(other.count)
-//                is ZeroCount -> 1
-//                is OneCount -> 0
-//                is TwoCount -> -1
-//                is NoCount -> throw IllegalArgumentException()
-//            }
 }
 
 object TwoCount : CountSC() {
     override fun toInt(): Int = 2
-//    override fun compareTo(other: CountSC): Int =
-//            when (other) {
-//                is Count -> 2.compareTo(other.count)
-//                is ZeroCount -> 2
-//                is OneCount -> 1
-//                is TwoCount -> 0
-//                is NoCount -> throw IllegalArgumentException()
-//            }
 }
 
 object NoCount : CountSC() {
     override fun toInt(): Int = throw IllegalStateException()
-//    override fun compareTo(other: CountSC): Int =
-//            if (other === NoCount)
-//                0
-//            else
-//                throw IllegalArgumentException()
 }
 
 data class Claim(

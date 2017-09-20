@@ -131,6 +131,8 @@ class Predicate private constructor(name: PredicateConstructor, var arguments: L
                 it.applySub(substitution)
             })
 
+    override fun applySubDestructive(substitution: Substitution) = TODO()
+
 //    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>) =
 //            arguments.fold(mutableSetOf<Variable<*>>()) { s, t ->
 //                s.also {

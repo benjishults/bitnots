@@ -6,7 +6,15 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 
-class Implies(val antecedent: Formula<*>, val consequent: Formula<*>) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.implies.name)) {
+class Implies : PropositionalFormula {
+    var antecedent: Formula<*> private set
+    var consequent: Formula<*> private set
+
+    constructor(antecedent: Formula<*>, consequent: Formula<*>) : super(FormulaConstructor.intern(LogicalOperators.implies.name)) {
+        this.antecedent = antecedent
+        this.consequent = consequent
+    }
+
     override fun contains(variable: Variable<*>, sub: Substitution) = antecedent.contains(variable, sub) || consequent.contains(variable, sub)
 
     override fun unify(other: Formula<*>, sub: Substitution): Substitution = TODO()
@@ -17,22 +25,27 @@ class Implies(val antecedent: Formula<*>, val consequent: Formula<*>) : Proposit
 //			else
 //				null
 
-	override fun getFreeVariables(): Set<FreeVariable> = antecedent.getFreeVariables().union(consequent.getFreeVariables())
+    override fun getFreeVariables(): Set<FreeVariable> = antecedent.getFreeVariables().union(consequent.getFreeVariables())
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
-			antecedent.getVariablesUnboundExcept(boundVars).union(consequent.getVariablesUnboundExcept(boundVars))
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
+            antecedent.getVariablesUnboundExcept(boundVars).union(consequent.getVariablesUnboundExcept(boundVars))
 
 	override fun applySub(substitution: Substitution): Implies {
 		return Implies(antecedent.applySub(substitution), consequent.applySub(substitution))
 	}
 
-	override fun toString() = "(${constructor.name} ${antecedent} ${consequent})"
-	override fun equals(other: Any?): Boolean {
-		if (other === null) return false
-		if (other::class === this::class) {
-			return (other as Implies).antecedent == antecedent && other.consequent == consequent
-		}
-		return false
-	}
+    override fun applySubDestructive(substitution: Substitution): Implies =
+            this.also {
+                antecedent.applySub(substitution); consequent.applySub(substitution)
+            }
+
+    override fun toString() = "(${constructor.name} ${antecedent} ${consequent})"
+    override fun equals(other: Any?): Boolean {
+        if (other === null) return false
+        if (other::class === this::class) {
+            return (other as Implies).antecedent == antecedent && other.consequent == consequent
+        }
+        return false
+    }
 
 }

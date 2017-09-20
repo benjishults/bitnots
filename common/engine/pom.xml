@@ -42,6 +42,7 @@
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>tptp-parser</artifactId>
+            <!-- TODO do something about this -->
 <!--             <scope>test</scope> -->
         </dependency>
     </dependencies>

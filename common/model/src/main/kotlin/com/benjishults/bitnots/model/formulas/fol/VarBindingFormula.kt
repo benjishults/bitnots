@@ -13,22 +13,26 @@ abstract class VarBindingFormula(cons: FormulaConstructor, val formula: Formula<
     }
 
     init {
-		require(variables.size > 0)
-	}
+        require(variables.size > 0)
+    }
 
-	override fun unify(other: Formula<*>, sub: Substitution): Substitution {
-		TODO()
-	}
+    override fun unify(other: Formula<*>, sub: Substitution): Substitution {
+        TODO()
+    }
 
-	override fun getFreeVariables(): Set<FreeVariable> = formula.getFreeVariables()
+    override fun getFreeVariables(): Set<FreeVariable> = formula.getFreeVariables()
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
-		return formula.getVariablesUnboundExcept(boundVars.plus(variables))
-	}
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
+        return formula.getVariablesUnboundExcept(boundVars.plus(variables))
+    }
 
-	override fun applySub(substitution: Substitution): Formula<FormulaConstructor> {
-		return this::class.constructors.first().call(formula.applySub(substitution), variables)
-	}
+    override fun applySub(substitution: Substitution): Formula<FormulaConstructor> {
+        return this::class.constructors.first().call(formula.applySub(substitution), variables)
+    }
 
-	override fun toString(): String = "(${constructor.name} (${variables.joinToString(" ")}) ${formula})"
+    override fun applySubDestructive(substitution: Substitution): Formula<FormulaConstructor> {
+        TODO()
+    }
+
+    override fun toString(): String = "(${constructor.name} (${variables.joinToString(" ")}) ${formula})"
 }

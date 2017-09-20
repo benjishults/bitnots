@@ -19,6 +19,10 @@ class Iff(val first: Formula<*>, val second: Formula<*>) : PropositionalFormula(
         TODO()
     }
 
+    override fun applySubDestructive(substitution: Substitution): Formula<FormulaConstructor> {
+        TODO()
+    }
+    
 
     override fun getFreeVariables(): Set<FreeVariable> = first.getFreeVariables().union(second.getFreeVariables())
 

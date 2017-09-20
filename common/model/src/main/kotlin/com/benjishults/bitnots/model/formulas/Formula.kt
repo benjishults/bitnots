@@ -7,8 +7,16 @@ import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class Formula<C : FormulaConstructor>(val constructor: C) {
     abstract fun unify(other: Formula<*>, sub: Substitution = EmptySub): Substitution
+    /**
+     * 
+     */
     abstract fun applySub(substitution: Substitution): Formula<C>
 
+    /**
+     * 
+     */
+    abstract fun applySubDestructive(substitution: Substitution): Formula<C>
+    
     abstract fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>>
     abstract fun getFreeVariables(): Set<FreeVariable>
 

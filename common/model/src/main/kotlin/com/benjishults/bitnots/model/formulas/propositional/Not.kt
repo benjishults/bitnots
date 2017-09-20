@@ -12,21 +12,25 @@ class Not(val argument: Formula<*>) : PropositionalFormula(FormulaConstructor.in
 
     override fun unify(other: Formula<*>, sub: Substitution): Substitution = if (other is Not) argument.unify(other.argument, sub) else NotUnifiable
 
-	override fun getFreeVariables(): Set<FreeVariable> = argument.getFreeVariables()
+    override fun getFreeVariables(): Set<FreeVariable> = argument.getFreeVariables()
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = argument.getVariablesUnboundExcept(boundVars)
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = argument.getVariablesUnboundExcept(boundVars)
 
-	override fun applySub(substitution: Substitution): Not {
-		return Not(argument.applySub(substitution))
-	}
+    override fun applySub(substitution: Substitution): Not {
+        return Not(argument.applySub(substitution))
+    }
 
-	override fun equals(other: Any?): Boolean {
-		if (other === null) return false
-		if (other::class === this::class) {
-			return (other as Not).argument == argument
-		}
-		return false
-	}
+    override fun applySubDestructive(substitution: Substitution): Not {
+        TODO()
+    }
 
-	override fun toString() = "(${constructor.name} ${argument})"
+    override fun equals(other: Any?): Boolean {
+        if (other === null) return false
+        if (other::class === this::class) {
+            return (other as Not).argument == argument
+        }
+        return false
+    }
+
+    override fun toString() = "(${constructor.name} ${argument})"
 }
