@@ -19,16 +19,24 @@ sealed class Variable<C : TermConstructor>(name: C) : Term<C>(name) {
                 setOf(this)
 
     override fun toString(): String = cons.name
+
+    override fun hashCode(): Int = cons.name.hashCode()
+
+    override fun equals(other: Any?): Boolean =
+            other !== null && other::class === this::class &&
+                    cons.name.equals((other as Variable<*>).cons.name)
+
 }
 
 class BoundVariable private constructor(name: String) : Variable<BVConstructor>(BVConstructor(name)) {
+
     override fun containsInternal(variable: Variable<*>, sub: Substitution): Boolean {
         TODO()
     }
 
     class BVConstructor(name: String) : TermConstructor(name)
 
-    override fun unify(other: Term<*>, sub: Substitution): Substitution =
+    override fun unifyUnchached(other: Term<*>, sub: Substitution): Substitution =
             if (other === this)
                 sub
             else
@@ -60,10 +68,10 @@ class FreeVariable private constructor(name: String) : Variable<FVConstructor>(F
 
     class FVConstructor(name: String) : TermConstructor(name)
 
-    override fun unify(other: Term<*>, sub: Substitution): Substitution {
+    override fun unifyUnchached(other: Term<*>, sub: Substitution): Substitution {
         sub[this].let {
             if (it !== this)
-                return it.unify(other, sub)
+                return Term.unify(it, other, sub)
         }
         // INVARIANT: this is not bound by sub
         return if (this === other)
@@ -73,7 +81,7 @@ class FreeVariable private constructor(name: String) : Variable<FVConstructor>(F
         else if (other is FreeVariable)
             sub[other].let {
                 if (it !== other)
-                    it.unify(this, sub)
+                    Term.unify(it, this, sub)
                 else
                     sub + (this to other.applySub(sub))
             }

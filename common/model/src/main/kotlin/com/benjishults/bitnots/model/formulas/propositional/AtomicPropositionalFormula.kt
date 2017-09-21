@@ -9,13 +9,19 @@ import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class AtomicPropositionalFormula(cons: FormulaConstructor) : PropositionalFormula(cons) {
 
-	override fun unify(other: Formula<*>, sub: Substitution): Substitution = if (this == other) sub else NotUnifiable
-	override fun applySub(substitution: Substitution): Formula<FormulaConstructor> = this
+    override fun unifyUnchached(other: Formula<*>, sub: Substitution): Substitution =
+            if (this == other)
+                sub
+            else
+                NotUnifiable
+
+    override fun applySub(substitution: Substitution): Formula<FormulaConstructor> = this
 
     override fun contains(variable: Variable<*>, sub: Substitution) = false
 
-	override fun getFreeVariables(): Set<FreeVariable> = emptySet()
-	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = emptySet()
+    override fun getFreeVariables(): Set<FreeVariable> = emptySet()
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = emptySet()
 
-	override fun equals(other: Any?): Boolean = other === this
+    override fun equals(other: Any?): Boolean = other === this
+    override fun hashCode() = constructor.name.hashCode()
 }

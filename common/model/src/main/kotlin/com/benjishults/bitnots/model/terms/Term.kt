@@ -1,14 +1,27 @@
 package com.benjishults.bitnots.model.terms
 
+import com.benjishults.bitnots.model.util.memoize
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class Term<C : TermConstructor>(val cons: C) {
+
+    companion object {
+        /**
+         * Returns the substitution
+         */
+        val unify = object : (Term<*>, Term<*>, Substitution) -> Substitution {
+            override fun invoke(first: Term<*>, second: Term<*>, sub: Substitution): Substitution {
+                return first.unifyUnchached(second, sub)
+            }
+        }.memoize()
+    }
+
     /**
      * The behavior of this function is undefined if [sub] is not idempotent or if [sub] has not been applied to both the receiver and [other].
      * This returns an idempotent most general unifier of the receiver and [other] or [NotUnifiable] if there is no unifier.
      */
-    abstract fun unify(other: Term<*>, sub: Substitution = EmptySub): Substitution
+    protected abstract fun unifyUnchached(other: Term<*>, sub: Substitution = EmptySub): Substitution
 
     abstract fun applySub(substitution: Substitution): Term<*>
     /**
@@ -29,4 +42,6 @@ abstract class Term<C : TermConstructor>(val cons: C) {
      * maps free variables occurring in the receiver to the number of times the variable occurs in the receiver
      */
     //    abstract fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int>
+    override abstract fun equals(other: Any?): Boolean
+    override abstract fun hashCode(): Int
 }

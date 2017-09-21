@@ -9,7 +9,8 @@ import com.benjishults.bitnots.model.unifier.Substitution
 import kotlin.reflect.KParameter
 
 abstract class VarBindingFormula(cons: FormulaConstructor, vararg val variables: BoundVariable, val formula: Formula<*>) : Formula<FormulaConstructor>(cons) {
-    override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
+
+        override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
         TODO()
     }
 
@@ -17,7 +18,7 @@ abstract class VarBindingFormula(cons: FormulaConstructor, vararg val variables:
         require(variables.size > 0)
     }
 
-    override fun unify(other: Formula<*>, sub: Substitution): Substitution {
+    override fun unifyUnchached(other: Formula<*>, sub: Substitution): Substitution {
         TODO()
     }
 
@@ -38,4 +39,12 @@ abstract class VarBindingFormula(cons: FormulaConstructor, vararg val variables:
     }
 
     override fun toString(): String = "(${constructor.name} (${variables.joinToString(" ")}) ${formula})"
+    
+    override fun hashCode(): Int = variables.contentHashCode() + this::class.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        // this will be tricky
+        TODO()
+    }
+
 }

@@ -6,6 +6,4 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 
-abstract class PropositionalFormula(cons: FormulaConstructor) : Formula<FormulaConstructor>(cons) {
-    override abstract fun equals(other: Any?): Boolean
-}
+abstract class PropositionalFormula(cons: FormulaConstructor) : Formula<FormulaConstructor>(cons)

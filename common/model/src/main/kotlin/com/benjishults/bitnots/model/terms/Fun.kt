@@ -98,11 +98,11 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
                 it.containsInternal(variable, sub)
             }
 
-    override fun unify(other: Term<*>, sub: Substitution): Substitution =
+    override fun unifyUnchached(other: Term<*>, sub: Substitution): Substitution =
             if (other is Function) {
                 if (other.cons === cons) {
                     arguments.foldIndexed(sub) { i, s, t ->
-                        t.unify(other.arguments[i], s).takeIf {
+                        Term.unify(t, other.arguments[i], s).takeIf {
                             it !== NotUnifiable
                         } ?: NotUnifiable
                     }
@@ -110,7 +110,7 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
                     NotUnifiable
                 }
             } else if (other is FreeVariable)
-                other.unify(this, sub)
+                Term.unify(other, this, sub)
             else
                 NotUnifiable
 
@@ -147,7 +147,8 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
                 }
             }
 
-    override fun toString() = "(${cons.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
+    override fun toString() =
+            "(${cons.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
 
     override fun equals(other: Any?): Boolean {
         if (other === null)
@@ -161,5 +162,8 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
         }
         return false
     }
+
+    override fun hashCode(): Int =
+            arguments.toTypedArray().contentHashCode() + cons.name.hashCode()
 
 }

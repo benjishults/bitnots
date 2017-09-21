@@ -7,26 +7,24 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotUnifiable
 import com.benjishults.bitnots.model.unifier.Substitution
 
-class Not(val argument: Formula<*>) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.not.name)) {
+data class Not(val argument: Formula<*>) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.not.name)) {
     override fun contains(variable: Variable<*>, sub: Substitution) = argument.contains(variable, sub)
 
-    override fun unify(other: Formula<*>, sub: Substitution): Substitution = if (other is Not) argument.unify(other.argument, sub) else NotUnifiable
+    override fun unifyUnchached(other: Formula<*>, sub: Substitution): Substitution =
+            if (other is Not)
+                Formula.unify(argument, other.argument, sub)
+            else
+                NotUnifiable
 
-	override fun getFreeVariables(): Set<FreeVariable> = argument.getFreeVariables()
+    override fun getFreeVariables(): Set<FreeVariable> =
+            argument.getFreeVariables()
 
-	override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = argument.getVariablesUnboundExcept(boundVars)
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
+            argument.getVariablesUnboundExcept(boundVars)
 
-	override fun applySub(substitution: Substitution): Not {
-		return Not(argument.applySub(substitution))
-	}
+    override fun applySub(substitution: Substitution): Not =
+            Not(argument.applySub(substitution))
 
-	override fun equals(other: Any?): Boolean {
-		if (other === null) return false
-		if (other::class === this::class) {
-			return (other as Not).argument == argument
-		}
-		return false
-	}
+    override fun toString() = "(${constructor.name} ${argument})"
 
-	override fun toString() = "(${constructor.name} ${argument})"
 }
