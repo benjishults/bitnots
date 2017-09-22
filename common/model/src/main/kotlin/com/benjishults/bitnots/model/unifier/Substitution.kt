@@ -82,6 +82,11 @@ class Sub private constructor(private val map: Map<Variable<*>, Term<*>>) : Subs
                 }
             }
 
+    override fun hashCode(): Int =
+            map.entries.fold(0) { o, p ->
+                o + p.key.hashCode() + p.value.hashCode()
+            }
+
     override fun equals(other: Any?): Boolean {
         // return true if each is more general than the other... i.e. if they are *equivalent*.
         other?.let {

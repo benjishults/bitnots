@@ -40,7 +40,7 @@ fun PredU(name: String, arity: Int = 1): PredicateConstructor {
  */
 class Predicate private constructor(name: PredicateConstructor, var arguments: List<Term<*>>) : Formula<PredicateConstructor>(name) {
 
-        override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
+    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
         TODO()
     }
 
@@ -143,8 +143,8 @@ class Predicate private constructor(name: PredicateConstructor, var arguments: L
     override fun equals(other: Any?): Boolean {
         if (other === null) return false
         if (other::class === this::class) {
-            if ((other as Predicate).arguments.size == this.arguments.size) {
-                for (index in 0..this.arguments.size - 1) {
+            if ((other as Predicate).arguments.size == this.arguments.size && other.constructor === constructor) {
+                for (index in 0..this.arguments.lastIndex) {
                     if (other.arguments[index] != this.arguments[index])
                         return false
                 }
@@ -154,7 +154,6 @@ class Predicate private constructor(name: PredicateConstructor, var arguments: L
         return false
     }
 
-        override fun hashCode(): Int = arguments.toTypedArray().contentHashCode()
-
+    override fun hashCode(): Int = arguments.toTypedArray().contentHashCode() + this.constructor.name.hashCode()
 
 }

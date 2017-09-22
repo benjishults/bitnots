@@ -6,6 +6,7 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotUnifiable
 import com.benjishults.bitnots.model.unifier.Substitution
+import com.benjishults.bitnots.model.unifier.EmptySub
 
 abstract class VarArgPropositionalFormula(cons: FormulaConstructor, vararg val formulas: Formula<*>) : PropositionalFormula(cons) {
     override fun contains(variable: Variable<*>, sub: Substitution): Boolean =
@@ -13,31 +14,29 @@ abstract class VarArgPropositionalFormula(cons: FormulaConstructor, vararg val f
                 it.contains(variable, sub)
             }
 
-    override fun unifyUnchached(other: Formula<*>, sub: Substitution): Substitution {
-        if (other::class === this::class) {
-            val otherOne = other as VarArgPropositionalFormula
-            generateSequence(
-                    0 to otherOne.formulas.asSequence().map { otherForm ->
-                        // sequence of <otherForm, unifier>
-                        otherForm to Formula.unify(formulas[0], otherForm, sub)
-                    }.filter {
-                        it.second !== NotUnifiable
-                    }) { (index, _) ->
-                index + 1 to
-                        otherOne.formulas.asSequence().map { otherForm ->
-                            otherForm to Formula.unify(formulas[index + 1], otherForm, sub)
-                        }.filter {
-                            it.second !== NotUnifiable
+    // Returns a real substitution if there is a unifiable correspondence between the elements of rest and those of remainingOthers under sub
+    private fun unifyHelper(rest: Iterable<Formula<*>>, remainingOthers: List<Formula<*>>, sub: Substitution): Substitution =
+            rest.firstOrNull()?.let { first ->
+                remainingOthers.forEach { otherForm ->
+                    Formula.unify(first, otherForm, sub).let {
+                        if (it !== NotUnifiable) {
+                            unifyHelper(rest.drop(1), remainingOthers - otherForm, it).let {
+                                if (it !== NotUnifiable)
+                                    return it
+                            }
                         }
-            }.forEach { (index, sequence: Sequence<Pair<Formula<*>, Substitution>>) ->
-                sequence.forEach {
-                    // NOTE we know that sequence.all { formula[index].applySub(it.second) == it.first.applySub(it.second)
-                    // TODO see whether formulas.filter {it === formula[index]}.
+                    }
                 }
-            }
-        }
-    }
+                NotUnifiable
+            } ?: sub
 
+    override fun unifyUnchached(other: Formula<*>, sub: Substitution): Substitution =
+            if (other::class === this::class) {
+                val otherOne = other as VarArgPropositionalFormula
+                unifyHelper(Iterable(formulas::iterator), otherOne.formulas.asList(), sub)
+            } else {
+                NotUnifiable
+            }
 
     override fun getFreeVariables(): Set<FreeVariable> =
             formulas.fold(emptySet<FreeVariable>()) { s, t -> s.union(t.getFreeVariables()) }

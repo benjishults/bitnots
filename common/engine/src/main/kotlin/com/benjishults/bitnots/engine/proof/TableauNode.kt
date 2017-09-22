@@ -9,6 +9,7 @@ import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariabl
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.TreeNode
 import com.benjishults.bitnots.model.util.TreeNodeImpl
+import com.benjishults.bitnots.model.unifier.EmptySub
 
 interface TableauNode {
 
@@ -82,7 +83,7 @@ open class PropositionalTableauNode(
             newFormulas.filter {
                 !it.sign
             }.forEach {
-                above.formula.unify(it.formula).let {
+                Formula.unify(above.formula, it.formula, EmptySub).let {
                     initialClosers.add(it)
                 }
             }

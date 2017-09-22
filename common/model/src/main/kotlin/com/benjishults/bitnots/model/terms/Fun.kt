@@ -153,7 +153,7 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
     override fun equals(other: Any?): Boolean {
         if (other === null)
             return false
-        if (other is Function && other.arguments.size == this.arguments.size) {
+        if (other is Function && other.arguments.size == this.arguments.size && other.cons === cons) {
             for (index in 0..this.arguments.size - 1) {
                 if (other.arguments[index] != this.arguments[index])
                     return false
