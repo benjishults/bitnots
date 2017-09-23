@@ -1,123 +1,53 @@
 package com.benjishults.bitnots.engine.proof
 
-import com.benjishults.bitnots.inference.rules.AlphaFormula
-import com.benjishults.bitnots.inference.rules.ClosingFormula
+import com.benjishults.bitnots.engine.proof.strategy.BooleanClosedIndicator
+import com.benjishults.bitnots.engine.proof.strategy.ClosedIndicator
+import com.benjishults.bitnots.engine.proof.strategy.ClosingStrategy
+import com.benjishults.bitnots.engine.proof.strategy.FolUnificationClosingStrategy
+import com.benjishults.bitnots.engine.proof.strategy.InitializingStrategy
+import com.benjishults.bitnots.engine.proof.strategy.PropositionalClosingStrategy
+import com.benjishults.bitnots.engine.proof.strategy.PropositionalInitializationStrategy
+import com.benjishults.bitnots.engine.unifier.MultiBranchCloser
 import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.inference.rules.SimpleSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
+import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.TreeNode
 import com.benjishults.bitnots.model.util.TreeNodeImpl
-import com.benjishults.bitnots.model.unifier.EmptySub
 
-interface TableauNode {
+interface TableauNode<C : ClosedIndicator> : TreeNode {
 
     val newFormulas: MutableList<SignedFormula<Formula<*>>>
     fun isClosed(): Boolean
 
 }
 
-open class PropositionalTableauNode(
-        override val newFormulas: MutableList<SignedFormula<Formula<*>>> = mutableListOf(),
-        parent: PropositionalTableauNode?
-) : TreeNodeImpl(parent), TableauNode {
+abstract class AbstractTableauNode<C : ClosedIndicator>(
+        override val newFormulas: MutableList<SignedFormula<Formula<*>>>,
+        parent: AbstractTableauNode<C>?,
+        val closer: ClosingStrategy<AbstractTableauNode<C>, C>,
+        val init: InitializingStrategy<AbstractTableauNode<C>>
+) : TreeNodeImpl(parent), TableauNode<C> {
 
     // starts as proper ancestors and new ones are added after processing
     // TODO see if I can get rid of this or improve it with shared structure
     val allFormulas = mutableListOf<SignedFormula<Formula<*>>>().also { list ->
-        parent?.toAncestors<PropositionalTableauNode> { node ->
+        parent?.toAncestors<AbstractTableauNode<C>> { node ->
             list.addAll(node.newFormulas.filter {
                 it is SimpleSignedFormula<*>
             })
         }
     }
 
+    override fun isClosed() = closer.checkClosed(this).isCloser()
+
     val initialClosers by lazy {
         mutableListOf<Substitution>()
     }
 
     init {
-        applyAllAlphas()
-        applyRegularity()
-        generateClosers()
-        allFormulas.addAll(newFormulas)
-    }
-    
-    private var _closed = false
-
-    val closed: Boolean
-        get() = _closed || newFormulas.any { it is ClosingFormula } || hasCriticalPair()
-
-    override fun isClosed(): Boolean {
-        if (closed ||
-                (children.isNotEmpty() && children.all {
-                    (it as PropositionalTableauNode).isClosed()
-                })) {
-            _closed = true
-            return true
-        } else
-            return false
-    }
-
-    @Suppress("USELESS_CAST")
-    fun hasCriticalPair(): Boolean {
-        val pos: MutableList<PropositionalVariable> = mutableListOf()
-        val neg: MutableList<PropositionalVariable> = mutableListOf()
-        allFormulas.map {
-            if (it.formula is PropositionalVariable) {
-                if (it.sign)
-                    pos.add(it.formula as PropositionalVariable)
-                else
-                    neg.add(it.formula as PropositionalVariable)
-            }
-        }
-        return pos.any { p -> neg.any { it === p } }
-    }
-
-    // TODO refactor to get more behaviors out of this class
-    private fun generateClosers() {
-        allFormulas.filter {
-            it.sign
-        }.forEach { above ->
-            newFormulas.filter {
-                !it.sign
-            }.forEach {
-                Formula.unify(above.formula, it.formula, EmptySub).let {
-                    initialClosers.add(it)
-                }
-            }
-        }
-    }
-
-    private fun applyAllAlphas() {
-        while (true) {
-            val toAdd: MutableList<SignedFormula<Formula<*>>> = mutableListOf()
-            newFormulas.iterator().let {
-                while (it.hasNext()) {
-                    val current = it.next()
-                    if (current is AlphaFormula) {
-                        it.remove()
-                        toAdd.addAll(current.generateChildren());
-                    }
-                }
-            }
-            if (toAdd.isEmpty())
-                break
-            else
-                newFormulas.addAll(toAdd)
-        }
-    }
-
-    private fun applyRegularity() {
-        newFormulas.iterator().let { iter ->
-            while (iter.hasNext()) {
-                iter.next().let {
-                    if (it in allFormulas)
-                        iter.remove()
-                }
-            }
-        }
+        init.init(this)
     }
 
     override fun toString(): String {
@@ -143,10 +73,74 @@ open class PropositionalTableauNode(
 
 }
 
-open class FolTableauNode(
+class PropositionalTableauNode(
         newFormulas: MutableList<SignedFormula<Formula<*>>> = mutableListOf(),
-        parent: FolTableauNode?
-) : PropositionalTableauNode(newFormulas, parent) {
+        parent: PropositionalTableauNode? = null,
+        closer: ClosingStrategy<AbstractTableauNode<BooleanClosedIndicator>, BooleanClosedIndicator> = PropositionalClosingStrategy(),
+        init: InitializingStrategy<AbstractTableauNode<*>> = PropositionalInitializationStrategy()
+) : AbstractTableauNode<BooleanClosedIndicator>(newFormulas, parent, closer, init) {
+
+    init {
+        allFormulas.addAll(newFormulas)
+    }
+
+//    private var closed = false
+
+//    override fun isClosed(): C {
+//        if (closed ||
+//                (children.isNotEmpty() && children.all {
+//                    (it as C) === Closed
+//                })) {
+//            closed = true
+//            return Closed
+//        } else
+//            return NotClosed
+//    }
+
+//    @Suppress("USELESS_CAST")
+//    open fun hasCriticalPair(): Boolean {
+//        val pos: MutableList<PropositionalVariable> = mutableListOf()
+//        val neg: MutableList<PropositionalVariable> = mutableListOf()
+//        allFormulas.map {
+//            if (it.formula is PropositionalVariable) {
+//                if (it.sign)
+//                    pos.add(it.formula as PropositionalVariable)
+//                else
+//                    neg.add(it.formula as PropositionalVariable)
+//            }
+//        }
+//        return pos.any { p -> neg.any { it === p } }
+//    }
+
+}
+
+class FolTableauNode(
+        newFormulas: MutableList<SignedFormula<Formula<*>>> = mutableListOf(),
+        parent: FolTableauNode? = null,
+        closer: ClosingStrategy<AbstractTableauNode<MultiBranchCloser>, MultiBranchCloser> = FolUnificationClosingStrategy(),
+        init: InitializingStrategy<AbstractTableauNode<MultiBranchCloser>> = PropositionalInitializationStrategy()
+) : AbstractTableauNode<MultiBranchCloser>(newFormulas, parent, closer, init) {
+
+//    override fun isClosed(): FolUnificationClosedIndicator {
+//        TODO()
+//    }
+
+
+    fun generateClosers(node: AbstractTableauNode<*>) {
+        with(node) {
+            allFormulas.filter {
+                it.sign
+            }.forEach { above ->
+                newFormulas.filter {
+                    !it.sign
+                }.forEach {
+                    Formula.unify(above.formula, it.formula, EmptySub).let {
+                        initialClosers.add(it)
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Finds all branch closers at every descendant of the receiver and stores them at the highest node at which all formulas involved occur.

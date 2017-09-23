@@ -1,25 +1,43 @@
 package com.benjishults.bitnots.engine.proof
 
-import java.util.TreeSet
+import com.benjishults.bitnots.engine.proof.strategy.BooleanClosedIndicator
+import com.benjishults.bitnots.engine.proof.strategy.ClosedIndicator
+import com.benjishults.bitnots.engine.proof.strategy.ClosingStrategy
+import com.benjishults.bitnots.engine.proof.strategy.FolStepStrategy
+import com.benjishults.bitnots.engine.proof.strategy.FolUnificationClosingStrategy
+import com.benjishults.bitnots.engine.proof.strategy.InitializingStrategy
+import com.benjishults.bitnots.engine.proof.strategy.PropositionalClosingStrategy
+import com.benjishults.bitnots.engine.proof.strategy.PropositionalInitializationStrategy
+import com.benjishults.bitnots.engine.proof.strategy.PropositionalStepStrategy
+import com.benjishults.bitnots.engine.proof.strategy.StepStrategy
 import com.benjishults.bitnots.engine.unifier.MultiBranchCloser
-import com.benjishults.bitnots.inference.rules.BetaFormula
-import com.benjishults.bitnots.inference.rules.DeltaFormula
-import com.benjishults.bitnots.inference.rules.GammaFormula
-import com.benjishults.bitnots.inference.rules.SignedFormula
-import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
 
-interface Tableau {
-    val root: TableauNode
+interface Tableau<C : ClosedIndicator> {
+
+    val root: TableauNode<C>
     fun isClosed() = root.isClosed()
+    /**
+     * Returns true if the step made a change to the receiver.
+     */
     fun step(): Boolean
-
-
 }
 
-open class PropositionalTableau(
-        override open val root: PropositionalTableauNode
-) : Tableau {
+abstract class AbstractTableau<C : ClosedIndicator>(
+        override val root: TableauNode<C>,
+        val stepStrategy: StepStrategy<Tableau<C>>
+) : Tableau<C> {
+
+    override fun step(): Boolean =
+            stepStrategy.step(this)
+}
+
+class PropositionalTableau(
+        root: PropositionalTableauNode,
+        stepStrategy: StepStrategy<Tableau<BooleanClosedIndicator>> = PropositionalStepStrategy<PropositionalTableauNode> { sf, p: PropositionalTableauNode ->
+            PropositionalTableauNode(sf, p, PropositionalClosingStrategy(), PropositionalInitializationStrategy())
+        }
+) : AbstractTableau<BooleanClosedIndicator>(root, stepStrategy) {
+
     override fun toString(): String {
         return buildString {
             root.preOrderWithPath<PropositionalTableauNode> { n, path ->
@@ -34,100 +52,20 @@ open class PropositionalTableau(
         }
     }
 
-    override fun step(): Boolean {
-        return applyBeta<PropositionalTableauNode> { fs, le -> PropositionalTableauNode(fs, le) }
-    }
-
-    fun <T : PropositionalTableauNode> applyBeta(nodeFactory: (MutableList<SignedFormula<*>>, T) -> T): Boolean {
-        var beta: BetaFormula<Formula<*>>? = null
-        val node = root.breadthFirst<T> {
-            beta = it.newFormulas.firstOrNull { it is BetaFormula<*> } as BetaFormula<*>?
-            beta !== null
-        }
-        if (node === null)
-            return false
-        beta?.let {
-            beta ->
-            node.newFormulas.remove(beta);
-            val leaves = node.allLeaves<T>()
-            leaves.map { leaf -> beta.generateChildren().map { leaf.children.add(nodeFactory(mutableListOf(it), leaf)) } }
-            return true
-        } ?: return false
-    }
-
-
 }
 
-open class FolTableau(override val root: FolTableauNode) : PropositionalTableau(root) {
+class FolTableau(
+        root: FolTableauNode,
+        stepStrategy: StepStrategy<Tableau<*>> = FolStepStrategy { sf, p: FolTableauNode ->
+            FolTableauNode(sf, p, FolUnificationClosingStrategy(), PropositionalInitializationStrategy())
+        }
+) : AbstractTableau<MultiBranchCloser>(root,  stepStrategy) {
 
     private fun createInitialSubstitutions() {
 //        root.dep { node ->
 //        true
 //        }
 
-    }
-
-    fun unify(): MultiBranchCloser? {
-        root.breadthFirst<FolTableauNode> { node ->
-            node.toString()
-            true
-        }
-        return null
-    }
-
-    override fun step(): Boolean =
-            if (!applyDelta() && !applyBeta<FolTableauNode> { fs, le -> FolTableauNode(fs, le) }) {
-                applyGamma()
-            } else {
-                true
-            }
-
-    // TODO make this splice
-    private fun applyDelta(): Boolean {
-        var delta: DeltaFormula<out VarBindingFormula>? = null
-        val node = root.breadthFirst<FolTableauNode> {
-            delta = it.newFormulas.firstOrNull { it is DeltaFormula<*> } as DeltaFormula<*>?
-            delta !== null
-        }
-        if (node === null)
-            return false
-        delta?.let {
-            delta ->
-            node.newFormulas.remove(delta);
-            val leaves = node.allLeaves<FolTableauNode>()
-            leaves.forEach<FolTableauNode> { leaf ->
-                delta.generateChildren().forEach {
-                    leaf.children.add(FolTableauNode(mutableListOf(it), leaf))
-                }
-            }
-            return true
-        } ?: return false
-    }
-
-    // TODO make this splice
-    private fun applyGamma(): Boolean {
-        var gammas: MutableSet<Pair<GammaFormula<*>, FolTableauNode>> =
-                TreeSet<Pair<GammaFormula<*>, FolTableauNode>>(
-                        Comparator<Pair<GammaFormula<*>, FolTableauNode>> { o1: Pair<GammaFormula<*>, FolTableauNode>?, o2: Pair<GammaFormula<*>, FolTableauNode>? ->
-                            o1!!.first.numberOfApplications.compareTo(o2!!.first.numberOfApplications)
-                        })
-        root.breadthFirst<FolTableauNode> { node ->
-            gammas.addAll(node.newFormulas.filterIsInstance<GammaFormula<*>>().map {
-                it to node
-            }) // stop if we get to one that is ready to go
-                    && gammas.first().first.numberOfApplications == 0
-        }
-        gammas.firstOrNull()?.let {
-            (gamma, node) ->
-            gamma.numberOfApplications++
-            val leaves = node.allLeaves<FolTableauNode>()
-            leaves.map { leaf ->
-                gamma.generateChildren().map {
-                    leaf.children.add(FolTableauNode(mutableListOf(it), leaf))
-                }
-            }
-            return true
-        } ?: return false
     }
 
 }

@@ -20,8 +20,7 @@ class TableauStepCountTests {
     fun testProps() {
         testClaims(Claim.PROP_CLAIMS, { n: PropositionalTableauNode ->
             PropositionalTableau(n)
-        }) {
-            forms, p ->
+        }) { forms, p ->
             PropositionalTableauNode(forms, p)
         }
     }
@@ -30,13 +29,12 @@ class TableauStepCountTests {
     fun testFols() {
         testClaims<FolTableauNode, FolTableau>(Claim.FOL_CLAIMS, { n: FolTableauNode ->
             FolTableau(n)
-        }) {
-            forms, p: FolTableauNode? ->
+        }) { forms, p: FolTableauNode? ->
             FolTableauNode(forms, p)
         }
     }
 
-    private fun <N : TableauNode, T : Tableau> testClaims(
+    private fun <N : TableauNode<*>, T : Tableau<*>> testClaims( 
             claims: Array<Claim>,
             tabFactory: (N) -> T,
             nodeFactory: (MutableList<SignedFormula<Formula<*>>>, N?) -> N

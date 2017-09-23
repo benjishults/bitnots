@@ -31,7 +31,7 @@ class TptpSynTests {
         provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 45, 1))
         provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 46, 1))
         provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 47, 1))
-//        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 48, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 48, 1))
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 49, 1))
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 50, 1))
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 51, 1), 1)
@@ -64,7 +64,7 @@ class TptpSynTests {
         proveWithHyps(path, hyps, { l -> FolTableauNode(l, null) }) { FolTableau(it) }
     }
     
-    private fun <N : TableauNode> proveWithHyps(path: Path, hyps: Int, nodeFactory: (MutableList<SignedFormula<Formula<*>>>) -> N, tabFactory: (N) -> Tableau) {
+    private fun <N : TableauNode<*>> proveWithHyps(path: Path, hyps: Int, nodeFactory: (MutableList<SignedFormula<Formula<*>>>) -> N, tabFactory: (N) -> Tableau<*>) {
         try {
             TptpParser.parseFile(path).let { tptp ->
                 tabFactory(
