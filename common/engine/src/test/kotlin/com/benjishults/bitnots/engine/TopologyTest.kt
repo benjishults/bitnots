@@ -16,10 +16,10 @@ import org.junit.Assert
 import org.junit.Ignore
 import org.junit.Test
 
-class TopologyTests {
+class TopologyTest {
 
     @Test
-            //    @Ignore
+    @Ignore
     fun testFofGroups() {
         try {
             val path = TptpFileFetcher.findProblemFile(TptpDomain.TOP, TptpFormulaForm.FOF, 22, 1)
@@ -45,9 +45,4 @@ class TopologyTests {
         }
     }
 
-}
-
-fun main(args: Array<String>) {
-    System.setProperty("config", "/home/bshults/repos/benjishults/bitnots/config")
-    TopologyTests().testFofGroups()
 }

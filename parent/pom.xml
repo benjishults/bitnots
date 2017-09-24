@@ -14,9 +14,30 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.incremental>false</kotlin.compiler.incremental>
-        <kotlin.version>1.1.4-3</kotlin.version>
+        <kotlin.version>1.1.50</kotlin.version>
+        <dokka.version>0.9.15</dokka.version>
         <jackson.version>2.9.0</jackson.version>
     </properties>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jcenter</id>
+            <name>JCenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </pluginRepository>
+<!-- 
+        <pluginRepository>
+            <id>dokka</id>
+            <name>Kotlin Dokka</name>
+            <url>https://dl.bintray.com/kotlin/dokka/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>http://central.maven.org/maven2/</url>
+        </pluginRepository>
+ -->
+    </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>
@@ -114,17 +135,53 @@
                 <artifactId>kotlin-test-junit</artifactId>
                 <version>${kotlin.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-test-junit</artifactId>
-                <version>${kotlin.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <pluginManagement>
             <plugins>
+<!--                 <plugin>
+                    <groupId>org.jetbrains.dokka</groupId>
+                    <artifactId>dokka-maven-plugin</artifactId>
+                    <version>${dokka.version}</version>
+                    <executions>
+                        <execution>
+                            <phase>pre-site</phase>
+                            <goals>
+                                <goal>dokka</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <reportNotDocumented>false</reportNotDocumented>
+                        <jdkVersion>8</jdkVersion>
+                        <sourceLinks>
+                            <link>
+                                <dir>${project.basedir}/src/main/kotlin</dir>
+                                <url>http://github.com/benjishults/bitnots</url>
+                                <urlSuffix>#L</urlSuffix>
+                            </link>
+                        </sourceLinks>
+                    </configuration>
+                </plugin> -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.20.1</version>
+                    <configuration>
+                        <failIfNoTests>false</failIfNoTests>
+                        <systemPropertyVariables>
+                            <config>${project.basedir}/../../config</config>
+                            <buildDirectory>${project.build.directory}</buildDirectory>
+                        </systemPropertyVariables>
+                        <includes>
+                            <include>**/*Test.*</include>
+                        </includes>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <artifactId>kotlin-maven-plugin</artifactId>
                     <groupId>org.jetbrains.kotlin</groupId>
@@ -136,9 +193,7 @@
                                 <goal>compile</goal>
                             </goals>
                             <configuration>
-                                <sourceDirs>
-                                    <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-                                </sourceDirs>
+                                <jvmTarget>1.8</jvmTarget>
                             </configuration>
                         </execution>
                         <execution>
@@ -147,9 +202,7 @@
                                 <goal>test-compile</goal>
                             </goals>
                             <configuration>
-                                <sourceDirs>
-                                    <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
-                                </sourceDirs>
+                                <jvmTarget>1.8</jvmTarget>
                             </configuration>
                         </execution>
                     </executions>

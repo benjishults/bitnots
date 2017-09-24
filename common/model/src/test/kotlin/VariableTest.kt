@@ -1,7 +1,7 @@
 import com.benjishults.bitnots.model.terms.FreeVariable
 import org.junit.Test
 
-class VariableTests {
+class VariableTest {
 	@Test
 	fun testNewVariables() {
 		val names = listOf("a", "b", "c", "d", "e", "f", "a-2", "b-line", "c-")

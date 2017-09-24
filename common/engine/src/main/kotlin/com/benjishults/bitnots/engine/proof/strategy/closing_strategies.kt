@@ -2,7 +2,6 @@ package com.benjishults.bitnots.engine.proof.strategy
 
 import com.benjishults.bitnots.engine.proof.AbstractTableauNode
 import com.benjishults.bitnots.engine.proof.FolTableauNode
-import com.benjishults.bitnots.engine.proof.PropositionalTableauNode
 import com.benjishults.bitnots.engine.proof.Tableau
 import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.engine.unifier.MultiBranchCloser
@@ -13,6 +12,7 @@ import com.benjishults.bitnots.inference.rules.GammaFormula
 import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
+import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
 import java.util.TreeSet
 
 interface ClosedIndicator {
@@ -32,9 +32,23 @@ interface ClosingStrategy<in N : AbstractTableauNode<C>, C : ClosedIndicator> {
 }
 
 open class PropositionalClosingStrategy : ClosingStrategy<AbstractTableauNode<BooleanClosedIndicator>, BooleanClosedIndicator> {
-    override fun checkClosed(node: AbstractTableauNode<BooleanClosedIndicator>): BooleanClosedIndicator {
-        TODO()
-    }
+
+    @Suppress("USELESS_CAST")
+    override fun checkClosed(node: AbstractTableauNode<BooleanClosedIndicator>): BooleanClosedIndicator =
+            with(node) {
+                // TODO might want to cache these or make them easier to access
+                val pos: MutableList<PropositionalVariable> = mutableListOf()
+                val neg: MutableList<PropositionalVariable> = mutableListOf()
+                allFormulas.map {
+                    if (it.formula is PropositionalVariable) {
+                        if (it.sign)
+                            pos.add(it.formula as PropositionalVariable)
+                        else
+                            neg.add(it.formula as PropositionalVariable)
+                    }
+                }
+                pos.any { p -> neg.any { it === p } }.takeIf { it }?.let { Closed } ?: NotClosed
+            }
 }
 
 open class FolUnificationClosingStrategy : ClosingStrategy<AbstractTableauNode<MultiBranchCloser>, MultiBranchCloser> {

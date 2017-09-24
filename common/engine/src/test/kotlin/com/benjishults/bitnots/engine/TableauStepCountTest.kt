@@ -14,7 +14,7 @@ import com.benjishults.bitnots.theory.NoCount
 import org.junit.Assert
 import org.junit.Test
 
-class TableauStepCountTests {
+class TableauStepCountTest {
 
     @Test
     fun testProps() {
@@ -34,7 +34,7 @@ class TableauStepCountTests {
         }
     }
 
-    private fun <N : TableauNode<*>, T : Tableau<*>> testClaims( 
+    private fun <N : TableauNode<*>, T : Tableau<*>> testClaims(
             claims: Array<Claim>,
             tabFactory: (N) -> T,
             nodeFactory: (MutableList<SignedFormula<Formula<*>>>, N?) -> N

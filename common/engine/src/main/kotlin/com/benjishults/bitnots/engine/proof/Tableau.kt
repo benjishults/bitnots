@@ -15,7 +15,9 @@ import com.benjishults.bitnots.engine.unifier.MultiBranchCloser
 interface Tableau<C : ClosedIndicator> {
 
     val root: TableauNode<C>
-    fun isClosed() = root.isClosed()
+    fun isClosed() =
+    // TODO ensure every branch is closed.
+            root.breadthFirst { it.isClosed() } !== null
     /**
      * Returns true if the step made a change to the receiver.
      */

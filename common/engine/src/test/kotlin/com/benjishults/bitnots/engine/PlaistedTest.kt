@@ -14,7 +14,7 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.Ignore
 
-class PlaistedTests {
+class PlaistedTest {
 
 //    @Test
 //    @Ignore

@@ -10,6 +10,16 @@
     <name>BITNOTS</name>
     <description>BITNOTS is the name of this system</description>
 
+    <properties>
+        <config>${project.basedir}/config</config>
+    </properties>
+
+    <scm>
+        <url>https://github.com/benjishults/bitnots</url>
+        <connection>scm:git:https://github.com/benjishults/bitnots.git</connection>
+        <developerConnection>scm:git:https://github.com/benjishults/bitnots.git</developerConnection>
+    </scm>
+
     <modules>
         <module>parent</module>
         <module>common</module>

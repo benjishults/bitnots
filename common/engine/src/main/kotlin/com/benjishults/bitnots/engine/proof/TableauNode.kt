@@ -80,36 +80,8 @@ class PropositionalTableauNode(
         init: InitializingStrategy<AbstractTableauNode<*>> = PropositionalInitializationStrategy()
 ) : AbstractTableauNode<BooleanClosedIndicator>(newFormulas, parent, closer, init) {
 
-    init {
-        allFormulas.addAll(newFormulas)
-    }
-
-//    private var closed = false
-
-//    override fun isClosed(): C {
-//        if (closed ||
-//                (children.isNotEmpty() && children.all {
-//                    (it as C) === Closed
-//                })) {
-//            closed = true
-//            return Closed
-//        } else
-//            return NotClosed
-//    }
-
-//    @Suppress("USELESS_CAST")
-//    open fun hasCriticalPair(): Boolean {
-//        val pos: MutableList<PropositionalVariable> = mutableListOf()
-//        val neg: MutableList<PropositionalVariable> = mutableListOf()
-//        allFormulas.map {
-//            if (it.formula is PropositionalVariable) {
-//                if (it.sign)
-//                    pos.add(it.formula as PropositionalVariable)
-//                else
-//                    neg.add(it.formula as PropositionalVariable)
-//            }
-//        }
-//        return pos.any { p -> neg.any { it === p } }
+//    init {
+//        allFormulas.addAll(newFormulas)
 //    }
 
 }
