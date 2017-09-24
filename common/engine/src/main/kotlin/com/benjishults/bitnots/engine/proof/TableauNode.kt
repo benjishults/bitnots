@@ -40,7 +40,17 @@ abstract class AbstractTableauNode<C : ClosedIndicator>(
         }
     }
 
-    override fun isClosed() = closer.checkClosed(this).isCloser()
+    private var closed = false
+
+    override fun isClosed() =
+            if (closed || closer.checkClosed(this).isCloser() ||
+                    (children.isNotEmpty() && children.all {
+                        (it as PropositionalTableauNode).isClosed()
+                    })) {
+                closed = true
+                true
+            } else
+                false
 
     val initialClosers by lazy {
         mutableListOf<Substitution>()
