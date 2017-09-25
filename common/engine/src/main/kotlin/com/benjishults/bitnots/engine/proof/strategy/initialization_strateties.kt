@@ -3,6 +3,7 @@ package com.benjishults.bitnots.engine.proof.strategy
 import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.inference.rules.AlphaFormula
 import com.benjishults.bitnots.inference.rules.SignedFormula
+import com.benjishults.bitnots.inference.rules.SimpleSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 
 interface InitializingStrategy {
@@ -14,7 +15,7 @@ interface PropositionalInitializingStrategy : InitializingStrategy {
         with(node) {
             applyAllAlphas(node)
             applyRegularity(node)
-            allFormulas.addAll(newFormulas)
+//            allFormulas.addAll(newFormulas)
         }
     }
 
@@ -49,8 +50,11 @@ open class PropositionalInitializationStrategy : PropositionalInitializingStrate
         with(node) {
             newFormulas.iterator().let { iter ->
                 while (iter.hasNext()) {
-                    iter.next().let {
-                        if (it in allFormulas)
+                    iter.next().takeIf {
+                        // TODO might want to allow anything here... make this configurable?
+                        it is SimpleSignedFormula<*>
+                    }.let {
+                        if (it in simpleFormulasAbove)
                             iter.remove()
                     }
                 }

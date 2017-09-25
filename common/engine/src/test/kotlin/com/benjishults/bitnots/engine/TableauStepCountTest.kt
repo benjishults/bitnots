@@ -1,7 +1,7 @@
 package com.benjishults.bitnots.engine
 
-//import com.benjishults.bitnots.engine.proof.FolTableau
-//import com.benjishults.bitnots.engine.proof.FolTableauNode
+import com.benjishults.bitnots.engine.proof.FolTableau
+import com.benjishults.bitnots.engine.proof.FolTableauNode
 import com.benjishults.bitnots.engine.proof.PropositionalTableau
 import com.benjishults.bitnots.engine.proof.PropositionalTableauNode
 import com.benjishults.bitnots.engine.proof.Tableau
@@ -13,6 +13,7 @@ import com.benjishults.bitnots.theory.Claim
 import com.benjishults.bitnots.theory.NoCount
 import org.junit.Assert
 import org.junit.Test
+import org.junit.Ignore
 
 class TableauStepCountTest {
 
@@ -25,14 +26,15 @@ class TableauStepCountTest {
         }
     }
 
-//    @Test
-//    fun testFols() {
-//        testClaims<FolTableauNode, FolTableau>(Claim.FOL_CLAIMS, { n: FolTableauNode ->
-//            FolTableau(n)
-//        }) { forms, p: FolTableauNode? ->
-//            FolTableauNode(forms, p)
-//        }
-//    }
+    @Test
+    @Ignore
+    fun testFols() {
+        testClaims<FolTableauNode, FolTableau>(Claim.FOL_CLAIMS, { n: FolTableauNode ->
+            FolTableau(n)
+        }) { forms, p: FolTableauNode? ->
+            FolTableauNode(forms, p)
+        }
+    }
 
     private fun <N : TableauNode, T : Tableau> testClaims(
             claims: Array<Claim>,

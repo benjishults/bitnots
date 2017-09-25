@@ -56,45 +56,55 @@ class SubstitutionTest {
 
     @Test
     fun substitutionTest() {
+        // not idempotent
         var s1 = Sub(
                 x to f(y),
                 y to z)
+        // not idempotent
+        // vars occur in keys of s1
         var s2 = Sub(
                 x to a,
                 y to b,
                 z to y)
-        var s3 = Sub(
+        // if I allowed non-idempotence or unsafe compositions, I would get the following:
+        /* var s3: Sub = Sub(
                 x to f(b),
-                z to y)
-        Assert.assertEquals(s3, s1 + s2)
+                z to y)*/
+        Assert.assertEquals(NotUnifiable, s1 + s2)
 
+        // not idempotent
         s1 = Sub(
                 x to f(a),
                 y to g(b, z),
                 z to x)
+        // not idempotent
+        // vars occur in keys of s1
         s2 = Sub(
                 x to w,
                 y to h(z),
                 z to a)
-        s3 = Sub(
+/*        s3 = Sub(
                 x to f(a),
                 y to g(b, a),
-                z to w)
-        Assert.assertEquals(s3, s1 + s2)
+                z to w)*/
+        Assert.assertEquals(NotUnifiable, s1 + s2)
 
+        // not idempotent
         s1 = Sub(
                 x to f(a),
                 y to g(b, z),
                 z to x)
+        // not idempotent
+        // vars occur in keys of s1
         s2 = Sub(
                 x to w,
                 y to h(z),
                 z to a)
-        s3 = Sub(
+/*        s3 = Sub(
                 x to f(a),
                 y to q(b, a),
-                z to w)
-        Assert.assertNotEquals(s3, s1 + s2)
+                z to w)*/
+        Assert.assertEquals(NotUnifiable, s1 + s2)
     }
 
     @Test

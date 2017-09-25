@@ -135,6 +135,7 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
 //                s
 //            }
 
+    // simultaneous substitution
     override fun applySub(substitution: Substitution) =
             cons(arguments.map {
                 it.applySub(substitution)

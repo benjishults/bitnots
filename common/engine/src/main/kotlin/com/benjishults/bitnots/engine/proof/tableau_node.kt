@@ -14,27 +14,28 @@ interface TableauNode : TreeNode {
     val newFormulas: MutableList<SignedFormula<Formula<*>>>
     fun isClosed(): Boolean = branchClosers.isNotEmpty()
     val branchClosers: MutableList<BranchCloser>
-    val allFormulas: MutableList<SignedFormula<Formula<*>>>
+    val simpleFormulasAbove: MutableList<SignedFormula<Formula<*>>>
 
 }
 
 abstract class AbstractTableauNode(
         override val newFormulas: MutableList<SignedFormula<Formula<*>>>,
-        parent: AbstractTableauNode?,
+        parent: TableauNode?,
         val init: InitializingStrategy
 ) : TreeNodeImpl(parent), TableauNode {
 
     // starts as proper ancestors and new ones are added after processing
     // TODO see if I can get rid of this or improve it with shared structure
-    override val allFormulas = mutableListOf<SignedFormula<Formula<*>>>().also { list ->
-        parent?.toAncestors<AbstractTableauNode> { node ->
-            list.addAll(node.newFormulas.filter {
-                it is SimpleSignedFormula<*>
-            })
+    override val simpleFormulasAbove = mutableListOf<SignedFormula<Formula<*>>>().also { list ->
+        parent?.let { parent ->
+            list.addAll(parent.newFormulas.filter { it is SimpleSignedFormula<*> })
+            list.addAll(parent.simpleFormulasAbove)
         }
     }
 
-    override val branchClosers by lazy { mutableListOf<BranchCloser>() }
+    override val branchClosers by lazy {
+        mutableListOf<BranchCloser>()
+    }
 
     init {
         init.init(this)
@@ -70,51 +71,10 @@ class PropositionalTableauNode(
 ) : AbstractTableauNode(newFormulas, parent, init) {
 }
 
-//class FolTableauNode(
-//        newFormulas: MutableList<SignedFormula<Formula<*>>> = mutableListOf(),
-//        parent: FolTableauNode? = null,
-//        closer: ClosingStrategy = FolUnificationClosingStrategy(),
-//        init: InitializingStrategy<AbstractTableauNode> = PropositionalInitializationStrategy()
-//) : AbstractTableauNode(newFormulas, parent, closer, init) {
-//
-////    override fun isClosed(): FolUnificationClosedIndicator {
-////        TODO()
-////    }
-//
-//
-//    override fun isClosed() =
-//            //            closed ||
-//            closer.checkClosed(this).isCloser() ||
-//                    (children.isNotEmpty() &&
-//                            children.all {
-//                                (it as TableauNode).isClosed()
-//                            })
-//
-//    fun generateClosers(node: AbstractTableauNode) {
-//        with(node) {
-//            allFormulas.filter {
-//                it.sign
-//            }.forEach { above ->
-//                newFormulas.filter {
-//                    !it.sign
-//                }.forEach {
-//                    Formula.unify(above.formula, it.formula, EmptySub).let {
-//                        initialClosers.add(it)
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    /**
-//     * Finds all branch closers at every descendant of the receiver and stores them at the highest node at which all formulas involved occur.
-//     */
-//    fun findAllClosers() {
-//
-//    }
-//
-//    fun extendMbc() {
-//
-//    }
-//
-//}
+class FolTableauNode(
+        newFormulas: MutableList<SignedFormula<Formula<*>>> = mutableListOf(),
+        parent: FolTableauNode? = null,
+        init: InitializingStrategy = PropositionalInitializationStrategy()
+) : AbstractTableauNode(newFormulas, parent, init) {
+
+}
