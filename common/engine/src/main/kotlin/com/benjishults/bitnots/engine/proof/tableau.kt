@@ -2,10 +2,10 @@ package com.benjishults.bitnots.engine.proof
 
 import com.benjishults.bitnots.engine.proof.strategy.BooleanClosedIndicator
 import com.benjishults.bitnots.engine.proof.strategy.InProgressTableauClosedIndicator
-import com.benjishults.bitnots.engine.proof.strategy.NodeClosingStrategy
+import com.benjishults.bitnots.engine.proof.strategy.TableauClosingStrategy
 import com.benjishults.bitnots.engine.proof.strategy.NotCompatible
 import com.benjishults.bitnots.engine.proof.strategy.PropositionalInitializationStrategy
-import com.benjishults.bitnots.engine.proof.strategy.PropositionalNodeClosingStrategy
+import com.benjishults.bitnots.engine.proof.strategy.PropositionalClosingStrategy
 import com.benjishults.bitnots.engine.proof.strategy.PropositionalStepStrategy
 import com.benjishults.bitnots.engine.proof.strategy.StepStrategy
 import com.benjishults.bitnots.inference.rules.ClosingFormula
@@ -15,7 +15,13 @@ import java.util.Stack
 interface Tableau {
 
     val root: TableauNode
+    /**
+     * Attempts to find or create an InProgressTableauClosedIndicator that closes the entire tree.
+     */
     fun findCloser(): InProgressTableauClosedIndicator
+    /**
+     * Returns true if the step made a change to the receiver.
+     */
     fun step(): Boolean
     /**
      * gets the latest found closer
@@ -26,7 +32,7 @@ interface Tableau {
 
 abstract class AbstractTableau(
         override val root: AbstractTableauNode,
-        val nodeClosingStrategy: NodeClosingStrategy,
+        val nodeClosingStrategy: TableauClosingStrategy,
         val closedIndicatorFactory: (TableauNode) -> InProgressTableauClosedIndicator,
         val stepStrategy: StepStrategy<AbstractTableau>
 ) : Tableau {
@@ -43,18 +49,6 @@ abstract class AbstractTableau(
 
     override fun findCloser(): InProgressTableauClosedIndicator { // = root.isClosed()
         nodeClosingStrategy.populateBranchClosers(this)  // TODO could this indicated that not all branches have branch-closers?
-        val nodeSequence: (TableauNode) -> Sequence<TableauNode> = { n ->
-            val stack = Stack<TableauNode>().apply { add(n) }
-            generateSequence {
-                stack.takeIf {
-                    it.isNotEmpty()
-                }?.pop()?.also {
-                    it.children.reversed().forEach {
-                        stack.push(it as AbstractTableauNode)
-                    }
-                }
-            }
-        }
         // will this ever exceed size 1?
         val toBeExtended = Stack<InProgressTableauClosedIndicator>().apply { push(closedIndicatorFactory(root)) }
         do {
@@ -75,24 +69,10 @@ abstract class AbstractTableau(
                     toBeExtended.push(it)
                 } // toExtend cannot be extended ?: null
             }
-//            nodeSequence(inProgress.nextNode()).forEach { node ->
-//                node.branchClosers.forEach { bc ->
-//                    inProgress.createExtension(bc).let { ext ->
-//                        ext.takeIf {
-//                            it.isCloser()
-//                        }?.let {
-//                            return it
-//                        } ?: toBeExtended.push(ext)
-//                    }
-//                }
-//            }
         } while (toBeExtended.isNotEmpty());
         return NotCompatible
     }
 
-    /**
-     * Returns true if the step made a change to the receiver.
-     */
     override fun step(): Boolean =
             stepStrategy.step(this)
 }
@@ -102,7 +82,7 @@ class PropositionalTableau(
         stepStrategy: StepStrategy<Tableau> = PropositionalStepStrategy<PropositionalTableauNode> { sf, p: PropositionalTableauNode ->
             PropositionalTableauNode(sf, p, PropositionalInitializationStrategy())
         }
-) : AbstractTableau(root, PropositionalNodeClosingStrategy, { BooleanClosedIndicator(it) }, stepStrategy) {
+) : AbstractTableau(root, PropositionalClosingStrategy, { BooleanClosedIndicator(it) }, stepStrategy) {
     //
     override fun toString(): String {
         return buildString {

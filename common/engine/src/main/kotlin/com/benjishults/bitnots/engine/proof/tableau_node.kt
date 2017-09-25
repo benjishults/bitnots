@@ -1,19 +1,13 @@
 package com.benjishults.bitnots.engine.proof
 
-import com.benjishults.bitnots.engine.proof.strategy.BooleanClosedIndicator
-import com.benjishults.bitnots.engine.proof.strategy.ClosingStrategy
-import com.benjishults.bitnots.engine.proof.strategy.InProgressTableauClosedIndicator
+import com.benjishults.bitnots.engine.proof.strategy.BranchCloser
 import com.benjishults.bitnots.engine.proof.strategy.InitializingStrategy
 import com.benjishults.bitnots.engine.proof.strategy.PropositionalInitializationStrategy
-import com.benjishults.bitnots.engine.unifier.MultiBranchCloser
 import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.inference.rules.SimpleSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.unifier.EmptySub
-import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.TreeNode
 import com.benjishults.bitnots.model.util.TreeNodeImpl
-import com.benjishults.bitnots.engine.proof.strategy.BranchCloser
 
 interface TableauNode : TreeNode {
 
@@ -21,12 +15,12 @@ interface TableauNode : TreeNode {
     fun isClosed(): Boolean = branchClosers.isNotEmpty()
     val branchClosers: MutableList<BranchCloser>
     val allFormulas: MutableList<SignedFormula<Formula<*>>>
+
 }
 
 abstract class AbstractTableauNode(
         override val newFormulas: MutableList<SignedFormula<Formula<*>>>,
         parent: AbstractTableauNode?,
-//        val closer: ClosingStrategy,
         val init: InitializingStrategy
 ) : TreeNodeImpl(parent), TableauNode {
 
@@ -39,18 +33,8 @@ abstract class AbstractTableauNode(
             })
         }
     }
+
     override val branchClosers by lazy { mutableListOf<BranchCloser>() }
-
-
-//    private var closed = false
-//
-//    open override fun isClosed() =
-//            closed ||
-//                    closer.checkClosed(this).isCloser() ||
-//                    (children.isNotEmpty() &&
-//                            children.all {
-//                                (it as TableauNode).isClosed()
-//                            })
 
     init {
         init.init(this)
@@ -82,7 +66,6 @@ abstract class AbstractTableauNode(
 class PropositionalTableauNode(
         newFormulas: MutableList<SignedFormula<Formula<*>>> = mutableListOf(),
         parent: PropositionalTableauNode? = null,
-//        closer: ClosingStrategy = PropositionalClosingStrategy(),
         init: InitializingStrategy = PropositionalInitializationStrategy()
 ) : AbstractTableauNode(newFormulas, parent, init) {
 }
