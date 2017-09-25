@@ -1,16 +1,20 @@
 package com.benjishults.bitnots.engine.unifier
 
 import com.benjishults.bitnots.engine.proof.TableauNode
-import com.benjishults.bitnots.engine.proof.strategy.ClosedIndicator
+import com.benjishults.bitnots.engine.proof.strategy.BranchCloser
+import com.benjishults.bitnots.engine.proof.strategy.InProgressTableauClosedIndicator
 import java.util.Stack
 
-class MultiBranchCloser : ClosedIndicator {
-    override fun isCloser(): Boolean =
-            needToClose.isEmpty()
+open class MultiBranchCloser : InProgressTableauClosedIndicator {
+
+    override fun createExtension(closer: BranchCloser): InProgressTableauClosedIndicator {
+        return MultiBranchCloser()
+    }
+
 
     /**
      * The nodes in this stack are not known to be closed by the receiver.
      */
-    val needToClose = Stack<TableauNode<*>>()
+    override val needToClose = Stack<TableauNode>()
 
 }

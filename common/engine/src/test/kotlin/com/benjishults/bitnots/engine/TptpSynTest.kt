@@ -1,7 +1,5 @@
 package com.benjishults.bitnots.engine
 
-import com.benjishults.bitnots.engine.proof.FolTableau
-import com.benjishults.bitnots.engine.proof.FolTableauNode
 import com.benjishults.bitnots.engine.proof.PropositionalTableau
 import com.benjishults.bitnots.engine.proof.PropositionalTableauNode
 import com.benjishults.bitnots.engine.proof.Tableau
@@ -60,11 +58,11 @@ class TptpSynTest {
         proveWithHyps(path, hyps, { l -> PropositionalTableauNode(l, null) }) { PropositionalTableau(it) }
     }
 
-    private fun proveFofWithHyps(path: Path, hyps: Int = 0) {
-        proveWithHyps(path, hyps, { l -> FolTableauNode(l, null) }) { FolTableau(it) }
-    }
+//    private fun proveFofWithHyps(path: Path, hyps: Int = 0) {
+//        proveWithHyps(path, hyps, { l -> FolTableauNode(l, null) }) { FolTableau(it) }
+//    }
     
-    private fun <N : TableauNode<*>> proveWithHyps(path: Path, hyps: Int, nodeFactory: (MutableList<SignedFormula<Formula<*>>>) -> N, tabFactory: (N) -> Tableau<*>) {
+    private fun <N : TableauNode> proveWithHyps(path: Path, hyps: Int, nodeFactory: (MutableList<SignedFormula<Formula<*>>>) -> N, tabFactory: (N) -> Tableau) {
         try {
             TptpParser.parseFile(path).let { tptp ->
                 tabFactory(
@@ -85,7 +83,7 @@ class TptpSynTest {
                                     (tptp.inputs.last() as FofAnnotatedFormula).formula.createSignedFormula()
                                 }))).also { tableau ->
                     while (true) {
-                        if (tableau.isClosed())
+                        if (tableau.findCloser().isCloser())
                             break
                         if (!tableau.step())
                             Assert.fail("Failed to prove it with unlimited steps.")
@@ -111,7 +109,7 @@ class TptpSynTest {
                                 (tptp.inputs.last() as FofAnnotatedFormula).formula.createSignedFormula()),
                                 null)).also { tableau ->
                     while (true) {
-                        if (tableau.isClosed())
+                        if (tableau.findCloser().isCloser())
                             break
                         if (!tableau.step())
                             Assert.fail("Failed to prove it with unlimited steps.")

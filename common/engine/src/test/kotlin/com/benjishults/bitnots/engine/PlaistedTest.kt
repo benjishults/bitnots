@@ -1,7 +1,5 @@
 package com.benjishults.bitnots.engine
 
-import com.benjishults.bitnots.engine.proof.FolTableau
-import com.benjishults.bitnots.engine.proof.FolTableauNode
 import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.inference.rules.createSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
@@ -40,9 +38,4 @@ class PlaistedTest {
 //        }
 //    }
 
-}
-
-fun main(args: Array<String>) {
-    System.setProperty("config", "/home/bshults/repos/benjishults/bitnots/config")
-//    PlaistedTests().testFofPlaisted()
 }
