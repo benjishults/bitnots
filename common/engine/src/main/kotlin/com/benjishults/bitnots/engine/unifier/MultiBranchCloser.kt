@@ -6,15 +6,27 @@ import com.benjishults.bitnots.engine.proof.strategy.InProgressTableauClosedIndi
 import java.util.Stack
 
 open class MultiBranchCloser : InProgressTableauClosedIndicator {
+    
+    override val branchClosers: List<BranchCloser>
+        get() = TODO()
+
+    /**
+     * The nodes in this stack are not known to be closed by the receiver.
+     */
+    private val needToClose = Stack<TableauNode>()
+
+    override fun nextNode(): TableauNode = needToClose.peek()
+
+    override fun isCloser(): Boolean {
+        TODO()
+    }
 
     override fun createExtension(closer: BranchCloser): InProgressTableauClosedIndicator {
         return MultiBranchCloser()
     }
 
-
-    /**
-     * The nodes in this stack are not known to be closed by the receiver.
-     */
-    override val needToClose = Stack<TableauNode>()
+    override fun progress(): InProgressTableauClosedIndicator {
+        TODO()
+    }
 
 }

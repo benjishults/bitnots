@@ -18,6 +18,8 @@ import java.util.TreeSet
 
 interface BranchCloser
 
+data class PropositionalBranchCloser(val pos: SignedFormula<*>? = null, val neg: SignedFormula<*>? = null) : BranchCloser
+
 interface NodeClosingStrategy {
     fun populateBranchClosers(tableau: Tableau)
 }
@@ -40,53 +42,119 @@ object PropositionalNodeClosingStrategy : NodeClosingStrategy {
     @Suppress("USELESS_CAST")
     fun checkClosed(node: TableauNode): Boolean =
             with(node) {
+                if (isClosed())
+                    return true
                 // TODO might want to cache these or make them easier to access
-                val pos: MutableList<PropositionalVariable> = mutableListOf()
-                val neg: MutableList<PropositionalVariable> = mutableListOf()
+                val pos: MutableList<SignedFormula<*>> = mutableListOf()
+                val neg: MutableList<SignedFormula<*>> = mutableListOf()
                 allFormulas.forEach {
-                    if (it.formula is PropositionalVariable) {
-                        if (it.sign)
-                            pos.add(it.formula as PropositionalVariable)
-                        else
-                            neg.add(it.formula as PropositionalVariable)
+                    if (it.sign) {
+                        if (it is ClosingFormula) {
+                            branchClosers.add(PropositionalBranchCloser(pos = it))
+                            return true
+                        } else if (it.formula is PropositionalVariable) {
+                            pos.add(it) // could short-circuit this by searching here
+                        }
                     } else if (it is ClosingFormula) {
+                        branchClosers.add(PropositionalBranchCloser(neg = it))
                         return true
+                    } else if (it.formula is PropositionalVariable) {
+                        neg.add(it) // could short-circuit this by searching here
                     }
                 }
-                return pos.any { p -> neg.any { it === p } }
+                return pos.any { p ->
+                    neg.any {
+                        (it.formula === p.formula).apply {
+                            if (this)
+                                branchClosers.add(PropositionalBranchCloser(p, it))
+                        }
+                    }
+                }
             }
 
 }
 
 interface InProgressTableauClosedIndicator {
     fun createExtension(closer: BranchCloser): InProgressTableauClosedIndicator
-    val needToClose: Stack<out TableauNode>
-    fun isCloser() = needToClose.isEmpty()
+    //    val needToClose: Stack<out TableauNode>
+    val branchClosers: List<BranchCloser>
+
+    /**
+     * Throws an exception if this is a closer or NotCompatible
+     */
+    fun nextNode(): TableauNode
+
+    fun progress(): InProgressTableauClosedIndicator
+
+    fun isCloser(): Boolean // = needToClose.isEmpty()
 }
 
 /**
  * It's appearance indicates that an attempt was made to extend an InProgressTableauClosedIndicator with a BranchCloser with which it was not compatible.
  */
 object NotCompatible : InProgressTableauClosedIndicator {
+    override fun progress() = this
+
+    override fun nextNode() = throw IllegalStateException()
+
+    override val branchClosers: List<BranchCloser> = emptyList()
+
     override fun createExtension(closer: BranchCloser) = this
 
-    override val needToClose: Stack<TableauNode>
-        get() = TODO()
+    override fun isCloser() = false
 }
 
-open class BooleanClosedIndicator(node: TableauNode) : InProgressTableauClosedIndicator {
-    override val needToClose = Stack<TableauNode>().apply { add(node) }
+open class BooleanClosedIndicator private constructor(
+        branchClosers: List<BranchCloser>
+) : InProgressTableauClosedIndicator {
 
-    // FIXME should be immutable
-    // FIXME seems different arguments are needed here
-    override fun createExtension(closer: BranchCloser): InProgressTableauClosedIndicator {
-        if (closer in needToClose.peek().branchClosers) {
-            needToClose.pop()
-            return this
-        } else {
-            return NotCompatible
+    private constructor(
+            branchClosers: List<BranchCloser>,
+            nodes: Stack<TableauNode>
+    ) : this(branchClosers) {
+        @Suppress("UNCHECKED_CAST")
+        needToClose = (nodes.clone() as Stack<TableauNode>).apply {
+            // NB
+            pop()
         }
     }
+
+    constructor(
+            node: TableauNode,
+            branchClosers: List<BranchCloser> = emptyList()
+    ) : this(branchClosers) {
+        needToClose = Stack<TableauNode>().apply {
+            push(node)
+        }
+    }
+
+    override val branchClosers: List<BranchCloser> = branchClosers
+
+    private lateinit var needToClose: Stack<TableauNode>// = nodes.clone() as Stack<TableauNode>
+
+    override fun isCloser() = needToClose.isEmpty()
+
+    override fun nextNode(): TableauNode = needToClose.peek()
+
+    override fun createExtension(closer: BranchCloser): InProgressTableauClosedIndicator {
+        return BooleanClosedIndicator(branchClosers + closer, needToClose)
+    }
+
+    override fun progress(): InProgressTableauClosedIndicator =
+            (nextNode().children as List<TableauNode>).takeIf {
+                it.isNotEmpty()
+            }?.reversed()?.let {
+                (needToClose.clone() as Stack<TableauNode>).apply {
+                    val orig = pop()
+                    it.forEach {
+                        push(it)
+                    }
+                    push(orig) // pushing this on so that it will be popped by the constructor
+                }.let { newNeeds ->
+                    BooleanClosedIndicator(branchClosers, newNeeds)
+                }
+            } ?: NotCompatible
+
 }
 
 interface ClosingStrategy {

@@ -18,7 +18,7 @@ import com.benjishults.bitnots.engine.proof.strategy.BranchCloser
 interface TableauNode : TreeNode {
 
     val newFormulas: MutableList<SignedFormula<Formula<*>>>
-//    fun isClosed(): Boolean
+    fun isClosed(): Boolean = branchClosers.isNotEmpty()
     val branchClosers: MutableList<BranchCloser>
     val allFormulas: MutableList<SignedFormula<Formula<*>>>
 }

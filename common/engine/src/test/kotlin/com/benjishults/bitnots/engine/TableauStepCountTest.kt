@@ -48,10 +48,11 @@ class TableauStepCountTest {
                     while (true) {
                         if (tableau.findCloser().isCloser())
                             break
-                        if (!tableau.step())
+                        else if (!tableau.step())
                             if (claim.provable) {
                                 Assert.fail("Failed to prove ${claim.formula} with unlimited steps.")
-                            }
+                            } else
+                                break
                     }
                 } else {
                     for (step in claim.steps.toInt() downTo 1) {

@@ -49,19 +49,21 @@ interface TreeNode {
             private var prev: T? = null
 
             private val stack = Stack<T>().apply {
-                add(this as T)
+                push(this@TreeNode as T)
             }
 
             override fun next(): T {
-                if (skipMode) return skipToNext()
-                prev?.let {
-                    if (it.children.isNotEmpty()) {
-                        it.children.reversed().forEach {
-                            stack.push(it as T)
+                if (skipMode)
+                    return skipToNext()
+                else
+                    prev?.let {
+                        if (it.children.isNotEmpty()) {
+                            it.children.reversed().forEach {
+                                stack.push(it as T)
+                            }
                         }
-                    }
-                } ?: if (stack.isEmpty())
-                    error("No next element")
+                    } ?: if (stack.isEmpty())
+                        error("No next element")
                 return stack.pop().also {
                     prev = it
                 }

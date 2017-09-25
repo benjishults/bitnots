@@ -42,27 +42,50 @@ abstract class AbstractTableau(
     }
 
     override fun findCloser(): InProgressTableauClosedIndicator { // = root.isClosed()
-        nodeClosingStrategy.populateBranchClosers(this)
+        nodeClosingStrategy.populateBranchClosers(this)  // TODO could this indicated that not all branches have branch-closers?
         val nodeSequence: (TableauNode) -> Sequence<TableauNode> = { n ->
+            val stack = Stack<TableauNode>().apply { add(n) }
             generateSequence {
-                val stack = Stack<TableauNode>().apply { add(n) }
-                stack.pop().also { it.children.reversed().forEach { stack.push(it as AbstractTableauNode) } }
+                stack.takeIf {
+                    it.isNotEmpty()
+                }?.pop()?.also {
+                    it.children.reversed().forEach {
+                        stack.push(it as AbstractTableauNode)
+                    }
+                }
             }
         }
+        // will this ever exceed size 1?
         val toBeExtended = Stack<InProgressTableauClosedIndicator>().apply { push(closedIndicatorFactory(root)) }
         do {
-            val inProgress = toBeExtended.pop()
-            nodeSequence(inProgress.needToClose.peek()).forEach { node ->
+            val toExtend = toBeExtended.pop()
+            toExtend.nextNode().let { node ->
                 node.branchClosers.forEach { bc ->
-                    inProgress.createExtension(bc).let { ext ->
+                    toExtend.createExtension(bc).let { ext ->
                         ext.takeIf {
                             it.isCloser()
                         }?.let {
                             return it
-                        } ?: toBeExtended.push(ext)
+                        } ?: toBeExtended.push(ext) // this means I'll come back to it
                     }
                 }
+                toExtend.progress().takeIf {
+                    it !== NotCompatible
+                }?.let {
+                    toBeExtended.push(it)
+                } // toExtend cannot be extended ?: null
             }
+//            nodeSequence(inProgress.nextNode()).forEach { node ->
+//                node.branchClosers.forEach { bc ->
+//                    inProgress.createExtension(bc).let { ext ->
+//                        ext.takeIf {
+//                            it.isCloser()
+//                        }?.let {
+//                            return it
+//                        } ?: toBeExtended.push(ext)
+//                    }
+//                }
+//            }
         } while (toBeExtended.isNotEmpty());
         return NotCompatible
     }

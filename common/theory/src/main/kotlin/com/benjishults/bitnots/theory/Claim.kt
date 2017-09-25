@@ -47,7 +47,8 @@ data class Claim(
         val formula: Formula<*>,
         val provable: Boolean = true,
         val gamma: CountSC = Count(DEFAULT_MAX_STEPS),
-        val steps: CountSC = Count(DEFAULT_MAX_STEPS)) {
+        val steps: CountSC = NoCount // Count(DEFAULT_MAX_STEPS)
+) {
 
     companion object {
         val A = Prop("A")
