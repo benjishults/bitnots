@@ -1,4 +1,4 @@
-package com.benjishults.bitnots.engine.proof.strategy
+package com.benjishults.bitnots.engine.proof.closer
 
 import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.model.unifier.Substitution

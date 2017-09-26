@@ -27,7 +27,7 @@ class TableauStepCountTest {
     }
 
     @Test
-    @Ignore
+//    @Ignore
     fun testFols() {
         testClaims<FolTableauNode, FolTableau>(Claim.FOL_CLAIMS, { n: FolTableauNode ->
             FolTableau(n)

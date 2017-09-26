@@ -1,6 +1,6 @@
 package com.benjishults.bitnots.engine.proof
 
-import com.benjishults.bitnots.engine.proof.strategy.BranchCloser
+import com.benjishults.bitnots.engine.proof.closer.BranchCloser
 import com.benjishults.bitnots.engine.proof.strategy.InitializingStrategy
 import com.benjishults.bitnots.engine.proof.strategy.PropositionalInitializationStrategy
 import com.benjishults.bitnots.inference.rules.SignedFormula
@@ -68,13 +68,10 @@ class PropositionalTableauNode(
         newFormulas: MutableList<SignedFormula<Formula<*>>> = mutableListOf(),
         parent: PropositionalTableauNode? = null,
         init: InitializingStrategy = PropositionalInitializationStrategy()
-) : AbstractTableauNode(newFormulas, parent, init) {
-}
+) : AbstractTableauNode(newFormulas, parent, init)
 
 class FolTableauNode(
         newFormulas: MutableList<SignedFormula<Formula<*>>> = mutableListOf(),
         parent: FolTableauNode? = null,
         init: InitializingStrategy = PropositionalInitializationStrategy()
-) : AbstractTableauNode(newFormulas, parent, init) {
-
-}
+) : AbstractTableauNode(newFormulas, parent, init)

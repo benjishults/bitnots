@@ -10,6 +10,7 @@ interface InitializingStrategy {
     fun init(node: TableauNode)
 }
 
+// TODO refactor
 interface PropositionalInitializingStrategy : InitializingStrategy {
     override fun init(node: TableauNode) {
         with(node) {
