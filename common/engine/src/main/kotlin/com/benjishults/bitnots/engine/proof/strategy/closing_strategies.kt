@@ -38,40 +38,46 @@ object PropositionalClosingStrategy : TableauClosingStrategy {
                 // TODO might want to cache these or make them easier to access
                 val posAbove: MutableList<SignedFormula<*>> = mutableListOf()
                 val negAbove: MutableList<SignedFormula<*>> = mutableListOf()
-                simpleFormulasAbove.forEach {
-                    if (it.sign) {
-                        if (it is ClosingFormula) {
-                            branchClosers.add(PropositionalBranchCloser(pos = it))
+                newFormulas.filterIsInstance<SimpleSignedFormula<*>>().also { newbies ->
+                    (simpleFormulasAbove + newbies).forEach {
+                        if (it.sign) {
+                            if (it is ClosingFormula) {
+                                branchClosers.add(PropositionalBranchCloser(pos = it))
+                                return true
+                            } else if (it.formula is PropositionalVariable) {
+                                posAbove.add(it) // could short-circuit this by searching here
+                            }
+                        } else if (it is ClosingFormula) {
+                            branchClosers.add(PropositionalBranchCloser(neg = it))
                             return true
                         } else if (it.formula is PropositionalVariable) {
-                            posAbove.add(it) // could short-circuit this by searching here
+                            negAbove.add(it) // could short-circuit this by searching here
                         }
-                    } else if (it is ClosingFormula) {
-                        branchClosers.add(PropositionalBranchCloser(neg = it))
-                        return true
-                    } else if (it.formula is PropositionalVariable) {
-                        negAbove.add(it) // could short-circuit this by searching here
                     }
-                }
-                return newFormulas.any { f ->
-                    if (f is SimpleSignedFormula<*>) {
-                        if (f.sign) {
+                }.any { f ->
+                    if (f.sign) {
+                        if (f is ClosingFormula) {
+                            branchClosers.add(PropositionalBranchCloser(pos = f))
+                            true
+                        } else
                             negAbove.any {
                                 (it.formula === f.formula).apply {
                                     if (this)
                                         branchClosers.add(PropositionalBranchCloser(f, it))
                                 }
                             }
-                        } else {
+                    } else {
+                        if (f is ClosingFormula) {
+                            branchClosers.add(PropositionalBranchCloser(neg = f))
+                            true
+                        } else
                             posAbove.any {
                                 (it.formula === f.formula).apply {
                                     if (this)
                                         branchClosers.add(PropositionalBranchCloser(it, f))
                                 }
                             }
-                        }
-                    } else
-                        false
+                    }
                 }
             }
 
