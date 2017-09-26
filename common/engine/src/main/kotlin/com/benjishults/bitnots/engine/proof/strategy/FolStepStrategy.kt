@@ -11,30 +11,21 @@ import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
 import java.util.TreeSet
 
 open class FolStepStrategy(
+        var qLimit: Int = 3,
         nodeFactory: (MutableList<SignedFormula<*>>, FolTableauNode) -> FolTableauNode
 ) : PropositionalStepStrategy<FolTableauNode>(nodeFactory) {
 
     override open fun step(tableau: Tableau): Boolean =
             with(tableau) {
-                if (!applyDelta(tableau) && !applyBeta(tableau)) {
-                    if (unify(tableau).isCloser())
-                        true
-                    else
-                        applyGamma(tableau)
-                } else {
-                    true
+                var taken = false
+                while (applyDelta(tableau)) {
+                    taken = true
                 }
+                if (!taken)
+                    applyBeta(tableau) || applyGamma(tableau)
+                else
+                    true
             }
-
-    fun unify(tableau: Tableau): UnifyingClosedIndicator {
-        with(tableau) {
-            root.breadthFirst<FolTableauNode> { node ->
-                node.toString()
-                true
-            }
-            return UnifyingClosedIndicator(tableau.root)
-        }
-    }
 
     // TODO make this splice
     private fun applyDelta(tableau: Tableau): Boolean {
@@ -71,7 +62,9 @@ open class FolStepStrategy(
                                 o1!!.first.numberOfApplications.compareTo(o2!!.first.numberOfApplications)
                             })
             root.breadthFirst<FolTableauNode> { node ->
-                gammas.addAll(node.newFormulas.filterIsInstance<GammaFormula<*>>().map {
+                gammas.addAll(node.newFormulas.filterIsInstance<GammaFormula<*>>().filter {
+                    it.numberOfApplications <= qLimit
+                }.map {
                     it to node
                 }) // stop if we get to one that is ready to go
                         && gammas.first().first.numberOfApplications == 0

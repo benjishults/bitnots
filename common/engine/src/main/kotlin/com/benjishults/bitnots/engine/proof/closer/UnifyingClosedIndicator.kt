@@ -3,7 +3,6 @@ package com.benjishults.bitnots.engine.proof.closer
 import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.NotUnifiable
-import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
 import java.util.Stack
 
@@ -46,7 +45,7 @@ open class UnifyingClosedIndicator protected constructor(
 
     protected override open fun indicatorFactory(branchClosers: List<BranchCloser>, needToClose: Stack<TableauNode>, vararg others: Any): InProgressTableauClosedIndicator =
             others.takeIf { it.isNotEmpty() }?.let { other ->
-                UnifyingClosedIndicator(branchClosers, needToClose, other[0] as Sub)
+                UnifyingClosedIndicator(branchClosers, needToClose, other[0] as Substitution)
             } ?: UnifyingClosedIndicator(branchClosers, needToClose, substitution)
 
 }

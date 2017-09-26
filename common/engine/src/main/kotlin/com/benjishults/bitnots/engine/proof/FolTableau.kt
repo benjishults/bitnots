@@ -15,7 +15,7 @@ class FolTableau(
 
     override fun toString(): String {
         return buildString {
-            root.preOrderWithPath<PropositionalTableauNode> { n, path ->
+            root.preOrderWithPath<FolTableauNode> { n, path ->
                 this.append(path.joinToString("."))
                 this.append("\n")
                 this.append(n.toString())

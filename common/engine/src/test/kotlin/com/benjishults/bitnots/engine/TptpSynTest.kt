@@ -1,5 +1,7 @@
 package com.benjishults.bitnots.engine
 
+import com.benjishults.bitnots.engine.proof.FolTableau
+import com.benjishults.bitnots.engine.proof.FolTableauNode
 import com.benjishults.bitnots.engine.proof.PropositionalTableau
 import com.benjishults.bitnots.engine.proof.PropositionalTableauNode
 import com.benjishults.bitnots.engine.proof.Tableau
@@ -29,24 +31,26 @@ class TptpSynTest {
         provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 45, 1))
         provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 46, 1))
         provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 47, 1))
-//        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 48, 1))
-//        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 49, 1))
-//        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 50, 1))
-//        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 51, 1), 1)
-//        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 52, 1))
-//        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 53, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 48, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 49, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 50, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 51, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 52, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 53, 1))
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 54, 1), 1)
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 55, 1), 1)
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 56, 1), 1)
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 57, 1), 1)
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 58, 1), 1)
+        // TODO seems to require q-limit > 3
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 59, 1), 1)
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 60, 1), 1)
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 61, 1), 1)
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 62, 1), 1)
-//        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 63, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 63, 1))
+        // TODO seems to require q-limit > 3
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 64, 1))
-//        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 65, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 65, 1), 1)
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 66, 1), 1)
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 67, 1))
 //        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 68, 1), 1)
@@ -55,15 +59,16 @@ class TptpSynTest {
     }
 
     private fun provePropWithHyps(path: Path, hyps: Int = 0) {
-        proveWithHyps(path, hyps, { l -> PropositionalTableauNode(l, null) }) { PropositionalTableau(it) }
+        proveWithHyps(path, hyps, { l -> PropositionalTableauNode(l) }) { PropositionalTableau(it) }
     }
 
-//    private fun proveFofWithHyps(path: Path, hyps: Int = 0) {
-//        proveWithHyps(path, hyps, { l -> FolTableauNode(l, null) }) { FolTableau(it) }
-//    }
-    
+    private fun proveFofWithHyps(path: Path, hyps: Int = 0) {
+        proveWithHyps(path, hyps, { l -> FolTableauNode(l) }) { FolTableau(it) }
+    }
+
     private fun <N : TableauNode> proveWithHyps(path: Path, hyps: Int, nodeFactory: (MutableList<SignedFormula<Formula<*>>>) -> N, tabFactory: (N) -> Tableau) {
         try {
+            println("Working on ${path}.")
             TptpParser.parseFile(path).let { tptp ->
                 tabFactory(
                         nodeFactory(mutableListOf<SignedFormula<Formula<*>>>(
@@ -82,6 +87,7 @@ class TptpSynTest {
                                 } else {
                                     (tptp.inputs.last() as FofAnnotatedFormula).formula.createSignedFormula()
                                 }))).also { tableau ->
+                    var steps = 0
                     while (true) {
                         if (tableau.findCloser().isCloser())
                             break
