@@ -47,7 +47,8 @@ data class Claim(
         val formula: Formula<*>,
         val provable: Boolean = true,
         val gamma: CountSC = Count(DEFAULT_MAX_STEPS),
-        val steps: CountSC = Count(DEFAULT_MAX_STEPS)) {
+        val steps: CountSC = NoCount // Count(DEFAULT_MAX_STEPS)
+) {
 
     companion object {
         val A = Prop("A")
@@ -129,21 +130,22 @@ data class Claim(
                         ForSome(z,
                                 formula = Implies(P_(z), R_(z)))
                 ),
-                        steps = Count(20)),
-                Claim(ForAll(a,
+                        steps = Count(5)),
+/*                Claim(ForAll(a,
                         formula = ForSome(x, x2, x3, x4, y,
-                                formula = Implies(And(
-                                        P_(a),
-                                        E_(a),
-                                        Implies(E_(x),
-                                                Or(G(x), S(x, f(x)))),
-                                        Implies(E_(x2),
-                                                Or(G(x2), C_(f(x2)))),
-                                        Implies(S(a, y), P_(y))),
+                                formula = Implies(
+                                        And(
+                                                P_(a),
+                                                E_(a),
+                                                Implies(E_(x),
+                                                        Or(G(x), S(x, f(x)))),
+                                                Implies(E_(x2),
+                                                        Or(G(x2), C_(f(x2)))),
+                                                Implies(S(a, y), P_(y))),
                                         Or(
                                                 And(P_(x3), G(x3)),
                                                 And(P_(x4), C_(x4)))))),
-                        steps = Count(8)),
+                        steps = Count(20)),*/
                 Claim(Implies(And(
                         ForSome(x,
                                 formula = P_(x)),
@@ -157,7 +159,7 @@ data class Claim(
                         ForAll(x,
                                 formula = P_(x))),
                         provable = false)
-                
+
                 /*
 
                                    */
