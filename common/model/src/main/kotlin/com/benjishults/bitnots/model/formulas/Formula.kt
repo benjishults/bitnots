@@ -6,6 +6,7 @@ import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.util.memoize
 
+// NOTE should be immutable
 abstract class Formula<C : FormulaConstructor>(val constructor: C) {
     companion object {
         /**

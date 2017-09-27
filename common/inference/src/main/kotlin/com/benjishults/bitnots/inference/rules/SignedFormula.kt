@@ -3,6 +3,7 @@ package com.benjishults.bitnots.inference.rules
 import com.benjishults.bitnots.model.formulas.Formula
 import java.lang.reflect.Constructor
 
+// NOTE these should be immutable
 abstract class SignedFormula<out F : Formula<*>>(val formula: F, val sign: Boolean = false) {
 
     abstract fun generateChildren(): List<SignedFormula<Formula<*>>>

@@ -8,8 +8,8 @@ import com.benjishults.bitnots.engine.proof.strategy.StepStrategy
 
 class FolTableau(
         root: FolTableauNode,
-        stepStrategy: StepStrategy<Tableau> = FolStepStrategy { sf, p: FolTableauNode ->
-            FolTableauNode(sf, p, PropositionalInitializationStrategy())
+        stepStrategy: StepStrategy<Tableau> = FolStepStrategy { sf, p ->
+            FolTableauNode(sf, p as FolTableauNode?, PropositionalInitializationStrategy())
         }
 ) : AbstractTableau(root, FolUnificationClosingStrategy(), { UnifyingClosedIndicator( it) }, stepStrategy) {
 

@@ -6,13 +6,24 @@ import com.benjishults.bitnots.inference.rules.BetaFormula
 import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 
-open class PropositionalStepStrategy<N : TableauNode>(
-        val nodeFactory: (MutableList<SignedFormula<*>>, N) -> N
+open class PropositionalStepStrategy(
+        val nodeFactory: (MutableList<SignedFormula<*>>, TableauNode) -> TableauNode
 ) : StepStrategy<Tableau> {
     override open fun step(tableau: Tableau): Boolean =
             with(tableau) {
                 applyBeta(tableau)
             }
+
+    protected fun addChildFormulasToNewLeaves(signed: SignedFormula<*>, node: TableauNode) {
+        signed.generateChildren().let { childFormulas ->
+            node.allLeaves<TableauNode>().forEach { leaf ->
+                childFormulas.forEach {
+                    leaf.children.add(nodeFactory(mutableListOf(it), leaf))
+                    Unit
+                }
+            }
+        }
+    }
 
     fun applyBeta(tableau: Tableau): Boolean =
             with(tableau) {
@@ -26,12 +37,7 @@ open class PropositionalStepStrategy<N : TableauNode>(
                 else
                     beta?.let { beta ->
                         node.newFormulas.remove(beta);
-                        val leaves = node.allLeaves<N>()
-                        leaves.map { leaf ->
-                            beta.generateChildren().map {
-                                leaf.children.add(nodeFactory(mutableListOf(it), leaf))
-                            }
-                        }
+                        addChildFormulasToNewLeaves(beta, node)
                         true
                     } ?: false
             }

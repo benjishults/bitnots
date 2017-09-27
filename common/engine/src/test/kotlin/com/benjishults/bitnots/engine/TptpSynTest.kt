@@ -9,19 +9,27 @@ import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.inference.rules.createSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.model.formulas.fol.Predicate
 import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.Implies
+import com.benjishults.bitnots.model.terms.Function
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.parser.FofAnnotatedFormula
 import com.benjishults.bitnots.tptp.parser.TptpParser
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import java.nio.file.Path
 
 class TptpSynTest {
+
+    private fun clearInternTables() {
+        Predicate.PredicateConstructor.clear()
+        Function.FunctionConstructor.clear()
+    }
 
     @Test
     fun testSynProblems() {
@@ -40,23 +48,22 @@ class TptpSynTest {
 
         proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 63, 1))
 
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 65, 1), 1)
-
         // working from the end
 
         proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 0), 1)
     }
-    
-    @Test
-    @Ignore
-    fun equalityProblems() {
-        
-    }
 
     @Test
     @Ignore
+    fun equalityProblems() {
+
+    }
+
+    @Test
     fun shouldBeAbleToGet() {
         proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 981, 1))
+
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 65, 1), 1)
     }
 
     @Test
@@ -119,7 +126,7 @@ class TptpSynTest {
                                 } else {
                                     (tptp.inputs.last() as FofAnnotatedFormula).formula.createSignedFormula()
                                 }))).also { tableau ->
-//                    var steps = 0
+                    //                    var steps = 0
                     while (true) {
                         if (tableau.findCloser().isCloser())
                             break
@@ -131,6 +138,8 @@ class TptpSynTest {
         } catch (e: Exception) {
             e.printStackTrace()
             throw e
+        } finally {
+            clearInternTables()
         }
     }
 

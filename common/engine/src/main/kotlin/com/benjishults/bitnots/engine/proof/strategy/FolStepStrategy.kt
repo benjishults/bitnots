@@ -2,18 +2,17 @@ package com.benjishults.bitnots.engine.proof.strategy
 
 import com.benjishults.bitnots.engine.proof.FolTableauNode
 import com.benjishults.bitnots.engine.proof.Tableau
-import com.benjishults.bitnots.engine.proof.closer.UnifyingClosedIndicator
+import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.inference.rules.DeltaFormula
 import com.benjishults.bitnots.inference.rules.GammaFormula
 import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
-
-import java.util.TreeSet
+import java.util.PriorityQueue
 
 open class FolStepStrategy(
         var qLimit: Int = 3,
-        nodeFactory: (MutableList<SignedFormula<*>>, FolTableauNode) -> FolTableauNode
-) : PropositionalStepStrategy<FolTableauNode>(nodeFactory) {
+        nodeFactory: (MutableList<SignedFormula<*>>, TableauNode) -> TableauNode
+) : PropositionalStepStrategy(nodeFactory) {
 
     override open fun step(tableau: Tableau): Boolean =
             with(tableau) {
@@ -37,16 +36,9 @@ open class FolStepStrategy(
             }
             if (node === null)
                 return false
-            delta?.let {
-                delta ->
+            delta?.let { delta ->
                 node.newFormulas.remove(delta);
-                val leaves = node.allLeaves<FolTableauNode>()
-                leaves.forEach<FolTableauNode> { leaf ->
-                    delta.generateChildren().forEach {
-                        leaf.children.add(nodeFactory(mutableListOf(it), leaf))
-                        Unit
-                    }
-                }
+                addChildFormulasToNewLeaves(delta, node)
                 return true
             } ?: return false
         }
@@ -55,8 +47,8 @@ open class FolStepStrategy(
     // TODO make this splice
     private fun applyGamma(tableau: Tableau): Boolean {
         with(tableau) {
-            var gammas: MutableSet<Pair<GammaFormula<*>, FolTableauNode>> =
-                    TreeSet<Pair<GammaFormula<*>, FolTableauNode>>(
+            var gammas: PriorityQueue<Pair<GammaFormula<*>, FolTableauNode>> =
+                    PriorityQueue<Pair<GammaFormula<*>, FolTableauNode>>(
                             Comparator<Pair<GammaFormula<*>, FolTableauNode>> {
                                 o1: Pair<GammaFormula<*>, FolTableauNode>?, o2: Pair<GammaFormula<*>, FolTableauNode>? ->
                                 o1!!.first.numberOfApplications.compareTo(o2!!.first.numberOfApplications)
@@ -69,15 +61,9 @@ open class FolStepStrategy(
                 }) // stop if we get to one that is ready to go
                         && gammas.first().first.numberOfApplications == 0
             }
-            gammas.firstOrNull()?.let {
-                (gamma, node) ->
+            gammas.firstOrNull()?.let { (gamma, node) ->
                 gamma.numberOfApplications++
-                val leaves = node.allLeaves<FolTableauNode>()
-                leaves.map { leaf ->
-                    gamma.generateChildren().map {
-                        leaf.children.add(nodeFactory(mutableListOf(it), leaf))
-                    }
-                }
+                addChildFormulasToNewLeaves(gamma, node)
                 return true
             } ?: return false
         }

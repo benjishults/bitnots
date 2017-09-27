@@ -8,8 +8,8 @@ import com.benjishults.bitnots.engine.proof.strategy.StepStrategy
 
 class PropositionalTableau(
         root: PropositionalTableauNode,
-        stepStrategy: StepStrategy<Tableau> = PropositionalStepStrategy<PropositionalTableauNode> { sf, p: PropositionalTableauNode ->
-            PropositionalTableauNode(sf, p, PropositionalInitializationStrategy())
+        stepStrategy: StepStrategy<Tableau> = PropositionalStepStrategy { sf, p ->
+            PropositionalTableauNode(sf, p as PropositionalTableauNode?, PropositionalInitializationStrategy())
         }
 ) : AbstractTableau(root, PropositionalClosingStrategy, { BooleanClosedIndicator(it) }, stepStrategy) {
 
