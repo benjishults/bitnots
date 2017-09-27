@@ -59,4 +59,22 @@ class ParserTest {
         }
     }
 
+    @Test
+    fun fofParserTest3() {
+        try {
+            val path = TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 981, 1)
+
+            TptpParser.parseFile(path).let {
+                TptpParser.parseFile(path).let {
+                    Assert.assertEquals(1, it.inputs.size)
+                    Assert.assertTrue(it.inputs.all { it is FofAnnotatedFormula })
+                    Assert.assertTrue("Was ${it.inputs.last()}", (it.inputs.last() as FofAnnotatedFormula).formulaRole === FormulaRoles.conjecture)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
+    }
+
 }
