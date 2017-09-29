@@ -42,9 +42,8 @@ abstract class AbstractTableau(
 
     private var closer: InProgressTableauClosedIndicator = NotCompatible
 
-    override fun getCloser(): InProgressTableauClosedIndicator {
-        return closer
-    }
+    override fun getCloser(): InProgressTableauClosedIndicator =
+            closer
 
     protected fun setCloser(closer: InProgressTableauClosedIndicator) {
         this.closer = closer
