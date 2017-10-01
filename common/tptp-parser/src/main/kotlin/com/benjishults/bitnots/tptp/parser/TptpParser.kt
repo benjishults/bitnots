@@ -23,7 +23,7 @@ interface InnerParser<out T> {
         val punctuation = arrayOf("(", ")", ",", ".", "[", "]", ":")
 //        val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<->", "~|", "~&", "*", "+")
         val binaryConnective = arrayOf("<=>", "=>", "<=", "<->", "~|", "~&")
-        val inequality = arrayOf("!=", "=")
+//        val inequality = arrayOf("!=", "=")
         val unitaryFormulaInitial = arrayOf("?", "!", "~", "(")
 //        val predicates = arrayOf("!=", "\$true", "\$false")
     }

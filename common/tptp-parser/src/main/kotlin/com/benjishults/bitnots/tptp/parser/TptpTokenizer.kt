@@ -13,7 +13,7 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) { 
         private val keywords = arrayOf("fof", "cnf", "thf", "tff", "include")
         val punctuation = listOf('(', ')', ',', '.', '[', ']', ':')
 
-        private val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<->", "~|", "~&", "*", "+")
+        private val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<->", "~|", "~&", "*", "+", "=", "!=")
 //        private val singleCharOperators = arrayOf('!', '?', '~', '&', '|', '*', '+')
         private val operatorStartChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+')
 //        private val operatorChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+', '>', '-')
@@ -123,8 +123,6 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) { 
             val longerOperator = operator + nextChar.toChar()
             if (operators.any { op -> op.startsWith(longerOperator) }) {
                 return buildOperator(longerOperator)
-            } else if (longerOperator in InnerParser.inequality) {
-                return longerOperator
             } else if (operator in operators) {
                 return operator
             } else {
