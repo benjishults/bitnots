@@ -1,5 +1,5 @@
 
-create function check_axiom_in_axiom_set() return trigger as
+create function check_axiom_in_axiom_set() returns trigger as
 $BODY$
 BEGIN
 	IF (select formula_role from formula_plus f where f.formula_plus_id = new.formula_plus_id) <> 'axiom' then

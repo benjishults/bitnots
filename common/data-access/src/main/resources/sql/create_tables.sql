@@ -1,6 +1,13 @@
+drop table if exists problem_formula_plus;
+drop table if exists problem_axiom_set;
+drop table if exists problem;
+drop table if exists axiom_set;
+drop table if exists formula_plus;
+drop table if exists formula_role;
+drop table if exists formula;
 
 create table formula (
-    formula_id bigserial not null primary key,
+    formula_id bigserial primary key,
 --    language_id bigint 
     formula text not null unique
 );
@@ -9,7 +16,7 @@ create table formula_role (
     role text primary key
 );
 
-insert formula_role (role) values
+insert into formula_role (role) values
     ('axiom'),
     ('hypothesis'),
     ('definition'),
@@ -27,15 +34,15 @@ insert formula_role (role) values
     ('unknown');
 
 create table formula_plus (
-    formula_plus_id bigserial not null primary key,
+    formula_plus_id bigserial primary key,
     role text not null references formula_role,
-    formula_id not null references formula,
+    formula_id bigint not null references formula,
     name text not null unique
 );
 create index on formula_plus (role);
 
 create table axiom_set (
-    axiom_set_id bigserial not null primary key,
+    axiom_set_id bigserial primary key,
     name text not null unique
 
 );
@@ -43,7 +50,7 @@ create table axiom_set (
 create table axiom_axiom_set (
     axiom_set_id bigint not null references axiom_set,
     formula_plus_id bigint not null references formula_plus,
-    primary key (axiom_set_id, axiom_id)
+    primary key (axiom_set_id, formula_plus_id)
 );
 
 create trigger ensure_axiom_in_axiom_set 
@@ -53,8 +60,8 @@ create trigger ensure_axiom_in_axiom_set
     execute procedure check_axiom_in_axiom_set();
 
 create table problem (
-    problem_id bigserial not null primary key,
-    name text not null unique,
+    problem_id bigserial primary key,
+    name text not null unique
 
 );
 

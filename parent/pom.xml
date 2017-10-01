@@ -14,13 +14,37 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.incremental>false</kotlin.compiler.incremental>
-        <kotlin.version>1.1.50</kotlin.version>
+        <kotlin.version>1.1.51</kotlin.version>
         <dokka.version>0.9.15</dokka.version>
         <jackson.version>2.9.0</jackson.version>
         <camel.version>2.19.3</camel.version>
-        <spring.version>4.3.11.RELEASE</spring.version>
+        <spring.version>5.0.0.RELEASE</spring.version>
         <log4j.version>2.9.1</log4j.version>
     </properties>
+
+    <repositories>
+<!-- 
+        <repository>
+            <id>java.net</id>
+            <url>https://maven.java.net/content/repositories/public/</url>
+        </repository>
+ -->
+        <repository>
+            <id>jcenter</id>
+            <name>JCenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
+        <repository>
+            <id>atlassian-3rd-party</id>
+            <name>Atlassian 3rd Party</name>
+            <url>https://maven.atlassian.com/3rdparty/</url>
+        </repository>
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>http://central.maven.org/maven2/</url>
+        </repository>
+    </repositories>
 
     <pluginRepositories>
         <pluginRepository>
@@ -117,6 +141,16 @@
                 <artifactId>spring-context</artifactId>
                 <version>${spring.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.webflow</groupId>
+                <artifactId>spring-webflow</artifactId>
+                <version>2.4.6.RELEASE</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.camel</groupId>
@@ -142,6 +176,12 @@
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-netty4-http</artifactId>
                 <version>${camel.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>9.4.1208-jdbc42-atlassian-hosted</version>
             </dependency>
 
             <dependency>
@@ -242,6 +282,20 @@
                     <artifactId>kotlin-maven-plugin</artifactId>
                     <groupId>org.jetbrains.kotlin</groupId>
                     <version>${kotlin.version}</version>
+                    <configuration>
+                        <compilerPlugins>
+            <!-- Or "spring" for the Spring support -->
+                            <plugin>spring</plugin>
+<!--                             <plugin>all-open</plugin> -->
+   <!-- Or "jpa" for the Java Persistence annotation support -->
+<!--                             <plugin>no-arg</plugin> -->
+                        </compilerPlugins>
+
+<!--                         <pluginOptions>
+                            <option>no-arg:annotation=com.your.Annotation</option>
+                        </pluginOptions> -->
+                    </configuration>
+
                     <executions>
                         <execution>
                             <id>compile</id>
@@ -262,6 +316,18 @@
                             </configuration>
                         </execution>
                     </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.jetbrains.kotlin</groupId>
+                            <artifactId>kotlin-maven-noarg</artifactId>
+                            <version>${kotlin.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.jetbrains.kotlin</groupId>
+                            <artifactId>kotlin-maven-allopen</artifactId>
+                            <version>${kotlin.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

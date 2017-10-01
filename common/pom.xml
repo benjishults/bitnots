@@ -26,6 +26,7 @@
         <module>tptp-parser</module>
         <module>inference</module>
         <module>engine</module>
+        <module>data-access</module>
     </modules>
 
 </project>
