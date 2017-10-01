@@ -35,24 +35,42 @@ object Atomic : Unitary()
 
 sealed class BinaryConnector(open val connector: String) {
 
-    abstract class NonAssociativeBinaryConnector(override val connector: String) : BinaryConnector(connector)
-    abstract class AssociativeBinaryConnector(override val connector: String) : BinaryConnector(connector)
+    sealed class NonAssociativeBinaryConnector(override val connector: String) : BinaryConnector(connector) {
+        object IffConnector : NonAssociativeBinaryConnector("<=>")
+        object ImpliesConnector : NonAssociativeBinaryConnector("=>")
+        object ReverseImpliesConnector : NonAssociativeBinaryConnector("<=")
+        object XorConnector : NonAssociativeBinaryConnector("<->")
+        object NorConnector : NonAssociativeBinaryConnector("~|")
+        object NandConnector : NonAssociativeBinaryConnector("~&")
+    }
+
+    sealed class AssociativeBinaryConnector(override val connector: String) : BinaryConnector(connector) {
+        object AndConnector : AssociativeBinaryConnector("&")
+        object OrConnector : AssociativeBinaryConnector("|")
+    }
 
     object NoConnector : BinaryConnector(" ")
 
-    object AndConnector : AssociativeBinaryConnector("&")
-    object OrConnector : AssociativeBinaryConnector("|")
-
-    object IffConnector : NonAssociativeBinaryConnector("<=>")
-    object ImpliesConnector : NonAssociativeBinaryConnector("=>")
-    object ReverseImpliesConnector : NonAssociativeBinaryConnector("<=")
-    object XorConnector : NonAssociativeBinaryConnector("<->")
-    object NorConnector : NonAssociativeBinaryConnector("~|")
-    object NandConnector : NonAssociativeBinaryConnector("~&")
 
     companion object {
-        fun values() = BinaryConnector::class.nestedClasses.filter { it.isFinal && !it.isCompanion }.map { it.objectInstance as BinaryConnector }.toList()
-        fun forString(connector: String) = values().firstOrNull { it.connector == connector }
+        fun values() =
+                BinaryConnector::class.nestedClasses.filter {
+                    it.isFinal && !it.isCompanion
+                }.map {
+                    it.objectInstance as BinaryConnector
+                }.toList() +
+                        BinaryConnector::class.nestedClasses.filter {
+                            it.isSealed && !it.isCompanion
+                        }.flatMap {
+                            it.nestedClasses
+                        }.map {
+                            it.objectInstance as BinaryConnector
+                        }.toList()
+
+        fun forString(connector: String) =
+                values().firstOrNull {
+                    it.connector == connector
+                }
     }
 
 }
@@ -76,8 +94,14 @@ object TptpLogicFof : FofInnerParser<TptpFormulaWrapper> {
                         tokenizer.peek().let {
                             when (it) {
                                 "!=" -> {
+                                    // TODO unreachable?
                                     tokenizer.popToken()
                                     TptpFormulaWrapper(Not(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs))), Unary)
+                                }
+                                "=" -> {
+                                    // TODO unreachable?
+                                    tokenizer.popToken()
+                                    TptpFormulaWrapper(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs)), Unary)
                                 }
                                 else -> {
                                     // TODO check whether I ever use the second component of the formWrapper
@@ -96,7 +120,7 @@ object TptpLogicFof : FofInnerParser<TptpFormulaWrapper> {
 
 fun parseAfterUnitaryFormula(initial: TptpFormulaWrapper, tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): TptpFormulaWrapper {
     // TODO check whether I ever use the second component of the formWrapper
-    return generateSequence(initial to BinaryConnector.NoConnector as BinaryConnector) { (formWrapper, bin) ->
+    return generateSequence(initial to BinaryConnector.NoConnector as BinaryConnector) { (_ /*formWrapper*/, bin) ->
         tokenizer.peek().let {
             BinaryConnector.forString(it)?.let { connector ->
                 if (bin === BinaryConnector.NoConnector) {
@@ -123,26 +147,26 @@ fun parseAfterUnitaryFormula(initial: TptpFormulaWrapper, tokenizer: TptpTokeniz
             BinaryConnector.NoConnector ->
                 TptpFormulaWrapper(first().first.formula, Atomic)
 
-            BinaryConnector.OrConnector ->
+            BinaryConnector.AssociativeBinaryConnector.OrConnector ->
                 TptpFormulaWrapper(Or(*this.map {
                     it.first.formula
                 }.toTypedArray()), Assoc)
-            BinaryConnector.AndConnector ->
+            BinaryConnector.AssociativeBinaryConnector.AndConnector ->
                 TptpFormulaWrapper(And(*this.map {
                     it.first.formula
                 }.toTypedArray()), Assoc)
 
-            BinaryConnector.IffConnector ->
+            BinaryConnector.NonAssociativeBinaryConnector.IffConnector ->
                 TptpFormulaWrapper(Iff(first().first.formula, last().first.formula), NonAssoc)
-            BinaryConnector.NandConnector ->
+            BinaryConnector.NonAssociativeBinaryConnector.NandConnector ->
                 TptpFormulaWrapper(Not(And(first().first.formula, last().first.formula)), NonAssoc)
-            BinaryConnector.NorConnector ->
+            BinaryConnector.NonAssociativeBinaryConnector.NorConnector ->
                 TptpFormulaWrapper(Not(Or(first().first.formula, last().first.formula)), NonAssoc)
-            BinaryConnector.XorConnector ->
+            BinaryConnector.NonAssociativeBinaryConnector.XorConnector ->
                 TptpFormulaWrapper(Not(Iff(first().first.formula, last().first.formula)), NonAssoc)
-            BinaryConnector.ReverseImpliesConnector ->
+            BinaryConnector.NonAssociativeBinaryConnector.ReverseImpliesConnector ->
                 TptpFormulaWrapper(Implies(last().first.formula, first().first.formula), NonAssoc)
-            BinaryConnector.ImpliesConnector ->
+            BinaryConnector.NonAssociativeBinaryConnector.ImpliesConnector ->
                 TptpFormulaWrapper(Implies(first().first.formula, last().first.formula), NonAssoc)
             else ->
                 error(tokenizer.finishMessage("Should not be possible"))
@@ -212,6 +236,9 @@ object TptpUnitaryFof : FofInnerParser<TptpFormulaWrapper> {
                             if (it == "!=") {
                                 tokenizer.popToken()
                                 TptpFormulaWrapper(Not(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs))), Unary)
+                            } else if (it == "=") {
+                                tokenizer.popToken()
+                                TptpFormulaWrapper(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs)), Unary)
                             } else
                                 first.toFormula(bvs)
                         }

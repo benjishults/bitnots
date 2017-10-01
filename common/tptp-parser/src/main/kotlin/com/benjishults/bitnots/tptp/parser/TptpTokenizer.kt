@@ -14,9 +14,9 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) { 
         val punctuation = listOf('(', ')', ',', '.', '[', ']', ':')
 
         private val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<->", "~|", "~&", "*", "+")
-        private val singleCharOperators = arrayOf('!', '?', '~', '&', '|', '*', '+')
+//        private val singleCharOperators = arrayOf('!', '?', '~', '&', '|', '*', '+')
         private val operatorStartChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+')
-        private val operatorChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+', '>', '-')
+//        private val operatorChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+', '>', '-')
 
         //        private val predicates = arrayOf("!=", "\$true", "\$false")
         fun ensure(expected: String, actual: String, message: String = "Expected '$expected' but found '$actual'.") =
@@ -120,10 +120,10 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) { 
     tailrec private fun buildOperator(operator: String): String {
         val nextChar = popChar()
         if (nextChar != -1) {
-            val longerOperator = operator + nextChar.toChar().toString()
+            val longerOperator = operator + nextChar.toChar()
             if (operators.any { op -> op.startsWith(longerOperator) }) {
                 return buildOperator(longerOperator)
-            } else if (longerOperator == InnerParser.inequality) {
+            } else if (longerOperator in InnerParser.inequality) {
                 return longerOperator
             } else if (operator in operators) {
                 return operator

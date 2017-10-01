@@ -21,9 +21,9 @@ interface InnerParser<out T> {
     companion object {
         val keywords = arrayOf("fof", "cnf", "thf", "tff", "include")
         val punctuation = arrayOf("(", ")", ",", ".", "[", "]", ":")
-        val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<->", "~|", "~&", "*", "+")
+//        val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<->", "~|", "~&", "*", "+")
         val binaryConnective = arrayOf("<=>", "=>", "<=", "<->", "~|", "~&")
-        val inequality = "!="
+        val inequality = arrayOf("!=", "=")
         val unitaryFormulaInitial = arrayOf("?", "!", "~", "(")
 //        val predicates = arrayOf("!=", "\$true", "\$false")
     }

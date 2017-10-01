@@ -12,19 +12,24 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.Predicate
 import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.Implies
+import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.terms.Function
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.parser.FofAnnotatedFormula
+import com.benjishults.bitnots.tptp.parser.FormulaRoles
 import com.benjishults.bitnots.tptp.parser.TptpParser
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import java.nio.file.Path
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 
 class TptpSynTest {
+
+    val millis = 1000L
 
     private fun clearInternTables() {
         Predicate.PredicateConstructor.clear()
@@ -32,6 +37,164 @@ class TptpSynTest {
     }
 
     @Test
+    fun testAllSynSyoFol() {
+        val failures = mutableListOf<Path>()
+        val successes = mutableListOf<Path>()
+        val timeouts = mutableListOf<Path>()
+
+        TptpFileFetcher.findAll(TptpDomain.SYN, TptpFormulaForm.FOF).sortedWith(object : Comparator<Path> {
+            override fun compare(o1: Path?, o2: Path?): Int =
+                    o1?.getFileName()?.toString()?.compareTo(o2?.getFileName()?.toString() ?: "") ?: 0
+        }).forEach { path ->
+            TptpParser.parseFile(path).let { tptpFile ->
+                tptpFile.inputs.fold(mutableListOf<Formula<*>>() to mutableListOf<Formula<*>>()) { (hyps, targets), input ->
+                    (input as FofAnnotatedFormula).let { annotated ->
+                        when (annotated.formulaRole) {
+                            FormulaRoles.axiom,
+                            FormulaRoles.hypothesis,
+                            FormulaRoles.assumption,
+                            FormulaRoles.definition,
+                            FormulaRoles.theorem,
+                            FormulaRoles.lemma -> {
+                                hyps.add(annotated.formula)
+                            }
+
+                            FormulaRoles.conjecture -> {
+                                targets.add(annotated.formula)
+                            }
+                            FormulaRoles.negated_conjecture -> {
+                                targets.add(Not(annotated.formula))
+                            }
+
+                            FormulaRoles.corollary,
+                            FormulaRoles.fi_domain,
+                            FormulaRoles.fi_functors,
+                            FormulaRoles.fi_predicates,
+                            FormulaRoles.plain,
+                            FormulaRoles.type -> {
+                                error("Don't know what to do with ${annotated.formulaRole}.")
+                            }
+                            FormulaRoles.unknown -> error("Unknown role found.")
+                        }
+                    }
+                    hyps to targets
+                }.let { (hyps, targets) ->
+                    var hypothesis = null as Formula<*>?
+                    if (hyps.isNotEmpty()) {
+                        hypothesis = hyps.toTypedArray().let {
+                            if (it.size > 1) {
+                                And(*it)
+                            } else {
+                                it[0]
+                            }
+                        }
+                    }
+                    targets.forEach { target ->
+                        FolTableau(
+                                FolTableauNode(mutableListOf<SignedFormula<Formula<*>>>(
+                                        hypothesis?.let {
+                                            Implies(
+                                                    it,
+                                                    target).createSignedFormula()
+                                        } ?: target.createSignedFormula()
+                                ))).also { tableau ->
+                            clearInternTables()
+                            print("Quick test for ${path}.")
+                            when (limitedTimeProve(tableau, millis)) {
+                                Result.failed -> {
+                                    failures.add(path)
+                                    println(" failed")
+                                }
+                                Result.proved -> {
+                                    successes.add(path)
+                                    println(" succeeded")
+                                }
+                                Result.timeout -> {
+                                    timeouts.add(path)
+                                    println(" timed out")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        println("Failures: ")
+        failures.forEach { println(it) }
+        println("Proved: ")
+        successes.forEach { println(it) }
+        println("Timeout after ${millis} milliseconds: ")
+        timeouts.forEach { println(it) }
+    }
+
+    enum class Result {
+        proved,
+        failed,
+        timeout
+    }
+
+    private fun limitedTimeProve(tableau: Tableau, millis: Long): Result =
+            ResultThread(tableau).let {
+                try {
+                    it.start()
+                    it.get(millis, TimeUnit.MILLISECONDS)
+                } finally {
+                    it.join()
+                }
+            }
+
+    inner class ResultThread(val tableau: Tableau, var result: Result = Result.failed) : Thread(), Future<Result> {
+        override fun get(): TptpSynTest.Result {
+            join()
+            return result
+        }
+
+        override fun get(timeout: Long, unit: TimeUnit?): Result {
+            join(TimeUnit.MILLISECONDS.convert(timeout, unit))
+            if (isAlive()) {
+                this.interrupt()
+                return Result.timeout
+            }
+            return result
+        }
+
+        override fun isDone(): Boolean {
+            return !isAlive()
+        }
+
+        override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
+            if (isDone()) {
+                return false;
+            } else if (mayInterruptIfRunning) {
+                interrupt()
+            }
+            return true
+        }
+
+        override fun isCancelled(): Boolean {
+            TODO()
+        }
+
+        override fun run() {
+            while (!Thread.interrupted()) { // FIXME get a debugger in here and see if it is being interrupted
+                if (tableau.findCloser().isCloser()) {
+                    result = Result.proved
+                    return
+                } else if (Thread.interrupted()) {
+                    result = Result.timeout
+                    return
+                }
+                if (!tableau.step()) {
+                    result = Result.failed
+                    return
+                }
+            }
+            result = Result.timeout
+        }
+    }
+
+    @Test
+    @Ignore
     fun testSynProblems() {
         provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 1, 1))
         provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 41, 1))
@@ -49,6 +212,11 @@ class TptpSynTest {
         proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 63, 1))
         proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 64, 1))
         proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 65, 1), 1)
+
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 73, 1))
+
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 315, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 317, 1))
 
         // working from the end
 
@@ -84,6 +252,18 @@ class TptpSynTest {
         proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 68, 1), 1)
         proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 69, 1), 1)
         proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 70, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 79, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 81, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 82, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 84, 1))
+
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 316, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 318, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 319, 1))
+        //         TODO seems to require q-limit > 3
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 320, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 321, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 322, 1))
 
 
         proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 1), 1)

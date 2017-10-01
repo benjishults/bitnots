@@ -1,8 +1,10 @@
 package com.benjishults.bitnots.tptp.files
 
-import java.nio.file.Path
-import java.nio.file.FileSystems
 import com.benjishults.bitnots.tptp.TptpProperties
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.regex.Pattern
 
 enum class TptpDomain(val field: String, val subfield: String) {
     COL("Logic", "Combinatory Logic"),
@@ -85,6 +87,16 @@ object TptpFileFetcher {
     val FILE_SYSTEM = FileSystems.getDefault()
     private fun padToThreeDigits(version: Int) =
             String.format("%03d", version)
+
+    fun findAll(domain: TptpDomain, form: TptpFormulaForm): List<Path> {
+        val pattern = Pattern.compile("${domain}[0-9]{3}\\${form.form.takeIf {
+            it != '+'
+        }?.toString() ?: "\\+"}[1-9][0-9]*(?:\\.[0-9]{3})?\\.p")
+        return Files.newDirectoryStream(FILE_SYSTEM.getPath(TptpProperties.getBaseFolderName() as String,
+                "Problems", domain.toString())).filter {
+            pattern.matcher(it.getFileName().toString()).matches()
+        }.toList()
+    }
 
     fun findProblemFile(domain: TptpDomain, form: TptpFormulaForm, problemNumber: Int = 1, version: Int = 0, size: Int = -1): Path =
             FILE_SYSTEM.getPath(TptpProperties.getBaseFolderName() as String,
