@@ -7,9 +7,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>proof-service</artifactId>
+    <artifactId>data-ingest</artifactId>
 
-    <name>BITNOTS :: Services :: Proof Service</name>
+    <name>BITNOTS :: Services :: Data Ingest</name>
 
     <dependencies>
         <dependency>
@@ -46,14 +46,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.webflow</groupId>
-            <artifactId>spring-webflow</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -69,8 +61,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
         </dependency>
 
         <dependency>

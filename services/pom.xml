@@ -13,5 +13,10 @@
     <packaging>pom</packaging>
 
     <name>BITNOTS :: Services</name>
+    
+    <modules>
+        <module>data-ingest</module>
+        <module>proof-service</module>
+    </modules>
 
 </project>
