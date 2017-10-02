@@ -12,7 +12,7 @@ import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.terms.Function
-import com.benjishults.bitnots.theory.formula.FofAnnotatedFormula
+import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRoles
 import com.benjishults.bitnots.theory.formula.SignedFormula
 import com.benjishults.bitnots.theory.formula.createSignedFormula
@@ -48,7 +48,7 @@ class TptpSynTest {
         }).forEach { path ->
             TptpParser.parseFile(path).let { tptpFile ->
                 tptpFile.inputs.fold(mutableListOf<Formula<*>>() to mutableListOf<Formula<*>>()) { (hyps, targets), input ->
-                    (input as FofAnnotatedFormula).let { annotated ->
+                    (input as FolAnnotatedFormula).let { annotated ->
                         when (annotated.formulaRole) {
                             FormulaRoles.axiom,
                             FormulaRoles.hypothesis,
@@ -292,7 +292,7 @@ class TptpSynTest {
                                 if (hyps > 0) {
                                     Implies(
                                             tptp.inputs.dropLast(hyps).map {
-                                                (it as FofAnnotatedFormula).formula
+                                                (it as FolAnnotatedFormula).formula
                                             }.toTypedArray().let {
                                                 if (it.size > 1) {
                                                     And(*it)
@@ -300,9 +300,9 @@ class TptpSynTest {
                                                     it[0]
                                                 }
                                             },
-                                            (tptp.inputs.last() as FofAnnotatedFormula).formula).createSignedFormula()
+                                            (tptp.inputs.last() as FolAnnotatedFormula).formula).createSignedFormula()
                                 } else {
-                                    (tptp.inputs.last() as FofAnnotatedFormula).formula.createSignedFormula()
+                                    (tptp.inputs.last() as FolAnnotatedFormula).formula.createSignedFormula()
                                 }))).also { tableau ->
                     //                    var steps = 0
                     while (true) {
@@ -331,7 +331,7 @@ class TptpSynTest {
             TptpParser.parseFile(path).let { tptp ->
                 PropositionalTableau(
                         PropositionalTableauNode(mutableListOf<SignedFormula<Formula<*>>>(
-                                (tptp.inputs.last() as FofAnnotatedFormula).formula.createSignedFormula()),
+                                (tptp.inputs.last() as FolAnnotatedFormula).formula.createSignedFormula()),
                                 null)).also { tableau ->
                     while (true) {
                         if (tableau.findCloser().isCloser())

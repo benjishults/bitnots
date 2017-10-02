@@ -7,11 +7,13 @@ import com.benjishults.bitnots.model.formulas.fol.Pred
 import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
 import com.benjishults.bitnots.model.formulas.fol.equality.Equals
 import com.benjishults.bitnots.model.formulas.propositional.And
+import com.benjishults.bitnots.model.formulas.propositional.Falsity
 import com.benjishults.bitnots.model.formulas.propositional.Iff
 import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.formulas.propositional.Or
 import com.benjishults.bitnots.model.formulas.propositional.Prop
+import com.benjishults.bitnots.model.formulas.propositional.Truth
 import com.benjishults.bitnots.model.terms.BV
 import com.benjishults.bitnots.model.terms.BoundVariable
 import com.benjishults.bitnots.model.terms.Const
@@ -39,7 +41,7 @@ sealed class BinaryConnector(open val connector: String) {
         object IffConnector : NonAssociativeBinaryConnector("<=>")
         object ImpliesConnector : NonAssociativeBinaryConnector("=>")
         object ReverseImpliesConnector : NonAssociativeBinaryConnector("<=")
-        object XorConnector : NonAssociativeBinaryConnector("<->")
+        object XorConnector : NonAssociativeBinaryConnector("<~>")
         object NorConnector : NonAssociativeBinaryConnector("~|")
         object NandConnector : NonAssociativeBinaryConnector("~&")
     }
@@ -96,12 +98,12 @@ object TptpLogicFof : FofInnerParser<TptpFormulaWrapper> {
                                 "!=" -> {
                                     // TODO unreachable?
                                     tokenizer.popToken()
-                                    TptpFormulaWrapper(Not(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs))), Unary)
+                                    parseAfterUnitaryFormula(TptpFormulaWrapper(Not(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs))), Unary), tokenizer, bvs)
                                 }
                                 "=" -> {
                                     // TODO unreachable?
                                     tokenizer.popToken()
-                                    TptpFormulaWrapper(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs)), Unary)
+                                    parseAfterUnitaryFormula(TptpFormulaWrapper(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs)), Unary), tokenizer, bvs)
                                 }
                                 else -> {
                                     // TODO check whether I ever use the second component of the formWrapper
@@ -112,6 +114,12 @@ object TptpLogicFof : FofInnerParser<TptpFormulaWrapper> {
                     }
                 } else if (it in InnerParser.unitaryFormulaInitial) {
                     parseAfterUnitaryFormula(TptpUnitaryFof.parse(tokenizer, bvs), tokenizer, bvs)
+                } else if (it == "\$true") {
+                    tokenizer.popToken()
+                    parseAfterUnitaryFormula(TptpFormulaWrapper(Truth, Atomic), tokenizer, bvs)
+                } else if (it == "\$false") {
+                    tokenizer.popToken()
+                    parseAfterUnitaryFormula(TptpFormulaWrapper(Falsity, Atomic), tokenizer, bvs)
                 } else {
                     error(tokenizer.finishMessage("Unexpected character at beginning of logic FOF: '${it}'"))
                 }
@@ -202,23 +210,29 @@ data class Functor(val cons: String, val args: List<Functor>) {
     companion object {
         fun parse(tokenizer: TptpTokenizer): Functor =
                 tokenizer.popToken().let { functor ->
-                    require(functor.first().isLetter()) { tokenizer.finishMessage("Expected functor when parsing '$functor'") }
-                    Functor(functor, generateSequence(tokenizer.peek().let {
-                        if (it == "(") {
-                            tokenizer.popToken()
-                            parse(tokenizer)
-                        } else
-                            null
-                    }) {
-                        tokenizer.popToken().let {
-                            if (it == ",") {
-                                parse(tokenizer)
-                            } else if (it == ")") {
-                                null
-                            } else
-                                error(tokenizer.finishMessage("Expecting ',' or '), but found '$it'"))
+                    functor.toIntOrNull()?.let {
+                        Functor(functor, emptyList())
+                    } ?: run {
+                        require(functor.first().isLetter()) {
+                            tokenizer.finishMessage("Expected functor when parsing '$functor'")
                         }
-                    }.toList())
+                        Functor(functor, generateSequence(tokenizer.peek().let {
+                            if (it == "(") {
+                                tokenizer.popToken()
+                                parse(tokenizer)
+                            } else
+                                null
+                        }) {
+                            tokenizer.popToken().let {
+                                if (it == ",") {
+                                    parse(tokenizer)
+                                } else if (it == ")") {
+                                    null
+                                } else
+                                    error(tokenizer.finishMessage("Expecting ',' or '), but found '$it'"))
+                            }
+                        }.toList())
+                    }
                 }
     }
 }
@@ -251,8 +265,16 @@ object TptpUnitaryFof : FofInnerParser<TptpFormulaWrapper> {
                         "(" -> {
                             tokenizer.popToken()
                             TptpFormulaWrapper(TptpLogicFof.parse(tokenizer, bvs).formula, Paren).also {
-                                TptpTokenizer.ensure(")", tokenizer.popToken())
+                                TptpTokenizer.ensure(")", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
                             }
+                        }
+                        "\$true" -> {
+                            tokenizer.popToken()
+                            TptpFormulaWrapper(Truth, Atomic)
+                        }
+                        "\$false" -> {
+                            tokenizer.popToken()
+                            TptpFormulaWrapper(Falsity, Atomic)
                         }
                         else -> error(tokenizer.finishMessage("Unexpected character at beginning of FOF '${it}'"))
                     }
@@ -262,7 +284,7 @@ object TptpUnitaryFof : FofInnerParser<TptpFormulaWrapper> {
 
 object TptpFofNotParser : FofInnerParser<Not> {
     override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Not {
-        TptpTokenizer.ensure("~", tokenizer.popToken())
+        TptpTokenizer.ensure("~", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
         return Not(TptpUnitaryFof.parse(tokenizer, bvs).formula)
     }
 }
@@ -273,13 +295,13 @@ object QuantifiedFormula : FofInnerParser<VarBindingFormula> {
                 when (it) {
                     "!" -> {
                         parseBoundVars(tokenizer).let {
-                            TptpTokenizer.ensure(":", tokenizer.popToken())
+                            TptpTokenizer.ensure(":", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
                             ForAll(*it.toTypedArray(), formula = TptpUnitaryFof.parse(tokenizer, bvs + it).formula)
                         }
                     }
                     "?" -> {
                         parseBoundVars(tokenizer).let {
-                            TptpTokenizer.ensure(":", tokenizer.popToken())
+                            TptpTokenizer.ensure(":", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
                             ForSome(*it.toTypedArray(), formula = TptpUnitaryFof.parse(tokenizer, bvs + it).formula)
                         }
                     }
@@ -288,7 +310,7 @@ object QuantifiedFormula : FofInnerParser<VarBindingFormula> {
             }
 
     private fun parseBoundVars(tokenizer: TptpTokenizer): Set<BoundVariable> {
-        TptpTokenizer.ensure("[", tokenizer.popToken())
+        TptpTokenizer.ensure("[", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
         return generateSequence(parseBoundVar(tokenizer)) {
             tokenizer.popToken().let {
                 when (it) {

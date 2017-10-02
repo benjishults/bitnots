@@ -1,3 +1,5 @@
+--create extension uuid-ossp;
+CREATE EXTENSION pgcrypto;
 
 create function check_axiom_in_axiom_set() returns trigger as
 $BODY$

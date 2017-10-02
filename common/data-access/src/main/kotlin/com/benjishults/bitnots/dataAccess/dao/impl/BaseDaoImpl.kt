@@ -9,5 +9,4 @@ open class BaseDaoImpl<D>(val url: String) : BaseDao<D> {
     fun getConnection(): Connection =
             DriverManager.getConnection(url)
 
-
 }

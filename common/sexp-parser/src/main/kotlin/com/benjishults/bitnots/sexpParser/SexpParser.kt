@@ -25,44 +25,44 @@ import java.io.BufferedReader
 object SexpParser {
 
     fun parseFormula(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): Formula<*> {
-        SexpTokenizer.ensure(tokenizer.popToken(), "(")
+        SexpTokenizer.ensure(tokenizer.popToken(), "(")?.let { error(tokenizer.finishMessage(it)) }
         return tokenizer.peek().let {
             when (it) {
             // TODO make this more dynamic, configurable, and extensible
                 "implies" -> {
                     tokenizer.popToken()
                     Implies(parseFormula(tokenizer, bvs), parseFormula(tokenizer, bvs)).also {
-                        SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                        SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
                 "iff" -> {
                     tokenizer.popToken()
                     Iff(parseFormula(tokenizer, bvs), parseFormula(tokenizer, bvs)).also {
-                        SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                        SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
                 "=" -> {
                     tokenizer.popToken()
                     Equals(parseTerm(tokenizer, bvs), parseTerm(tokenizer, bvs)).also {
-                        SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                        SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
                 "not" -> {
                     tokenizer.popToken()
                     Not(parseFormula(tokenizer, bvs)).also {
-                        SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                        SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
                 "truth" -> {
                     tokenizer.popToken()
                     Truth.also {
-                        SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                        SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
                 "falsity" -> {
                     tokenizer.popToken()
                     Falsity.also {
-                        SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                        SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
                 "and" -> {
@@ -82,7 +82,7 @@ object SexpParser {
                     parseBoundVariables(tokenizer).let {
                         ForAll(*it.toTypedArray(), formula = parseFormula(tokenizer, bvs + it))
                     }.also {
-                        SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                        SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
                 "forsome", "for-some", "exists" -> {
@@ -90,7 +90,7 @@ object SexpParser {
                     parseBoundVariables(tokenizer).let {
                         ForSome(*it.toTypedArray(), formula = parseFormula(tokenizer, bvs + it))
                     }.also {
-                        SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                        SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
                 else -> {
@@ -101,7 +101,7 @@ object SexpParser {
     }
 
     private fun parseBoundVariables(tokenizer: SexpTokenizer): Set<BoundVariable> {
-        SexpTokenizer.ensure(tokenizer.popToken(), "(")
+        SexpTokenizer.ensure(tokenizer.popToken(), "(")?.let { error(tokenizer.finishMessage(it)) }
         return generateSequence(parseBoundVar(tokenizer)) {
             tokenizer.peek().let {
                 when (it) {
@@ -111,19 +111,19 @@ object SexpParser {
                 }
             }
         }.toSet().also {
-            SexpTokenizer.ensure(tokenizer.popToken(), ")")
+            SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
         }
     }
 
     private fun parseBoundVar(tokenizer: SexpTokenizer): BoundVariable {
-        SexpTokenizer.ensure(tokenizer.popToken(), "(")
+        SexpTokenizer.ensure(tokenizer.popToken(), "(")?.let { error(tokenizer.finishMessage(it)) }
         return tokenizer.popToken().let {
             if (it.first().isLetter()) {
                 BV(it)
             } else
                 error(tokenizer.finishMessage("Expected variable-name but got '$it'"))
         }.also {
-            SexpTokenizer.ensure(tokenizer.popToken(), ")")
+            SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
         }
     }
 
@@ -134,7 +134,7 @@ object SexpParser {
             }?.let {
                 parseFormula(tokenizer, bvs)
             } ?: null.also {
-                SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
             }
         }.toList()
     }
@@ -151,7 +151,7 @@ object SexpParser {
                 }?.let {
                     parseTerm(tokenizer, bvs)
                 } ?: null.also {
-                    SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                    SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                 }
             }.toList().let { terms ->
                 if (terms.isEmpty()) {
@@ -182,7 +182,7 @@ object SexpParser {
                             }?.let {
                                 parseTerm(tokenizer, bvs)
                             } ?: null.also {
-                                SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                                SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                             }
                         }.toList().let { terms ->
                             if (terms.isEmpty()) {
@@ -205,9 +205,9 @@ class SexpTokenizer(private val reader: BufferedReader, val fileName: String) {
         val UNEXPECTED_END_OF_INPUT = "Unexpected end of input"
         fun ensure(expected: String, actual: String, message: String = "Expected '$expected' but found '$actual'.") =
                 if (actual != expected)
-                    error(message)
+                    message
                 else
-                    actual
+                    null
     }
 
     private var lineNo: Int = 0

@@ -13,7 +13,7 @@ object Clause : InnerParser<List<SimpleSignedFormula<*>>> {
             tokenizer.peek().let {
                 if (it == "(") {
                     tokenizer.popToken()
-                    Disjunct.parse(tokenizer).also { TptpTokenizer.ensure(")", tokenizer.popToken()) }
+                    Disjunct.parse(tokenizer).also { TptpTokenizer.ensure(")", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) } }
                 } else {
                     Disjunct.parse(tokenizer)
                 }

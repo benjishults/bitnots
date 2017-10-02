@@ -13,5 +13,6 @@ object TptpProperties : Properties() {
         load(File(config + File.separator + "tptp.properties").reader().buffered())
     }
 
-    fun getBaseFolderName() = get("tptp.base.folder")
+    fun getBaseFolderName() =
+            get("tptp.base.folder")
 }

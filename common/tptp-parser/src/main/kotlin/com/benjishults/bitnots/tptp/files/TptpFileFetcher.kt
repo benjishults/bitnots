@@ -89,7 +89,7 @@ object TptpFileFetcher {
             String.format("%03d", version)
 
     fun findAll(domain: TptpDomain, form: TptpFormulaForm): List<Path> {
-        val pattern = Pattern.compile("${domain}[0-9]{3}\\${form.form.takeIf {
+        val pattern = Pattern.compile("${domain}[0-9]{3}${form.form.takeIf {
             it != '+'
         }?.toString() ?: "\\+"}[1-9][0-9]*(?:\\.[0-9]{3})?\\.p")
         return Files.newDirectoryStream(FILE_SYSTEM.getPath(TptpProperties.getBaseFolderName() as String,

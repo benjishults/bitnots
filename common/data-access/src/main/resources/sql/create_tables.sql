@@ -1,6 +1,7 @@
 drop table if exists problem_formula_plus;
 drop table if exists problem_axiom_set;
 drop table if exists problem;
+drop table if exists axiom_axiom_set;
 drop table if exists axiom_set;
 drop table if exists formula_plus;
 drop table if exists formula_role;
@@ -9,7 +10,8 @@ drop table if exists formula;
 create table formula (
     formula_id bigserial primary key,
 --    language_id bigint 
-    formula text not null unique
+    formula text not null,
+    formula_hash text not null unique
 );
 
 create table formula_role (

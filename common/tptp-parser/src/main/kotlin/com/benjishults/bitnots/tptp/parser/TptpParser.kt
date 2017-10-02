@@ -10,7 +10,7 @@ import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.theory.formula.AnnotatedFormula
 import com.benjishults.bitnots.theory.formula.CnfAnnotatedFormula
-import com.benjishults.bitnots.theory.formula.FofAnnotatedFormula
+import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRoles
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
@@ -23,11 +23,7 @@ interface InnerParser<out T> {
     companion object {
         val keywords = arrayOf("fof", "cnf", "thf", "tff", "include")
         val punctuation = arrayOf("(", ")", ",", ".", "[", "]", ":")
-//        val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<->", "~|", "~&", "*", "+")
-        val binaryConnective = arrayOf("<=>", "=>", "<=", "<->", "~|", "~&")
-//        val inequality = arrayOf("!=", "=")
         val unitaryFormulaInitial = arrayOf("?", "!", "~", "(")
-//        val predicates = arrayOf("!=", "\$true", "\$false")
     }
 
     fun parse(tokenizer: TptpTokenizer): T
@@ -72,8 +68,8 @@ class TptpFile(val inputs: List<AnnotatedFormula>) {
 data class Include(val axioms: List<AnnotatedFormula>) {
     companion object : InnerParser<List<AnnotatedFormula>> {
         override fun parse(tokenizer: TptpTokenizer): List<AnnotatedFormula> {
-            TptpTokenizer.ensure("include", tokenizer.popToken())
-            TptpTokenizer.ensure("(", tokenizer.popToken())
+            TptpTokenizer.ensure("include", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+            TptpTokenizer.ensure("(", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
 
             return tokenizer.popToken().substring("Axioms/".length).let {
                 TptpFile.parse(TptpTokenizer(
@@ -85,55 +81,53 @@ data class Include(val axioms: List<AnnotatedFormula>) {
                                 .toFile()
                                 .reader().buffered(), it)
                 ).inputs.run {
-                    tokenizer.parseCommaSeparatedListOfStringsToEndParen().takeIf {
-                        TptpTokenizer.ensure(".", tokenizer.popToken())
-                        it.isNotEmpty()
-                    }?.let { include ->
-                        filter {
-                            it.name in include
-                        }.toList()
-                    } ?: this
+                    tokenizer.skipToEndParen()
+                    TptpTokenizer.ensure(".", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+                    this
                 }
             }
         }
     }
 }
 
-      fun parseCnf(tokenizer: TptpTokenizer): CnfAnnotatedFormula {
-            TptpTokenizer.ensure("cnf", tokenizer.popToken())
-            TptpTokenizer.ensure("(", tokenizer.popToken())
-            return CnfAnnotatedFormula(
-                    tokenizer.popToken().also {
-                        TptpTokenizer.ensure(",", tokenizer.popToken())
-                    },
-                    FormulaRoles.valueOf(tokenizer.popToken()).also {
-                        TptpTokenizer.ensure(",", tokenizer.popToken())
-                    },
-                    Clause.parse(tokenizer).also {
-                        when (tokenizer.popToken()) {
-                            "," -> tokenizer.moveToEndParen()
-                            ")" -> TptpTokenizer.ensure(".", tokenizer.popToken())
-                        }
-                    })
-        }
+fun parseCnf(tokenizer: TptpTokenizer): CnfAnnotatedFormula {
+    TptpTokenizer.ensure("cnf", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+    TptpTokenizer.ensure("(", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+    return CnfAnnotatedFormula(
+            tokenizer.popToken().also {
+                TptpTokenizer.ensure(",", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+            },
+            FormulaRoles.valueOf(tokenizer.popToken()).also {
+                TptpTokenizer.ensure(",", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+            },
+            Clause.parse(tokenizer).also {
+                when (tokenizer.popToken()) {
+                    "," -> tokenizer.moveToEndParen()
+                    ")" -> TptpTokenizer.ensure(".", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+                }
+            })
+}
 
-      fun parseFof(tokenizer: TptpTokenizer): FofAnnotatedFormula {
-            TptpTokenizer.ensure("fof", tokenizer.popToken())
-            TptpTokenizer.ensure("(", tokenizer.popToken())
-            return FofAnnotatedFormula(
-                    tokenizer.popToken().also {
-                        TptpTokenizer.ensure(",", tokenizer.popToken())
-                    },
-                    FormulaRoles.valueOf(tokenizer.popToken()).also {
-                        TptpTokenizer.ensure(",", tokenizer.popToken())
-                    },
-                    TptpFofFof.parse(tokenizer).also {
-                        when (tokenizer.popToken()) {
-                            "," -> tokenizer.moveToEndParen()
-                            ")" -> TptpTokenizer.ensure(".", tokenizer.popToken())
-                        }
-                    })
-        }
+fun parseFof(tokenizer: TptpTokenizer): FolAnnotatedFormula {
+    TptpTokenizer.ensure("fof", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+    TptpTokenizer.ensure("(", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+    return FolAnnotatedFormula(
+            tokenizer.popToken().also {
+                TptpTokenizer.ensure(",", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+            },
+            FormulaRoles.valueOf(tokenizer.popToken()).also {
+                TptpTokenizer.ensure(",", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+            },
+            TptpFofFof.parse(tokenizer).also {
+                when (tokenizer.popToken()) {
+                    "," -> {
+                        tokenizer.moveToEndParen()
+                        TptpTokenizer.ensure(".", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+                    }
+                    ")" -> TptpTokenizer.ensure(".", tokenizer.popToken())?.let { error(tokenizer.finishMessage(it)) }
+                }
+            })
+}
 
 fun <V> parse(tokenizer: TptpTokenizer, upperFactory: (String) -> V, closedFactory: (String) -> V, argsFactory: (String, Int, List<Term<*>>) -> V): V {
     // function(lower), constant (lower), or variable (upper)

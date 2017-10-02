@@ -22,7 +22,8 @@ abstract class VarBindingFormula(cons: FormulaConstructor, vararg val variables:
         TODO()
     }
 
-    override fun getFreeVariables(): Set<FreeVariable> = formula.getFreeVariables()
+    override fun getFreeVariables(): Set<FreeVariable> =
+            formula.getFreeVariables()
 
     override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
         return formula.getVariablesUnboundExcept(boundVars.plus(variables))
@@ -38,9 +39,11 @@ abstract class VarBindingFormula(cons: FormulaConstructor, vararg val variables:
         }
     }
 
-    override fun toString(): String = "(${constructor.name} (${variables.joinToString(" ")}) ${formula})"
+    override fun toString(): String =
+            "(${constructor.name} ((${variables.joinToString(") (")})) ${formula})"
 
-    override fun hashCode(): Int = variables.contentHashCode() + this::class.hashCode()
+    override fun hashCode(): Int =
+            variables.contentHashCode() + this::class.hashCode()
 
     override fun equals(other: Any?): Boolean {
         // FIXME make this smarter

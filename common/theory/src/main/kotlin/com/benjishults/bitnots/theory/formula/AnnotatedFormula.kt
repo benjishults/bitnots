@@ -6,4 +6,4 @@ sealed class AnnotatedFormula(open val name: String = "")
 
 data class CnfAnnotatedFormula(override val name: String, val formulaRole: FormulaRoles, val clause: List<SimpleSignedFormula<*>>) : AnnotatedFormula()
 
-data class FofAnnotatedFormula(override val name: String, val formulaRole: FormulaRoles, val formula: Formula<*>) : AnnotatedFormula()
+data class FolAnnotatedFormula(override val name: String, val formulaRole: FormulaRoles, val formula: Formula<*>) : AnnotatedFormula()
