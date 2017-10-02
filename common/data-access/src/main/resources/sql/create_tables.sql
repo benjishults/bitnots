@@ -13,10 +13,10 @@ create table formula (
 );
 
 create table formula_role (
-    role text primary key
+    formula_role text primary key
 );
 
-insert into formula_role (role) values
+insert into formula_role (formula_role) values
     ('axiom'),
     ('hypothesis'),
     ('definition'),
@@ -35,15 +35,15 @@ insert into formula_role (role) values
 
 create table formula_plus (
     formula_plus_id bigserial primary key,
-    role text not null references formula_role,
+    formula_role text not null references formula_role,
     formula_id bigint not null references formula,
-    name text not null unique
+    formula_name text not null unique
 );
-create index on formula_plus (role);
+create index on formula_plus (formula_role);
 
 create table axiom_set (
     axiom_set_id bigserial primary key,
-    name text not null unique
+    axiom_set_name text not null unique
 
 );
 
@@ -61,7 +61,7 @@ create trigger ensure_axiom_in_axiom_set
 
 create table problem (
     problem_id bigserial primary key,
-    name text not null unique
+    problem_name text not null unique
 
 );
 
