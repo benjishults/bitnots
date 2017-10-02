@@ -3,11 +3,11 @@ package com.benjishults.bitnots.engine.proof
 import com.benjishults.bitnots.engine.proof.closer.BranchCloser
 import com.benjishults.bitnots.engine.proof.strategy.InitializingStrategy
 import com.benjishults.bitnots.engine.proof.strategy.PropositionalInitializationStrategy
-import com.benjishults.bitnots.inference.rules.SignedFormula
-import com.benjishults.bitnots.inference.rules.SimpleSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.util.TreeNode
 import com.benjishults.bitnots.model.util.TreeNodeImpl
+import com.benjishults.bitnots.theory.formula.SignedFormula
+import com.benjishults.bitnots.theory.formula.SimpleSignedFormula
 
 interface TableauNode : TreeNode {
 

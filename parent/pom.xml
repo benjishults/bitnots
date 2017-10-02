@@ -96,6 +96,21 @@
             </dependency>
             <dependency>
                 <groupId>com.benjishults.bitnots</groupId>
+                <artifactId>config</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.benjishults.bitnots</groupId>
+                <artifactId>data-access</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.benjishults.bitnots</groupId>
+                <artifactId>sexp-parser</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.benjishults.bitnots</groupId>
                 <artifactId>inference</artifactId>
                 <version>${project.version}</version>
             </dependency>

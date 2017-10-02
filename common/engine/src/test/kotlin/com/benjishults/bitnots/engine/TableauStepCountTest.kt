@@ -6,8 +6,6 @@ import com.benjishults.bitnots.engine.proof.PropositionalTableau
 import com.benjishults.bitnots.engine.proof.PropositionalTableauNode
 import com.benjishults.bitnots.engine.proof.Tableau
 import com.benjishults.bitnots.engine.proof.TableauNode
-import com.benjishults.bitnots.inference.rules.SignedFormula
-import com.benjishults.bitnots.inference.rules.createSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.ForAll
 import com.benjishults.bitnots.model.formulas.fol.ForSome
@@ -27,6 +25,8 @@ import com.benjishults.bitnots.theory.Claim
 import com.benjishults.bitnots.theory.ClosedInterval
 import com.benjishults.bitnots.theory.FalseClaim
 import com.benjishults.bitnots.theory.TrueClaim
+import com.benjishults.bitnots.theory.formula.SignedFormula
+import com.benjishults.bitnots.theory.formula.createSignedFormula
 import org.junit.Assert
 import org.junit.Test
 

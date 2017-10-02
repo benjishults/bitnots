@@ -1,6 +1,5 @@
 package com.benjishults.bitnots.tptp.parser
 
-import com.benjishults.bitnots.inference.rules.SimpleSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.Pred
 import com.benjishults.bitnots.model.formulas.propositional.Prop
@@ -9,11 +8,14 @@ import com.benjishults.bitnots.model.terms.Const
 import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.Term
-import java.nio.file.Path
-import com.benjishults.bitnots.tptp.files.TptpFileFetcher
+import com.benjishults.bitnots.theory.formula.AnnotatedFormula
+import com.benjishults.bitnots.theory.formula.CnfAnnotatedFormula
+import com.benjishults.bitnots.theory.formula.FofAnnotatedFormula
+import com.benjishults.bitnots.theory.formula.FormulaRoles
 import com.benjishults.bitnots.tptp.files.TptpDomain
+import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
-import com.benjishults.bitnots.tptp.TptpProperties
+import java.nio.file.Path
 
 const val UNEXPECTED_END_OF_INPUT = "Unexpected end of input."
 
@@ -54,8 +56,8 @@ class TptpFile(val inputs: List<AnnotatedFormula>) {
                                     throw e
                             }.let {
                                 when (it) {
-                                    "cnf" -> add(CnfAnnotatedFormula.parse(tokenizer))
-                                    "fof" -> add(FofAnnotatedFormula.parse(tokenizer))
+                                    "cnf" -> add(parseCnf(tokenizer))
+                                    "fof" -> add(parseFof(tokenizer))
                                     "include" -> addAll(Include.parse(tokenizer))
                                     else -> error(tokenizer.finishMessage("Parsing for '${it}' not yet implemented"))
                                 }
@@ -66,26 +68,6 @@ class TptpFile(val inputs: List<AnnotatedFormula>) {
     }
 
 }
-
-enum class FormulaRoles {
-    axiom,
-    hypothesis,
-    definition,
-    assumption,
-    lemma,
-    theorem,
-    corollary,
-    conjecture,
-    negated_conjecture,
-    plain,
-    type,
-    fi_domain,
-    fi_functors,
-    fi_predicates,
-    unknown
-}
-
-sealed class AnnotatedFormula(open val name: String = "")
 
 data class Include(val axioms: List<AnnotatedFormula>) {
     companion object : InnerParser<List<AnnotatedFormula>> {
@@ -117,10 +99,7 @@ data class Include(val axioms: List<AnnotatedFormula>) {
     }
 }
 
-data class CnfAnnotatedFormula(override val name: String, val formulaRole: FormulaRoles, val clause: List<SimpleSignedFormula<*>>) : AnnotatedFormula() {
-
-    companion object : InnerParser<CnfAnnotatedFormula> {
-        override fun parse(tokenizer: TptpTokenizer): CnfAnnotatedFormula {
+      fun parseCnf(tokenizer: TptpTokenizer): CnfAnnotatedFormula {
             TptpTokenizer.ensure("cnf", tokenizer.popToken())
             TptpTokenizer.ensure("(", tokenizer.popToken())
             return CnfAnnotatedFormula(
@@ -137,14 +116,8 @@ data class CnfAnnotatedFormula(override val name: String, val formulaRole: Formu
                         }
                     })
         }
-    }
 
-}
-
-data class FofAnnotatedFormula(override val name: String, val formulaRole: FormulaRoles, val formula: Formula<*>) : AnnotatedFormula() {
-
-    companion object : InnerParser<FofAnnotatedFormula> {
-        override fun parse(tokenizer: TptpTokenizer): FofAnnotatedFormula {
+      fun parseFof(tokenizer: TptpTokenizer): FofAnnotatedFormula {
             TptpTokenizer.ensure("fof", tokenizer.popToken())
             TptpTokenizer.ensure("(", tokenizer.popToken())
             return FofAnnotatedFormula(
@@ -161,9 +134,6 @@ data class FofAnnotatedFormula(override val name: String, val formulaRole: Formu
                         }
                     })
         }
-    }
-
-}
 
 fun <V> parse(tokenizer: TptpTokenizer, upperFactory: (String) -> V, closedFactory: (String) -> V, argsFactory: (String, Int, List<Term<*>>) -> V): V {
     // function(lower), constant (lower), or variable (upper)

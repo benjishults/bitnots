@@ -25,6 +25,10 @@
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>model</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>theory</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>

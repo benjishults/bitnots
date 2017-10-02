@@ -7,6 +7,8 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
+import com.benjishults.bitnots.theory.formula.SignedFormula
+import com.benjishults.bitnots.theory.formula.createSignedFormula
 
 abstract class GammaFormula<F : VarBindingFormula>(formula: F, sign: Boolean) : SignedFormula<F>(formula, sign) {
 

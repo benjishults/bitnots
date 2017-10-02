@@ -2,9 +2,9 @@ package com.benjishults.bitnots.engine.proof.strategy
 
 import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.inference.rules.AlphaFormula
-import com.benjishults.bitnots.inference.rules.SignedFormula
-import com.benjishults.bitnots.inference.rules.SimpleSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.theory.formula.SignedFormula
+import com.benjishults.bitnots.theory.formula.SimpleSignedFormula
 
 interface InitializingStrategy {
     fun init(node: TableauNode)

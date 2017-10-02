@@ -7,52 +7,35 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>data-access</artifactId>
+    <artifactId>sexp-parser</artifactId>
 
-    <name>BITNOTS :: Common :: Data Access</name>
+    <name>BITNOTS :: Common :: S-Expression Parser</name>
 
     <dependencies>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jre8</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
             <artifactId>model</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>sexp-parser</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>config</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>theory</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>inference</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -60,6 +43,7 @@
             <artifactId>test</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>

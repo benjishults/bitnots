@@ -1,4 +1,4 @@
-package com.benjishults.bitnots.inference.rules
+package com.benjishults.bitnots.theory.formula
 
 import com.benjishults.bitnots.model.formulas.Formula
 

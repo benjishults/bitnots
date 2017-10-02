@@ -1,7 +1,7 @@
 package com.benjishults.bitnots.engine.proof.closer
 
-import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.model.unifier.Substitution
+import com.benjishults.bitnots.theory.formula.SignedFormula
 
 interface BranchCloser
 

@@ -1,5 +1,8 @@
 package com.benjishults.bitnots.tptp.parser
 
+import com.benjishults.bitnots.theory.formula.CnfAnnotatedFormula
+import com.benjishults.bitnots.theory.formula.FofAnnotatedFormula
+import com.benjishults.bitnots.theory.formula.FormulaRoles
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm

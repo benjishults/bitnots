@@ -1,17 +1,5 @@
 package com.benjishults.bitnots.engine
 
-import com.benjishults.bitnots.inference.rules.SignedFormula
-import com.benjishults.bitnots.inference.rules.createSignedFormula
-import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.tptp.files.TptpDomain
-import com.benjishults.bitnots.tptp.files.TptpFileFetcher
-import com.benjishults.bitnots.tptp.files.TptpFormulaForm
-import com.benjishults.bitnots.tptp.parser.FofAnnotatedFormula
-import com.benjishults.bitnots.tptp.parser.TptpParser
-import org.junit.Assert
-import org.junit.Test
-import org.junit.Ignore
-
 class PlaistedTest {
 
 //    @Test

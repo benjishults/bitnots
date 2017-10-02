@@ -5,8 +5,8 @@ import com.benjishults.bitnots.engine.proof.Tableau
 import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.inference.rules.DeltaFormula
 import com.benjishults.bitnots.inference.rules.GammaFormula
-import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
+import com.benjishults.bitnots.theory.formula.SignedFormula
 import java.util.PriorityQueue
 
 open class FolStepStrategy(

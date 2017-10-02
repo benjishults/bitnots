@@ -3,8 +3,8 @@ package com.benjishults.bitnots.engine.proof.strategy
 import com.benjishults.bitnots.engine.proof.Tableau
 import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.inference.rules.BetaFormula
-import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.theory.formula.SignedFormula
 
 open class PropositionalStepStrategy(
         val nodeFactory: (MutableList<SignedFormula<*>>, TableauNode) -> TableauNode

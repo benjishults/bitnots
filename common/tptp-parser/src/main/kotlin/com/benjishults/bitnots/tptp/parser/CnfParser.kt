@@ -1,13 +1,12 @@
 package com.benjishults.bitnots.tptp.parser
 
-import com.benjishults.bitnots.inference.rules.SignedFormula
 import com.benjishults.bitnots.inference.rules.concrete.NegativePredicate
 import com.benjishults.bitnots.inference.rules.concrete.NegativePropositionalVariable
 import com.benjishults.bitnots.inference.rules.concrete.PositivePredicate
 import com.benjishults.bitnots.inference.rules.concrete.PositivePropositionalVariable
 import com.benjishults.bitnots.model.formulas.fol.Predicate
 import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
-import com.benjishults.bitnots.inference.rules.SimpleSignedFormula
+import com.benjishults.bitnots.theory.formula.SimpleSignedFormula
 
 object Clause : InnerParser<List<SimpleSignedFormula<*>>> {
     override fun parse(tokenizer: TptpTokenizer): List<SimpleSignedFormula<*>> =
