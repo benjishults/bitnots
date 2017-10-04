@@ -37,6 +37,7 @@ class TptpSynTest {
     }
 
     @Test
+    @Ignore
     fun testAllSynSyoFol() {
         val failures = mutableListOf<Path>()
         val successes = mutableListOf<Path>()
@@ -74,7 +75,10 @@ class TptpSynTest {
                             FormulaRoles.type -> {
                                 error("Don't know what to do with ${annotated.formulaRole}.")
                             }
-                            FormulaRoles.unknown -> error("Unknown role found.")
+                            FormulaRoles.unknown -> {
+                                // do nothing
+                                // error("Unknown role found.")
+                            }
                         }
                     }
                     hyps to targets
