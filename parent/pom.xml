@@ -2,23 +2,30 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.benjishults.bitnots</groupId>
+        <artifactId>bitnots</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
     <groupId>com.benjishults.bitnots</groupId>
     <artifactId>parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
-    <name>BITNOTS</name>
-    <description>BITNOTS is the name of this system</description>
+    <name>BITNOTS :: Parent</name>
+    <description>Parent POM</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.incremental>false</kotlin.compiler.incremental>
         <kotlin.version>1.1.51</kotlin.version>
+        <java.version>1.8</java.version>
         <dokka.version>0.9.15</dokka.version>
         <jackson.version>2.9.0</jackson.version>
         <camel.version>2.19.3</camel.version>
         <spring.version>5.0.0.RELEASE</spring.version>
+        <boot.version>1.5.7.RELEASE</boot.version>
         <log4j.version>2.9.1</log4j.version>
     </properties>
 
@@ -68,6 +75,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>13.0</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-stdlib-jre8</artifactId>
@@ -150,6 +163,46 @@
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>4.1.16.Final</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.typesafe.netty</groupId>
+                <artifactId>netty-reactive-streams</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+
+<!--             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot</artifactId>
+                <version>${boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-parent</artifactId>
+                <version>${boot.version}</version>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${boot.version}</version>
+            </dependency> -->
 
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -162,10 +215,97 @@
                 <version>${spring.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webflux</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+<!--             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>1.5.7.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency> -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot</artifactId>
+                <version>${boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>log4j-over-slf4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-aop</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-classic</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.1.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.projectreactor.ipc</groupId>
+                <artifactId>reactor-netty</artifactId>
+                <version>0.7.0.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>io.projectreactor</groupId>
+                <artifactId>reactor-core</artifactId>
+                <version>3.0.5.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>io.projectreactor</groupId>
+                <artifactId>reactor-bom</artifactId>
+                <version>Bismuth-RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        
+<!--             <dependency>
                 <groupId>org.springframework.webflow</groupId>
                 <artifactId>spring-webflow</artifactId>
                 <version>2.4.6.RELEASE</version>
-            </dependency>
+            </dependency> -->
 
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -215,9 +355,14 @@
                 <version>9.4.1208-jdbc42-atlassian-hosted</version>
             </dependency>
 
+<!--             <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-web</artifactId>
+                <version>${log4j.version}</version>
+            </dependency> -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
+                <artifactId>log4j-api</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
             <dependency>
@@ -306,7 +451,11 @@
                         </systemPropertyVariables>
                         <includes>
                             <include>**/*Test.*</include>
+                            <include>**/*Tests.*</include>
                         </includes>
+                        <excludes>
+                            <exclude>**/Abstract*.java</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -315,16 +464,8 @@
                     <version>${kotlin.version}</version>
                     <configuration>
                         <compilerPlugins>
-            <!-- Or "spring" for the Spring support -->
                             <plugin>spring</plugin>
-<!--                             <plugin>all-open</plugin> -->
-   <!-- Or "jpa" for the Java Persistence annotation support -->
-<!--                             <plugin>no-arg</plugin> -->
                         </compilerPlugins>
-
-<!--                         <pluginOptions>
-                            <option>no-arg:annotation=com.your.Annotation</option>
-                        </pluginOptions> -->
                     </configuration>
 
                     <executions>
@@ -381,15 +522,126 @@
                             <configuration>
                                 <!-- <ignoreNonCompile>true</ignoreNonCompile> -->
                                 <failOnWarning>true</failOnWarning>
+                                <ignoreNonCompile>true</ignoreNonCompile>
                                 <usedDependencies>
 
                                 </usedDependencies>
                                 <ignoredUnusedDeclaredDependencies>
-
+                                    <ignoredUnusedDeclaredDependency>org.jetbrains.kotlin:kotlin-stdlib-jre8</ignoredUnusedDeclaredDependency>
+                                    <ignoredUnusedDeclaredDependency>org.jetbrains.kotlin:kotlin-reflect:::test</ignoredUnusedDeclaredDependency>
                                 </ignoredUnusedDeclaredDependencies>
                                 <ignoredUsedUndeclaredDependencies>
-
+                                    <ignoredUsedUndeclaredDependency>org.jetbrains.kotlin:kotlin-stdlib-jre7</ignoredUsedUndeclaredDependency>
+                                    <ignoredUsedUndeclaredDependency>org.jetbrains.kotlin:kotlin-stdlib</ignoredUsedUndeclaredDependency>
                                 </ignoredUsedUndeclaredDependencies>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!-- Apply more sensible defaults for user projects -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <mainClass>${start-class}</mainClass>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            </manifest>
+                        </archive>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <configuration>
+                        <mainClass>${start-class}</mainClass>
+                    </configuration>
+                </plugin>
+<!--                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.6</version>
+                    <configuration>
+                        <delimiters>
+                            <delimiter>${resource.delimiter}</delimiter>
+                        </delimiters>
+                        <useDefaultDelimiters>false</useDefaultDelimiters>
+                    </configuration>
+                </plugin> -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <mainClass>${start-class}</mainClass>
+                    </configuration>
+                </plugin>
+                <!-- Support shade packaging (if the user does not want to use our plugin) -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-maven-plugin</artifactId>
+                            <version>1.5.7.RELEASE</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
+                        <createDependencyReducedPom>true</createDependencyReducedPom>
+                        <filters>
+                            <filter>
+                                <artifact>*:*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                            <configuration>
+                                <transformers>
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                        <resource>META-INF/spring.handlers</resource>
+                                    </transformer>
+                                    <transformer implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
+                                        <resource>META-INF/spring.factories</resource>
+                                    </transformer>
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                        <resource>META-INF/spring.schemas</resource>
+                                    </transformer>
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                        <mainClass>${start-class}</mainClass>
+                                    </transformer>
+                                </transformers>
                             </configuration>
                         </execution>
                     </executions>

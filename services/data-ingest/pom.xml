@@ -11,31 +11,32 @@
 
     <name>BITNOTS :: Services :: Data Ingest</name>
 
+    <properties>
+        <start.class>com.benjishults.bitnots.ingest.IngestApplication</start.class>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jre8</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-reflect</artifactId>
-        </dependency>
-        <dependency>
+<!--         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-allopen</artifactId>
-        </dependency>
+        </dependency> -->
 
-        <dependency>
+<!--         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>model</artifactId>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>theory</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>util</artifactId>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
@@ -54,47 +55,95 @@
             <artifactId>theory</artifactId>
         </dependency>
 
+<!--         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency> -->
+
+<!--         <dependency>
+            <groupId>com.typesafe.netty</groupId>
+            <artifactId>netty-reactive-streams</artifactId>
+        </dependency> -->
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+        </dependency>
+
+<!--         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+        </dependency> -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+        </dependency>
 
         <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
+            <groupId>io.projectreactor.ipc</groupId>
+            <artifactId>reactor-netty</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-spring-javaconfig</artifactId>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-netty4-http</artifactId>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>runtime </scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
+            <artifactId>log4j-api</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>test</artifactId>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -114,6 +163,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
