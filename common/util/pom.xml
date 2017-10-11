@@ -17,15 +17,19 @@
             <artifactId>kotlin-stdlib-jre8</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+<!--         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
-        </dependency>
+        </dependency> -->
 
-        <dependency>
+<!--         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>test</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency> -->
     </dependencies>
 
     <build>
@@ -41,6 +45,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

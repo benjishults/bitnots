@@ -13,17 +13,22 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jre8</artifactId>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-reflect</artifactId>
+            <artifactId>kotlin-stdlib-jre8</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>util</artifactId>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
@@ -35,8 +40,13 @@
         </dependency>
 
         <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>test</artifactId>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -63,6 +73,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

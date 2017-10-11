@@ -14,7 +14,6 @@
     <name>BITNOTS :: Common</name>
 
     <modules>
-        <module>test</module>
         <module>util</module>
         <!-- TODO rename from "model" to "language" -->
         <!-- TODO separate propositional from fol from pra from set from equality, etc. -->
