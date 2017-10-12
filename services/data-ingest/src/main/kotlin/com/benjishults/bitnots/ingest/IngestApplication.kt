@@ -7,13 +7,16 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.config.WebFluxConfigurer
+import org.springframework.boot.CommandLineRunner
 
 
 @Configuration
 @EnableWebFlux
 @Import(EndpointConfig::class, HttpConfig::class)
-class IngestApplication : WebFluxConfigurer {
-
+class IngestApplication : WebFluxConfigurer, CommandLineRunner {
+    override fun run(vararg args: String) {
+        Thread.currentThread().join()
+    }
 }
 
 fun main(args: Array<String>) {

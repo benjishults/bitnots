@@ -15,28 +15,40 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jre8</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>model</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>util</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>theory</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>inference</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- TODO this should be needed only for tests! -->
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>tptp-parser</artifactId>
+<!--             <scope>provided</scope> -->
         </dependency>
 
         <dependency>
@@ -48,11 +60,6 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>tptp-parser</artifactId>
-<!--             <scope>test</scope> -->
         </dependency>
     </dependencies>
 

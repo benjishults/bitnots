@@ -13,18 +13,18 @@ class EndpointConfig {
 
     class MyHandler {
         fun getMessages(@Suppress("UNUSED_PARAMETER") req: ServerRequest): Mono<ServerResponse> =
-                ServerResponse.ok().build()
+                ServerResponse.ok().body(Mono.just("Hello"), String::class.java)
 
-        fun addMessage(@Suppress("UNUSED_PARAMETER")req: ServerRequest): Mono<ServerResponse> =
-                ServerResponse.ok().build()
+        fun addMessage(@Suppress("UNUSED_PARAMETER") req: ServerRequest): Mono<ServerResponse> =
+                ServerResponse.ok().body(Mono.just("You posted?"), String::class.java)
 
-        fun getMessage(@Suppress("UNUSED_PARAMETER")req: ServerRequest): Mono<ServerResponse> =
-                ServerResponse.ok().build()
+        fun getMessage(@Suppress("UNUSED_PARAMETER") req: ServerRequest): Mono<ServerResponse> =
+                ServerResponse.ok().body(Mono.just(req.pathVariable("id")), String::class.java)
 
-        fun updateMessage(@Suppress("UNUSED_PARAMETER")req: ServerRequest): Mono<ServerResponse> =
+        fun updateMessage(@Suppress("UNUSED_PARAMETER") req: ServerRequest): Mono<ServerResponse> =
                 TODO()
 
-        fun deleteMessage(@Suppress("UNUSED_PARAMETER")req: ServerRequest): Mono<ServerResponse> =
+        fun deleteMessage(@Suppress("UNUSED_PARAMETER") req: ServerRequest): Mono<ServerResponse> =
                 ServerResponse.badRequest().build()
     }
 
