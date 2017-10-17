@@ -1,18 +1,17 @@
 package com.benjishults.bitnots.dataIngest
 
 import com.benjishults.bitnots.ingest.routes.EndpointConfig
-import org.junit.Test
+import org.junit.Ignore
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
-import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.WebTestClient.BodySpec
 
 @RunWith(SpringJUnit4ClassRunner::class)
 @ContextConfiguration(classes = arrayOf(EndpointConfig::class))
+@Ignore
 class WebFluxTest {
 
 //    @Autowired

@@ -1,15 +1,12 @@
 package com.benjishults.bitnots.ingest.routes
 
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.router
 import reactor.core.publisher.Mono
 
-@Configuration
-class EndpointConfig {
+class EndpointConfig { // : Configuration() {
 
     class MyHandler {
         fun getMessages(@Suppress("UNUSED_PARAMETER") req: ServerRequest): Mono<ServerResponse> =
@@ -30,15 +27,14 @@ class EndpointConfig {
 
     val messageHandler = MyHandler()
 
-    @Bean
-    fun apis() =
+    fun routes() =
             router {
                 (accept(MediaType.TEXT_PLAIN) and "/ingest").nest {
-//                    GET("/", messageHandler::getMessages)
+                    GET("/", messageHandler::getMessages)
                     POST("/{}", messageHandler::addMessage)
-//                    GET("/{id}", messageHandler::getMessage)
-//                    PUT("/{id}", messageHandler::updateMessage)
-//                    DELETE("/{id}", messageHandler::deleteMessage)
+                    GET("/{id}", messageHandler::getMessage)
+                    PUT("/{id}", messageHandler::updateMessage)
+                    DELETE("/{id}", messageHandler::deleteMessage)
                 }
             }
 }
