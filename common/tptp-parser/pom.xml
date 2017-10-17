@@ -23,10 +23,20 @@
             <artifactId>kotlin-stdlib-jre8</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>util</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>parser</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

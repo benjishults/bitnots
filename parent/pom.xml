@@ -105,6 +105,11 @@
             </dependency>
             <dependency>
                 <groupId>com.benjishults.bitnots</groupId>
+                <artifactId>parser</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.benjishults.bitnots</groupId>
                 <artifactId>theory</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -244,6 +249,22 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency> -->
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-autoconfigure</artifactId>
+                <version>${boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-autoconfigure-processor</artifactId>
+                <version>${boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-configuration-processor</artifactId>
+                <version>${boot.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot</artifactId>
@@ -473,6 +494,7 @@
                         <compilerPlugins>
                             <plugin>spring</plugin>
                         </compilerPlugins>
+                        <args>-Xjsr305=strict</args>
                     </configuration>
 
                     <executions>

@@ -57,6 +57,10 @@
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>parser</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
             <artifactId>theory</artifactId>
         </dependency>
 

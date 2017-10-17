@@ -19,7 +19,7 @@ import com.benjishults.bitnots.theory.formula.createSignedFormula
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
-import com.benjishults.bitnots.tptp.parser.TptpParser
+import com.benjishults.bitnots.tptp.parser.TptpFofParser
 import org.junit.Assert
 import org.junit.Ignore
 import org.junit.Test
@@ -47,7 +47,7 @@ class TptpSynTest {
             override fun compare(o1: Path?, o2: Path?): Int =
                     o1?.getFileName()?.toString()?.compareTo(o2?.getFileName()?.toString() ?: "") ?: 0
         }).forEach { path ->
-            TptpParser.parseFile(path).let { tptpFile ->
+            TptpFofParser.parseFile(path).let { tptpFile ->
                 tptpFile.inputs.fold(mutableListOf<Formula<*>>() to mutableListOf<Formula<*>>()) { (hyps, targets), input ->
                     (input as FolAnnotatedFormula).let { annotated ->
                         when (annotated.formulaRole) {
@@ -290,7 +290,7 @@ class TptpSynTest {
     private fun <N : TableauNode> proveWithHyps(path: Path, hyps: Int, nodeFactory: (MutableList<SignedFormula<Formula<*>>>) -> N, tabFactory: (N) -> Tableau) {
         try {
             println("Working on ${path}.")
-            TptpParser.parseFile(path).let { tptp ->
+            TptpFofParser.parseFile(path).let { tptp ->
                 tabFactory(
                         nodeFactory(mutableListOf<SignedFormula<Formula<*>>>(
                                 if (hyps > 0) {
@@ -332,7 +332,7 @@ class TptpSynTest {
         try {
             val path = TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 7, 1, 14)
 
-            TptpParser.parseFile(path).let { tptp ->
+            TptpFofParser.parseFile(path).let { tptp ->
                 PropositionalTableau(
                         PropositionalTableauNode(mutableListOf<SignedFormula<Formula<*>>>(
                                 (tptp.inputs.last() as FolAnnotatedFormula).formula.createSignedFormula()),

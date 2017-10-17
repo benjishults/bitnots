@@ -20,11 +20,24 @@ import com.benjishults.bitnots.model.terms.Const
 import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.Term
+import com.benjishults.bitnots.parser.Parser
+import com.benjishults.bitnots.parser.Tokenizer
+import com.benjishults.bitnots.theory.formula.AnnotatedFormula
 import java.io.BufferedReader
 
-object SexpParser {
+object SexpParser : Parser<Unit, SexpTokenizer, Formula<*>> {
+    override val tokenizerFactory: (BufferedReader, String) -> SexpTokenizer
+        get() = TODO()
 
-    fun parseFormula(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): Formula<*> {
+    override fun parse(tokenizer: SexpTokenizer): Nothing {
+        TODO()
+    }
+
+    override fun parseAnnotatedFormula(tokenizer: SexpTokenizer): AnnotatedFormula {
+        TODO()
+    }
+
+    override fun parseFormula(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): Formula<*> {
         SexpTokenizer.ensure(tokenizer.popToken(), "(")?.let { error(tokenizer.finishMessage(it)) }
         return tokenizer.peek().let {
             when (it) {
@@ -199,7 +212,7 @@ object SexpParser {
     }
 }
 
-class SexpTokenizer(private val reader: BufferedReader, val fileName: String) {
+class SexpTokenizer(private val reader: BufferedReader, val fileName: String) : Tokenizer {
 
     companion object {
         val UNEXPECTED_END_OF_INPUT = "Unexpected end of input"

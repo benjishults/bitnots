@@ -9,7 +9,8 @@ import com.benjishults.bitnots.theory.problem.ProblemSource
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
-import com.benjishults.bitnots.tptp.parser.TptpParser
+import com.benjishults.bitnots.tptp.parser.TptpFile
+import com.benjishults.bitnots.tptp.parser.TptpFofParser
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +33,7 @@ open class IngestTest {
             override fun compare(o1: Path?, o2: Path?): Int =
                     o1?.getFileName()?.toString()?.compareTo(o2?.getFileName()?.toString() ?: "") ?: 0
         }).forEach { path ->
-            TptpParser.parseFile(path).let { tptpFile ->
+            TptpFofParser.parseFile(path).let { tptpFile:TptpFile ->
                 tptpFile.inputs.forEach { input ->
                     (input as FolAnnotatedFormula).let { annotated ->
                         data.problemDao().insertAnnotatedFormula(annotated)
@@ -52,7 +53,7 @@ open class IngestTest {
             val conjectures = mutableListOf<AnnotatedFormula>()
             val axioms = mutableListOf<AnnotatedFormula>()
             val hypotheses = mutableListOf<AnnotatedFormula>()
-            TptpParser.parseFile(path).let { tptpFile ->
+            TptpFofParser.parseFile(path).let { tptpFile ->
                 tptpFile.inputs.forEach { input ->
                     (input as FolAnnotatedFormula).let { annotated ->
                         when (annotated.formulaRole) {

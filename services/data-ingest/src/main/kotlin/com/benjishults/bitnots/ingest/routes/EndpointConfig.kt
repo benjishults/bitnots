@@ -33,12 +33,12 @@ class EndpointConfig {
     @Bean
     fun apis() =
             router {
-                (accept(MediaType.APPLICATION_JSON) and "/messages").nest {
-                    GET("/", messageHandler::getMessages)
-                    POST("/", messageHandler::addMessage)
-                    GET("/{id}", messageHandler::getMessage)
-                    PUT("/{id}", messageHandler::updateMessage)
-                    DELETE("/{id}", messageHandler::deleteMessage)
+                (accept(MediaType.TEXT_PLAIN) and "/ingest").nest {
+//                    GET("/", messageHandler::getMessages)
+                    POST("/{}", messageHandler::addMessage)
+//                    GET("/{id}", messageHandler::getMessage)
+//                    PUT("/{id}", messageHandler::updateMessage)
+//                    DELETE("/{id}", messageHandler::deleteMessage)
                 }
             }
 }

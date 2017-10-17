@@ -1,5 +1,6 @@
 package com.benjishults.bitnots.tptp.parser
 
+import com.benjishults.bitnots.parser.Tokenizer
 import java.io.BufferedReader
 
 /**
@@ -7,7 +8,7 @@ import java.io.BufferedReader
  * @param predicates a map from predicate names to arity.  Propositional variables have arity 0.
  * @param functions a map from function names to arity.  Constants have arity 0.
  */
-class TptpTokenizer(private val reader: BufferedReader, val fileName: String) { //, val predicates: Map<String, Int> = emptyMap(), val functions: Map<String, Int> = emptyMap()) {
+class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : Tokenizer {
 
     companion object {
         private val keywords = arrayOf("fof", "cnf", "thf", "tff", "include")
@@ -147,7 +148,7 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) { 
     // only works after first call to popChar() so we take care of that in the initializer.
     fun popToken(): String {
         return backup?.also { backup = null } ?: run {
-            check(peekChar != -1) { finishMessage(UNEXPECTED_END_OF_INPUT) }
+            check(peekChar != -1) { finishMessage(Tokenizer.UNEXPECTED_END_OF_INPUT) }
             peekChar.toChar().let {
                 when (it) {
                     in operatorStartChars -> {

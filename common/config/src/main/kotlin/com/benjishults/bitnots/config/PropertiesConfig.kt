@@ -6,13 +6,13 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 
 @Configuration
 open class PropertiesConfig {
+
     companion object {
         @Bean
         @JvmStatic
         fun propertySourcesPlaceholderConfigurer(): PropertySourcesPlaceholderConfigurer {
             return PropertySourcesPlaceholderConfigurer()
         }
-
     }
 
 }
