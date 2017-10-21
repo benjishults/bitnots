@@ -12,13 +12,17 @@ abstract class Configuration : ApplicationContextAware {
 
     override fun setApplicationContext(applicationContext: ApplicationContext) {
         context = applicationContext as GenericApplicationContext
+//        beans().initialize(context)
     }
 
+    /**
+     * implementors should probably call super.  This iniitailizes the beans in the context.
+     */
     @PostConstruct
     open fun afterPropertiesSet() {
         beans().initialize(context)
     }
-    
-    abstract fun beans() : BeanDefinitionDsl
+
+    abstract fun beans(): BeanDefinitionDsl
 
 }

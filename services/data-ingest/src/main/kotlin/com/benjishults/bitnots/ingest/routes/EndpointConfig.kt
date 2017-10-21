@@ -1,12 +1,31 @@
 package com.benjishults.bitnots.ingest.routes
 
+import com.benjishults.bitnots.config.Configuration
+import org.springframework.context.support.BeanDefinitionDsl
+import org.springframework.context.support.beans
 import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.router
 import reactor.core.publisher.Mono
 
-class EndpointConfig { // : Configuration() {
+class EndpointConfig : Configuration() {
+
+    override fun beans(): BeanDefinitionDsl =
+            beans {
+                bean<RouterFunction<ServerResponse>> {
+                    router {
+                        (accept(MediaType.TEXT_PLAIN) and "/ingest").nest {
+                            GET("/", messageHandler::getMessages)
+                            POST("/{}", messageHandler::addMessage)
+                            GET("/{id}", messageHandler::getMessage)
+                            PUT("/{id}", messageHandler::updateMessage)
+                            DELETE("/{id}", messageHandler::deleteMessage)
+                        }
+                    }
+                }
+            }
 
     class MyHandler {
         fun getMessages(@Suppress("UNUSED_PARAMETER") req: ServerRequest): Mono<ServerResponse> =
@@ -27,14 +46,14 @@ class EndpointConfig { // : Configuration() {
 
     val messageHandler = MyHandler()
 
-    fun routes() =
-            router {
-                (accept(MediaType.TEXT_PLAIN) and "/ingest").nest {
-                    GET("/", messageHandler::getMessages)
-                    POST("/{}", messageHandler::addMessage)
-                    GET("/{id}", messageHandler::getMessage)
-                    PUT("/{id}", messageHandler::updateMessage)
-                    DELETE("/{id}", messageHandler::deleteMessage)
-                }
-            }
+//    fun routes() =
+//            router {
+//                (accept(MediaType.TEXT_PLAIN) and "/ingest").nest {
+//                    GET("/", messageHandler::getMessages)
+//                    POST("/{}", messageHandler::addMessage)
+//                    GET("/{id}", messageHandler::getMessage)
+//                    PUT("/{id}", messageHandler::updateMessage)
+//                    DELETE("/{id}", messageHandler::deleteMessage)
+//                }
+//            }
 }

@@ -1,6 +1,7 @@
 package com.benjishults.bitnots.ingest
 
 import com.benjishults.bitnots.ingest.http.WebConfig
+import com.benjishults.bitnots.ingest.routes.EndpointConfig
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.context.support.beans
 import org.springframework.http.server.reactive.HttpHandler
@@ -8,6 +9,7 @@ import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder
 import reactor.ipc.netty.http.server.HttpServer
 import reactor.ipc.netty.tcp.BlockingNettyContext
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 
 class IngestApplication {
@@ -21,7 +23,7 @@ class IngestApplication {
     constructor() {
         val port = System.getProperty("port")?.toString()?.toInt() ?: 8080
 
-        val context = GenericApplicationContext().apply {
+        val context = AnnotationConfigApplicationContext().apply {
             beans().initialize(this)
             refresh()
         }
@@ -33,12 +35,13 @@ class IngestApplication {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            Thread.sleep(20000) // TODO get rid of this... waiting for debugger to attach
+//            Thread.sleep(20000) // TODO get rid of this... waiting for debugger to attach
             IngestApplication().startAndAwait()
         }
     }
 
     fun beans() = beans {
+        bean<EndpointConfig>()
         bean<WebConfig>()
     }
 
