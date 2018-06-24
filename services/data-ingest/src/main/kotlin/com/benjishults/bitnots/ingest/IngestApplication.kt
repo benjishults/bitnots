@@ -4,6 +4,8 @@ import com.benjishults.bitnots.ingest.http.WebConfig
 import com.benjishults.bitnots.ingest.routes.EndpointConfig
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.context.support.beans
+import org.springframework.context.support.*
+import org.springframework.beans.factory.*
 import org.springframework.http.server.reactive.HttpHandler
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder
@@ -14,48 +16,26 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 class IngestApplication {
 
-    private val httpHandler: HttpHandler
-
-    private val server: HttpServer
-
-    private var nettyContext: BlockingNettyContext? = null
-
-    constructor() {
-        val port = System.getProperty("port")?.toString()?.toInt() ?: 8080
-
-        val context = AnnotationConfigApplicationContext().apply {
-            beans().initialize(this)
-            refresh()
-        }
-
-        server = HttpServer.create(port)
-        httpHandler = WebHttpHandlerBuilder.applicationContext(context).build()
-    }
-
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-//            Thread.sleep(20000) // TODO get rid of this... waiting for debugger to attach
-            IngestApplication().startAndAwait()
+            Thread.sleep(20000) // TODO get rid of this... waiting for debugger to attach
+            IngestApplication()
         }
     }
 
-    fun beans() = beans {
-        bean<EndpointConfig>()
-        bean<WebConfig>()
+    constructor() {
+        val context = AnnotationConfigApplicationContext().apply {
+            registerBean<WebConfig>()
+//            beans().initialize(this)
+            refresh()
+        }
+        context.getBean<WebConfig>().startAndAwait()  // getBean<WebConfig>().st
     }
 
-    fun start() {
-        nettyContext = server.start(ReactorHttpHandlerAdapter(httpHandler))
-    }
-
-    fun startAndAwait() {
-        server.startAndAwait(ReactorHttpHandlerAdapter(httpHandler), { nettyContext = it })
-    }
-
-    fun stop() {
-        nettyContext?.shutdown()
-    }
+//    fun beans() = beans {
+//        bean<WebConfig>()
+//    }
 
 }
 

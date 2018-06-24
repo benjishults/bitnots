@@ -2,7 +2,6 @@ package com.benjishults.bitnots.model.util
 
 import java.util.concurrent.ConcurrentHashMap
 
-
 fun <P1, P2, R> ((P1, P2) -> R).memoize(): (P1, P2) -> R {
     return object : (P1, P2) -> R {
         private val m = MemoizedHandler<((P1, P2) -> R), MemoizeKey2<P1, P2, R>, R>(this@memoize)
@@ -30,6 +29,7 @@ private data class MemoizeKey3<out P1, out P2, out P3, R>(val p1: P1, val p2: P2
 }
 
 private class MemoizedHandler<F, in K : MemoizedCall<F, R>, out R>(val f: F) {
+    // TODO probably don't need concurrency protection here.
     private val m = ConcurrentHashMap<K, R>()
     operator fun invoke(k: K): R {
         return m[k] ?: run {

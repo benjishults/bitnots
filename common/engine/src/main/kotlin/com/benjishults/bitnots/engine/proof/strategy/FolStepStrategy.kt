@@ -36,9 +36,9 @@ open class FolStepStrategy(
             }
             if (node === null)
                 return false
-            delta?.let { delta ->
-                node.newFormulas.remove(delta);
-                addChildFormulasToNewLeaves(delta, node)
+            delta?.let { 
+                node.newFormulas.remove(it);
+                addChildFormulasToNewLeaves(it, node)
                 return true
             } ?: return false
         }

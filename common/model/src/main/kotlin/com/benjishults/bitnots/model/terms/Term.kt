@@ -4,6 +4,10 @@ import com.benjishults.bitnots.model.util.memoize
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Substitution
 
+/**
+ * A term in a first-order language.
+ * @param cons the term constructor determines how the term is displayed
+ */
 abstract class Term<C : TermConstructor>(val cons: C) {
 
     companion object {
@@ -43,5 +47,6 @@ abstract class Term<C : TermConstructor>(val cons: C) {
      */
     //    abstract fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int>
     override abstract fun equals(other: Any?): Boolean
+
     override abstract fun hashCode(): Int
 }

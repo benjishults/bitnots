@@ -266,8 +266,8 @@ object TptpFofParser : AbstractTptpParser<Formula<*>>() {
                     Implies(last().first, first().first)/*, NonAssoc*/
                 BinaryConnector.NonAssociativeBinaryConnector.ImpliesConnector ->
                     Implies(first().first, last().first)/*, NonAssoc*/
-                else ->
-                    error(tokenizer.finishMessage("Should not be possible"))
+//                else ->
+//                    error(tokenizer.finishMessage("Should not be possible"))
             }
         }
     }

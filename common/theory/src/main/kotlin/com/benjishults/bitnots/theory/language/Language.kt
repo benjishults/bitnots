@@ -9,7 +9,7 @@ interface Language {
 }
 
 class FolLanguage(predicates: List<Predicate>, functions: List<Function>) : Language {
-    
+
 }
 
 class PropositionalLanguage(propositions: List<PropositionalVariable> = emptyList()) : Language {

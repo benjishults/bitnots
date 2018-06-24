@@ -8,7 +8,8 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 import kotlin.reflect.KParameter
 
-abstract class VarBindingFormula(cons: FormulaConstructor, vararg val variables: BoundVariable, val formula: Formula<*>) : Formula<FormulaConstructor>(cons) {
+abstract class VarBindingFormula(cons: FormulaConstructor, vararg val variables: BoundVariable, val formula: Formula<*>)
+    : FolFormula(cons) {
 
     override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
         TODO()

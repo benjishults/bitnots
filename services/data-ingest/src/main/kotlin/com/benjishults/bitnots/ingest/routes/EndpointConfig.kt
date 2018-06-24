@@ -1,9 +1,10 @@
 package com.benjishults.bitnots.ingest.routes
 
 import com.benjishults.bitnots.config.Configuration
-import org.springframework.context.support.BeanDefinitionDsl
-import org.springframework.context.support.beans
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.http.MediaType
+import org.springframework.context.support.*
+import org.springframework.beans.factory.*
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
@@ -11,21 +12,37 @@ import org.springframework.web.reactive.function.server.router
 import reactor.core.publisher.Mono
 
 class EndpointConfig : Configuration() {
-
-    override fun beans(): BeanDefinitionDsl =
-            beans {
-                bean<RouterFunction<ServerResponse>> {
-                    router {
-                        (accept(MediaType.TEXT_PLAIN) and "/ingest").nest {
-                            GET("/", messageHandler::getMessages)
-                            POST("/{}", messageHandler::addMessage)
-                            GET("/{id}", messageHandler::getMessage)
-                            PUT("/{id}", messageHandler::updateMessage)
-                            DELETE("/{id}", messageHandler::deleteMessage)
-                        }
+    
+    override fun beans(context: AnnotationConfigApplicationContext) {
+        with(context) {
+            registerBean<RouterFunction<*>>("firstRouter") {
+                router {
+                    (accept(MediaType.TEXT_PLAIN) and "/ingest").nest {
+                        GET("/", messageHandler::getMessages)
+                        POST("/{}", messageHandler::addMessage)
+                        GET("/{id}", messageHandler::getMessage)
+                        PUT("/{id}", messageHandler::updateMessage)
+                        DELETE("/{id}", messageHandler::deleteMessage)
                     }
                 }
             }
+        }
+    }
+
+
+//            beans {
+//                bean<RouterFunction<*>>("firstRouter") {
+//                    router {
+//                        (accept(MediaType.TEXT_PLAIN) and "/ingest").nest {
+//                            GET("/", messageHandler::getMessages)
+//                            POST("/{}", messageHandler::addMessage)
+//                            GET("/{id}", messageHandler::getMessage)
+//                            PUT("/{id}", messageHandler::updateMessage)
+//                            DELETE("/{id}", messageHandler::deleteMessage)
+//                        }
+//                    }
+//                }
+//            }
 
     class MyHandler {
         fun getMessages(@Suppress("UNUSED_PARAMETER") req: ServerRequest): Mono<ServerResponse> =
@@ -46,14 +63,4 @@ class EndpointConfig : Configuration() {
 
     val messageHandler = MyHandler()
 
-//    fun routes() =
-//            router {
-//                (accept(MediaType.TEXT_PLAIN) and "/ingest").nest {
-//                    GET("/", messageHandler::getMessages)
-//                    POST("/{}", messageHandler::addMessage)
-//                    GET("/{id}", messageHandler::getMessage)
-//                    PUT("/{id}", messageHandler::updateMessage)
-//                    DELETE("/{id}", messageHandler::deleteMessage)
-//                }
-//            }
 }

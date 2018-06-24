@@ -2,17 +2,16 @@ package com.benjishults.bitnots.config
 
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.BeanDefinitionDsl
-import org.springframework.context.support.GenericApplicationContext
 import javax.annotation.PostConstruct
 
 abstract class Configuration : ApplicationContextAware {
 
-    protected lateinit var context: GenericApplicationContext
+    protected lateinit var context: AnnotationConfigApplicationContext
 
     override fun setApplicationContext(applicationContext: ApplicationContext) {
-        context = applicationContext as GenericApplicationContext
-//        beans().initialize(context)
+        context = applicationContext as AnnotationConfigApplicationContext
     }
 
     /**
@@ -20,9 +19,9 @@ abstract class Configuration : ApplicationContextAware {
      */
     @PostConstruct
     open fun afterPropertiesSet() {
-        beans().initialize(context)
+        beans(context)
     }
 
-    abstract fun beans(): BeanDefinitionDsl
+    abstract fun beans(context: AnnotationConfigApplicationContext)
 
 }

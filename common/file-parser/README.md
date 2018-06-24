@@ -5,4 +5,4 @@
     2. create Language object
 2. parse formulas
     1. each logic has a formula parser that knows the formula constructs
-    2. using the language from above, it recognices atoms
+    2. using the language from above, it recognizes atoms

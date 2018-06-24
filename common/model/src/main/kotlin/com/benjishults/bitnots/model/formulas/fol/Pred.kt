@@ -12,10 +12,10 @@ import com.benjishults.bitnots.model.util.InternTableWithOther
 
 
 /**
- * Returns a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.
+ * Returns a [FunctionConstructor] with the given name and arity.  If one already exists with this name, that one is returned.
  * @param name the name of the predicate
- * @param arity the arity of the predicate. Must be > 0.  Otherwise, you want a PropositionalVariable.
- * @return a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.
+ * @param arity the arity of the predicate. Must be > 0.  Otherwise, you want a [PropositionalVariable].
+ * @return a [FunctionConstructor] with the given name and arity.  If one already exists with this name, that one is returned.
  */
 fun Pred(name: String, arity: Int = 1): PredicateConstructor {
     require(arity > 0)
@@ -23,10 +23,9 @@ fun Pred(name: String, arity: Int = 1): PredicateConstructor {
 }
 
 /**
- * Returns a PredicateConstructor with a unique name close to the given name.
  * @param name the name of the predicate
- * @param arity the arity of the predicate. Must be > 0.  Otherwise, you want a PropositionalVariable.
- * @return a PredicateConstructor with a unique name close to the given name.
+ * @param arity the arity of the predicate. Must be > 0.  Otherwise, you want a [PropositionalVariable].
+ * @return a [PredicateConstructor] with a unique name close to the given name.
  */
 fun PredU(name: String, arity: Int = 1): PredicateConstructor {
     require(arity > 0)
@@ -35,7 +34,7 @@ fun PredU(name: String, arity: Int = 1): PredicateConstructor {
 
 /**
  * Represents a simple function term in the language.  A constant is represented by a function of no arguments.
- * @param name the FunctionConstructor for the term
+ * @param name the [FunctionConstructor] for the term
  * @param arguments the arguments in the function term
  */
 class Predicate private constructor(name: PredicateConstructor, var arguments: List<Term<*>>) : Formula<PredicateConstructor>(name) {

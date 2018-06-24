@@ -30,7 +30,7 @@ fun FnU(name: String, arity: Int = 1): FunctionConstructor {
 }
 
 /**
- * Returns a Function of no arguments with the given name.  If a constant already exists with this name, that one is returned.
+ * Returns a constant with the given name.  If a constant already exists with this name, that one is returned.
  * @param name the name of the constant
  * @return a Function of no arguments with the given name.  If a constant already exists with this name, that one is returned.
  */
