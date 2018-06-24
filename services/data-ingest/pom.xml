@@ -35,10 +35,10 @@
             <artifactId>kotlin-allopen</artifactId>
         </dependency> -->
 
-<!--         <dependency>
+        <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>model</artifactId>
-        </dependency> -->
+        </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>theory</artifactId>

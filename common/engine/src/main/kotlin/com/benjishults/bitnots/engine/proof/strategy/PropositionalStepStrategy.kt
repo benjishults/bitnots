@@ -35,9 +35,9 @@ open class PropositionalStepStrategy(
                 if (node === null)
                     false
                 else
-                    beta?.let { beta ->
-                        node.newFormulas.remove(beta);
-                        addChildFormulasToNewLeaves(beta, node)
+                    beta?.let {
+                        node.newFormulas.remove(it);
+                        addChildFormulasToNewLeaves(it, node)
                         true
                     } ?: false
             }

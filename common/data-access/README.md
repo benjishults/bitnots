@@ -6,4 +6,4 @@
 
 # Populate database
 
-1. 
+1. run 

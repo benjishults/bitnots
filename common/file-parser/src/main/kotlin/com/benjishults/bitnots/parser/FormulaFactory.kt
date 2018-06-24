@@ -22,8 +22,7 @@ class FormulaFactory(val helpers: List<FormulaFactoryHelper<*>>) {
             it.isWhitespace()
         }.takeWhile {
             !it.isWhitespace() && it != '('
-        }.let { cons ->
-            
+        }.let {
             for (type in types) {
                 val clazz = try {
                     Class.forName("com.benjishults.bitnots.model.formulas.${type}$.{cons}")

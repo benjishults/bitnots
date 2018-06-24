@@ -7,6 +7,7 @@ import com.benjishults.bitnots.model.unifier.Substitution
 /**
  * A term in a first-order language.
  * @param cons the term constructor determines how the term is displayed
+ * @param C needed for some downstream type inferencing
  */
 abstract class Term<C : TermConstructor>(val cons: C) {
 
