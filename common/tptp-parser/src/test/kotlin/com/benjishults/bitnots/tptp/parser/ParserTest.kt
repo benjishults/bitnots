@@ -108,7 +108,7 @@ class ParserTest {
         try { // SYN000+2.p with the two offending sections commented out
             val path = TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 0, 2)
             TptpFofParser.parseFile(path).let {
-                Assert.assertEquals(17, it.inputs.size)
+                Assert.assertEquals(16, it.inputs.size)
                 Assert.assertTrue(it.inputs.all { it is FolAnnotatedFormula })
             }
         } catch (e: Exception) {
