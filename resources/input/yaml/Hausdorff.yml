@@ -47,7 +47,7 @@ theories:
             - x
             - empty-set
 
-    predicate=definitions:
+    predicate-definitions:
       - cons: disjoint
         arity: 2
         def:
@@ -58,7 +58,7 @@ theories:
                   - in: [a, @1]
                   - in: [a, @2]
 
-    name: topology
+  - name: topology
     predicates:
       - pred: Disjoint
         arity: 2

@@ -1,26 +1,56 @@
 package com.benjishults.bitnots.theory.formula
 
 import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.theory.problem.ProblemSource
 
 sealed class AnnotatedFormula(
-//        open val source: ProblemSource = ProblemSource.bitnots,
-        open val name: String = ""//,
-//        open val sourceDetail: String = ""
+    val name: String,
+    val formulaRole: FormulaRoles
 )
 
-data class CnfAnnotatedFormula(
-        override val name: String,
-        val formulaRole: FormulaRoles,
-        val clause: List<SimpleSignedFormula<*>>/*,
-        override val source: ProblemSource = ProblemSource.bitnots,
-        override val sourceDetail: String = ""*/
-) : AnnotatedFormula()
+class CnfAnnotatedFormula(
+    name: String,
+    formulaRole: FormulaRoles,
+    val clause: List<SimpleSignedFormula<*>>
+) : AnnotatedFormula(name, formulaRole) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-data class FolAnnotatedFormula(
-        override val name: String,
-        val formulaRole: FormulaRoles,
-        val formula: Formula<*>/*,
-        override val source: ProblemSource = ProblemSource.bitnots,
-        override val sourceDetail: String = ""*/
-) : AnnotatedFormula()
+        other as CnfAnnotatedFormula
+
+        if (formulaRole != other.formulaRole) return false
+        if (clause != other.clause) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = formulaRole.hashCode()
+        result = 31 * result + clause.hashCode()
+        return result
+    }
+}
+
+class FolAnnotatedFormula(
+    name: String,
+    formulaRole: FormulaRoles,
+    val formula: Formula<*>
+) : AnnotatedFormula(name, formulaRole) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as FolAnnotatedFormula
+
+        if (formulaRole != other.formulaRole) return false
+        if (formula != other.formula) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = formulaRole.hashCode()
+        result = 31 * result + formula.hashCode()
+        return result
+    }
+}

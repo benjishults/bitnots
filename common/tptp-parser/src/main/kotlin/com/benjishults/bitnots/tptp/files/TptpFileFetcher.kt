@@ -86,33 +86,62 @@ object TptpFileFetcher {
 
     val FILE_SYSTEM = FileSystems.getDefault()
     private fun padToThreeDigits(version: Int) =
-            String.format("%03d", version)
+        String.format("%03d", version)
 
     fun findAll(domain: TptpDomain, form: TptpFormulaForm): List<Path> {
         val pattern = Pattern.compile("${domain}[0-9]{3}${form.form.takeIf {
             it != '+'
         }?.toString() ?: "\\+"}[1-9][0-9]*(?:\\.[0-9]{3})?\\.p")
-        return Files.newDirectoryStream(FILE_SYSTEM.getPath(TptpProperties.getBaseFolderName() as String,
-                "Problems", domain.toString())).filter {
+        return Files.newDirectoryStream(
+            FILE_SYSTEM.getPath(
+                TptpProperties.getBaseFolderName() as String,
+                "Problems", domain.toString()
+            )
+        ).filter {
             pattern.matcher(it.getFileName().toString()).matches()
         }.toList()
     }
 
-    fun findProblemFile(domain: TptpDomain, form: TptpFormulaForm, problemNumber: Int = 1, version: Int = 0, size: Int = -1): Path =
-            FILE_SYSTEM.getPath(TptpProperties.getBaseFolderName() as String,
-                    "Problems", domain.toString(),
-                    "${domain.toString()}${padToThreeDigits(problemNumber)}${form.form}$version${if (size >= 0) ".${padToThreeDigits(size)}" else ""}.p")
+    fun findProblemFile(
+        domain: TptpDomain,
+        form: TptpFormulaForm,
+        problemNumber: Int = 1,
+        version: Int = 0,
+        size: Int = -1
+    ): Path =
+        FILE_SYSTEM.getPath(
+            TptpProperties.getBaseFolderName() as String,
+            "Problems", domain.toString(),
+            domain.toString() +
+                    padToThreeDigits(problemNumber) +
+                    form.form +
+                    version +
+                    (if (size >= 0)
+                        padToThreeDigits(size)
+                    else
+                        "") +
+                    ".p"
+        )
 
-    fun findAxiomsFile(domain: TptpDomain, form: TptpFormulaForm, axiomatizationNumber: Int = 1, version: Int = 0): Path =
-            if (domain === TptpDomain.SET && axiomatizationNumber == 7) {
-                FILE_SYSTEM.getPath(TptpProperties.getBaseFolderName() as String,
-                        "Axioms",
-                        domain.toString() + padToThreeDigits(axiomatizationNumber),
-                        "${domain.toString()}${padToThreeDigits(axiomatizationNumber)}${form.form}$version.ax")
-            } else
-                FILE_SYSTEM.getPath(TptpProperties.getBaseFolderName() as String,
-                        "Axioms",
-                        "${domain.toString()}${padToThreeDigits(axiomatizationNumber)}${form.form}$version.ax")
+    fun findAxiomsFile(
+        domain: TptpDomain,
+        form: TptpFormulaForm,
+        axiomatizationNumber: Int = 1,
+        version: Int = 0
+    ): Path =
+        if (domain === TptpDomain.SET && axiomatizationNumber == 7) {
+            FILE_SYSTEM.getPath(
+                TptpProperties.getBaseFolderName() as String,
+                "Axioms",
+                domain.toString() + padToThreeDigits(axiomatizationNumber),
+                "${domain.toString()}${padToThreeDigits(axiomatizationNumber)}${form.form}$version.ax"
+            )
+        } else
+            FILE_SYSTEM.getPath(
+                TptpProperties.getBaseFolderName() as String,
+                "Axioms",
+                "${domain.toString()}${padToThreeDigits(axiomatizationNumber)}${form.form}$version.ax"
+            )
 
 }
 

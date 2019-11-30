@@ -117,4 +117,18 @@ class ParserTest {
         }
     }
 
+    @Test
+    fun fofParserTest7() {
+        try { // TOP020+1.p hausdorff problem
+            val path = TptpFileFetcher.findProblemFile(TptpDomain.TOP, TptpFormulaForm.FOF, 20, 1)
+            TptpFofParser.parseFile(path).let {
+                Assert.assertEquals(9, it.inputs.size)
+                Assert.assertTrue(it.inputs.all { it is FolAnnotatedFormula  })
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
+    }
+
 }
