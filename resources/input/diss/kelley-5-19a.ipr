@@ -3,19 +3,19 @@
 
 (def-predicate (a-continuous-function-from-onto f x y)
   (p)
-  "~1 is a continuous function from ~2 to ~3"
+  "@1 is a continuous function from @2 to @3"
   "the definition of an onto continuous function"
   )
 
 (def-term (the-projection-function a x b)
   (p)
-  "the ~1th projection function from the product of ~2 over ~3"
+  "the @1th projection function from the product of @2 over @3"
   "the definition of the projection function"
   )
 
 (def-term (apply f x)
   (p)
-  ". ~1 ~2"
+  ". @1 @2"
   "the definition of function application")
 
 ;;(setq *strings-only* nil)
@@ -25,18 +25,18 @@
     (and (a-function-on x a_)
 	 (forall ((a))
 	   (a-member-of (apply x a) (apply x_ a)))))
-  "the product of ~1 over the index set ~2"
+  "the product of @1 over the index set @2"
   "the definition of a product space")
 
 (def-term (the-ath-coordinate-set a x_)
   (apply x_ a)
-  "the {~1} coordinate set of ~2"
+  "the {@1} coordinate set of @2"
   "the definition of a coordinate set"
   )
 
 (def-term (the-ath-coordinate a x)
   (apply x a)
-  "the {~1} coordinate of ~2"
+  "the {@1} coordinate of @2"
   "the definition of a coordinate")
 
 (def-term (the-ath-projection-function a x_ a_)
@@ -44,7 +44,7 @@
     (for-some ((x))
       (and (= p (the-ordered-pair x (apply x a)))
 	   (a-member-of x (the-product-over x_ a_)))))
-  "the {~1} projection function of ~2 over ~3"
+  "the {@1} projection function of @2 over @3"
   "the definition of a projection function"
   )
 ;;;  (the (p) (and (a-function-on p prod)
@@ -61,7 +61,7 @@
 
 (def-term (euclidian-n-set n)
   (the-exponent-set (the-reals) (the-first-n-numbers n))
-  "Euclidean ~1-space"
+  "Euclidean @1-space"
   "the definition of Euclidian space")
 
 ;;; there is some talk of choice functions at the end of the
@@ -75,7 +75,7 @@
      (for-some ((a))
        (and (= p (the-ordered-pair a (coerce-to-set (apply x_ a))))
 	    (a-member-of a a_)))) a_)
-  "the product of ~1 over ~2"
+  "the product of @1 over @2"
   "the definition of the product space")
 ;;;   (the (x1_) (forall ((a))
 ;;;		(implies (a-member-of a a_)
@@ -93,7 +93,7 @@
 	     (open-in u (apply x_ a))
 	     (= s (the-inverse-image (the-ath-projection-function a x_ a_) 
 				     u)))))))
-  "the product of ~1 over ~2"
+  "the product of @1 over @2"
   "the definition of the product space")
 
 (def-theorem 
@@ -124,7 +124,7 @@
   (and (a-function-from-onto f (coerce-to-set a) (coerce-to-set b))
        (implies (open-in u a)
 	 (open-in (the-image-of f u) b)))
-  "~1 is an open function from ~2 onto ~3"
+  "@1 is an open function from @2 onto @3"
   "the definition of an open function"
   )
 
@@ -147,7 +147,7 @@
   (for-some ((a))
     (and (a-member-of a a_)
 	 (= s (apply x_ a))))
-  "~1 is a coordinate of the product of ~2 over ~3"
+  "@1 is a coordinate of the product of @2 over @3"
   "the definition of a coordinate")
 
 (def-theorem
@@ -162,13 +162,13 @@
     (implies (an-open-cover-of a x)
       (for-some ((b))
 	(a-finite-subcover-of b a))))
-  "~1 is compact"
+  "@1 is compact"
   "the definition of compact")
 
 (def-predicate (a-compact-subset-of a b)
   (and (a-subset-of (the-set a) (the-set b))
        (a-compact-top-space (the-relative-top-space b a)))
-  "~1 is a compact subset of ~2"
+  "@1 is a compact subset of @2"
   "the definition of a compact subset")
 
 (def-theorem
@@ -192,7 +192,7 @@
 
 (def-predicate (bounded-in-the-psuedo-metric-top-space x pmts)
   (a-member-of (the-diameter-of-the-set x pmts) (the-set-of-reals))
-  "~1 is bounded in ~2"
+  "@1 is bounded in @2"
   "the definition of bounded")
 
 (def-theorem
@@ -226,7 +226,7 @@
   (and (a-suclass-of-the-top-space a b)
        (= (the-empty-set)
 	  (the-interior-of (the-closure-of a b) b)))
-  "~1 is nowhere dense in ~2"
+  "@1 is nowhere dense in @2"
   "the definition of nowhere dense")
 
 (def-theorem
@@ -248,7 +248,7 @@
 ;;;	(and (a-nbhd-of c x x_)
 ;;;	     (a-compact-subset-of c x_)))))
 ;;;  (string "the definition of locally compact")
-;;;  (format "~1 is a locally compact space")
+;;;  (format "@1 is a locally compact space")
 ;;;  )
 
 (def-theorem

@@ -2,12 +2,12 @@
 
 (def-term (the-ordered-pair a b)
   ()
-  (format "<~a, ~a>")
+  (format "<@1, @2>")
   (string "the definition of an ordered pair"))
 
 (def-term (the-product-of a b)
   ()
-  (format "the product of ~a and ~a")
+  (format "the product of @1 and @2")
   (string "the definition of the cross product"))
 
 (setq *format-only* nil)

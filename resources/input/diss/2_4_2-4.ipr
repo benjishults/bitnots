@@ -2,38 +2,38 @@
 
 ;; (def-predicate (a-subset-of a b)
 ;;   ()
-;;   (format "~a is a subset of ~a"))
+;;   (format "@1 is a subset of @2"))
 
 ;; (def-predicate (a-vector-space v)
 ;;   ()
-;;   (format "~a is a vector space"))
+;;   (format "@1 is a vector space"))
 
 ;; (def-term (union a b)
 ;;   ()
-;;   (format "the union of ~a and ~a"))
+;;   (format "the union of @1 and @2"))
 
 ;; (def-predicate (a-vector-subspace-of a b)
 ;;   ()
-;;   (format "~a is a subspace of ~a"))
+;;   (format "@1 is a subspace of @2"))
 
 ;; (def-term (v-space-to-class v)
 ;;   ()
-;;   (format "~a"))
+;;   (format "@1"))
 
 ;; (def-term (the-space v + * z)
 ;;   ()
-;;   (format "the vector space ~a with ~a, ~a, and ~a"))
+;;   (format "the vector space @1 with @2, @3, and @4"))
 
 ;; (def-predicate (lin-ind-subset e v)
 ;;   ()
-;;   (format "~a is a linearly independent subset of ~a"))
+;;   (format "@1 is a linearly independent subset of @2"))
 
 ;; (def-predicate (basis-of b v)
 ;;   (and (lin-ind-subset b v)
 ;;        (forall ((a)) (implies (and (a-member-of a (v-space-to-class v))
 ;; 				   (not (a-member-of a b)))
 ;; 		       (not (lin-ind-subset (union b (the-singleton a)) v)))))
-;;   (format "~a is a basis of ~a")
+;;   (format "@1 is a basis of @2")
 ;; ;;;  (string "the defintion of a basis")
 ;;   )
 

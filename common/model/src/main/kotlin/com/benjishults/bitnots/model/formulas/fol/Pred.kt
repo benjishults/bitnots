@@ -90,7 +90,7 @@ class Predicate private constructor(name: PredicateConstructor, var arguments: L
         }
     }
 
-    override fun unifyUnchached(other: Formula<*>, sub: Substitution): Substitution {
+    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution {
         if (other is Predicate) {
             if (other.constructor === constructor) {
                 return arguments.foldIndexed(sub) { i, s, t ->

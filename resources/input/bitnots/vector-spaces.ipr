@@ -2,41 +2,41 @@
 
 (def-predicate (a-subset-of a b)
   ()
-  (format "~1 is a subset of ~2")
+  (format "@1 is a subset of @2")
   (name "the definition of subset")
   )
 
 (def-predicate (a-vector-space v)
   ()
-  (format "~1 is a vector space")
+  (format "@1 is a vector space")
   (name "the definition of vector space")
   )
 
 (def-term (union a b)
   ()
-  (format "the union of ~1 and ~2")
+  (format "the union of @1 and @2")
   (name "the definition of union")
   )
 
 (def-predicate (a-vector-subspace-of a b)
   ()
-  (format "~1 is a subspace of ~2")
+  (format "@1 is a subspace of @2")
   (name "the definition of vector subspace")
   )
 
 (def-term (v-space-to-class v)
   ()
-  (format "~1")
+  (format "@1")
   )
 
 (def-term (the-space v + * z)
   ()
-  (format "the vector space ~1 with ~2, ~3, and ~4")
+  (format "the vector space @1 with @2, @3, and @4")
   )
 
 (def-predicate (lin-ind-subset e v)
   ()
-  (format "~1 is a linearly independent subset of ~2")
+  (format "@1 is a linearly independent subset of @2")
   (name "the definition of linear independence")
   )
 
@@ -45,7 +45,7 @@
        (forall ((a)) (implies (and (a-member-of a (v-space-to-class v))
  				   (not (a-member-of a b)))
  		       (not (lin-ind-subset (union b (the-singleton a)) v)))))
-  (format "~1 is a basis of ~2")
+  (format "@1 is a basis of @2")
   (name "the defintion of a basis")
   )
 

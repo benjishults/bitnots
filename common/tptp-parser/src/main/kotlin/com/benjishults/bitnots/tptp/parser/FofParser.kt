@@ -3,7 +3,7 @@ package com.benjishults.bitnots.tptp.parser
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.ForAll
 import com.benjishults.bitnots.model.formulas.fol.ForSome
-import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
+import com.benjishults.bitnots.model.formulas.fol.VarsBindingFormula
 import com.benjishults.bitnots.model.formulas.fol.equality.Equals
 import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.Falsity
@@ -17,7 +17,6 @@ import com.benjishults.bitnots.model.terms.BoundVariable
 import com.benjishults.bitnots.parser.Tokenizer
 import com.benjishults.bitnots.theory.formula.AnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
-import com.benjishults.bitnots.theory.formula.FormulaRoles
 
 sealed class BinaryConnector(open val connector: String) {
 
@@ -139,7 +138,7 @@ object TptpFofParser : AbstractTptpParser<Formula<*>>() {
         return Not(parseUnitaryFof(tokenizer, bvs))
     }
 
-    fun parseQuantifiedFormula(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): VarBindingFormula =
+    fun parseQuantifiedFormula(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): VarsBindingFormula =
             tokenizer.popToken().let {
                 when (it) {
                     "!" -> {

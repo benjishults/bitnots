@@ -10,7 +10,7 @@ import com.benjishults.bitnots.model.unifier.Substitution
 data class Not(val argument: Formula<*>) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.not.name)) {
     override fun contains(variable: Variable<*>, sub: Substitution) = argument.contains(variable, sub)
 
-    override fun unifyUnchached(other: Formula<*>, sub: Substitution): Substitution =
+    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution =
             if (other is Not)
                 Formula.unify(argument, other.argument, sub)
             else

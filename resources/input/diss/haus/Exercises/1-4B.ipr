@@ -2,50 +2,50 @@
 
 (def-predicate (closed-in a b)
   (open-in (the-set-difference-of b a) b)
-  (format "~a is a closed subset of ~a"))
+  (format "@1 is a closed subset of @2"))
 
 (def-term (the-graph-of f)
   ()
-  (format "the graph of ~a"))
+  (format "the graph of @1"))
 
 (def-term (the-domain-of f)
   ()
-  (format "the domain of ~a"))
+  (format "the domain of @1"))
 
 (def-term (the-product-top-space-of a b)
   ()
-  (format "the product topological space of ~a and ~a"))
+  (format "the product topological space of @1 and @2"))
 
 (def-term (the-product-of a b)
   ()
-  (format "the cartesian product of ~a and ~a"))
+  (format "the cartesian product of @1 and @2"))
 
 (def-term (apply a b)
   ()
-  (format "{~a}(~a)"))
+  (format "{@1}(@2)"))
 
 (def-term (the-ordered-pair a b)
   ()
-  (format "<~a, ~a>"))
+  (format "<@1, @2>"))
 
 (def-term (coerce-to-class x)
   ()
-  (format "the class associated with ~a")
+  (format "the class associated with @1")
   )
 
 (def-predicate (open-in a x)
   ()
-  (format "~a is open in ~a")
+  (format "@1 is open in @2")
   )
 
 (def-predicate (a-function-from-to f x y)
   ()
-  (format "~a is a function from ~a to ~a")
+  (format "@1 is a function from @2 to @3")
   )
 
 (def-term (the-set-inverse-image-of f a)
   ()
-  (format "{~a}^{-1}(~a)")
+  (format "{@1}^{-1}(@2)")
   )
 
 (setq *format-only* nil)
@@ -70,14 +70,14 @@
 	     (a-member-of a g1) (a-member-of b g2)
 	     (disjoint g1 g2)))))
   (string "the definition of a Hausdorff space")
-  (format "~a is a Hausdorff space"))
+  (format "@1 is a Hausdorff space"))
 
 (def-predicate (a-continuous-function-from-to f x y)
   (and (a-function-from-to f (coerce-to-class x) (coerce-to-class y))
        (forall ((g)) (implies (open-in g y)
 		       (open-in (the-set-inverse-image-of f g) x))))
   (string "the definition of a continuous function")
-  (format "~a : ~a --> ~a is a continuous function"))
+  (format "@1 : @2 --> @3 is a continuous function"))
 
 (def-theorem product-of-open-sets
   (implies (and (open-in a x) (open-in b y))
@@ -101,7 +101,7 @@
 (def-predicate (disjoint a b)
   (not (for-some ((y)) (and (a-member-of y a) (a-member-of y b))))
   (string "the definition of disjoint")
-  (format "~a and ~a are disjoint"))
+  (format "@1 and @2 are disjoint"))
 
 (def-theorem inverse-image		; a definition
   (iff (a-member-of x (the-set-inverse-image-of f a))

@@ -2,55 +2,55 @@
 
 (def-predicate (closed-in a b)
   (open-in (the-set-difference-of b a) b)
-  (string "~a is a closed subset of ~a"))
+  (string "@1 is a closed subset of @2"))
 
 (def-term (the-graph-of f)
   ()
-  (string "the graph of ~a"))
+  (string "the graph of @1"))
 
 (def-term (the-domain-of f)
   ()
-  (string "the domain of ~a"))
+  (string "the domain of @1"))
 
 (def-term (the-product-top-space-of a b)
   ()
-  (string "the product topological space of ~a and ~a"))
+  (string "the product topological space of @1 and @2"))
 
 (def-term (the-product-of a b)
   ()
-  (string "the cartesian product of ~a and ~a"))
+  (string "the cartesian product of @1 and @2"))
 
 (def-term (apply a b)
   ()
-  (string "{~a}(~a)"))
+  (string "{@1}(@2)"))
 
 (def-term (the-ordered-pair a b)
   ()
-  (string "<~a, ~a>"))
+  (string "<@1, @2>"))
 
 ;;;(def-term (the-set-difference-of a b)
 ;;;  ()
-;;;  (string "the set difference of ~a and ~a")
+;;;  (string "the set difference of @1 and @2")
 ;;;  )
 
 (def-term (coerce-to-class x)
   ()
-  (string "the class associated with ~a")
+  (string "the class associated with @1")
   )
 
 (def-predicate (open-in a x)
   ()
-  (string "~a is open in ~a")
+  (string "@1 is open in @2")
   )
 
 (def-predicate (a-function-from-to f x y)
   ()
-  (string "~a is a function from ~a to ~a")
+  (string "@1 is a function from @2 to @3")
   )
 
 (def-term (the-set-inverse-image-of f a)
   ()
-  (string "{~a}^{-1}(~a)")
+  (string "{@1}^{-1}(@2)")
   )
 
 (setq *strings-only* nil)
@@ -84,13 +84,13 @@
 	(and (open-in g1 x) (open-in g2 x)
 	     (a-member-of a g1) (a-member-of b g2)
 	     (disjoint g1 g2)))))
-  (STRING "~a is a Hausdorff space"))
+  (STRING "@1 is a Hausdorff space"))
 
 (def-predicate (a-continuous-function-from-to f x y)
   (and (a-function-from-to f (coerce-to-class x) (coerce-to-class y))
        (forall ((g)) (implies (open-in g y)
 		       (open-in (the-set-inverse-image-of f g) x))))
-  (string "~a : ~a --> ~a is a continuous function"))
+  (string "@1 : @2 --> @3 is a continuous function"))
 
 ;;; The difficulty of the problem to any prover is sensitive to how
 ;;; the remaining needs are satisfied.  We may want to make things
@@ -122,14 +122,14 @@
 
 (def-predicate (disjoint a b)
   (not (for-some ((y)) (and (a-member-of y a) (a-member-of y b))))
-  (string "~a and ~a are disjoint"))
+  (string "@1 and @2 are disjoint"))
 
 ;;; IPR uses the following definition.  A FOL prover should use the
 ;;; theorem named "intersection" with the string "a fact about
 ;;; intersections" below instead.
 ;;;(def-term (the-intersection-of a b)
 ;;;    (the-class-of-all (x) (and (a-member-of x a) (a-member-of x b)))
-;;;  (string "the intersection of ~a and ~a"))
+;;;  (string "the intersection of @1 and @2"))
 
 ;;; IPR does not need this since it uses the comprehension schema.
 ;;; This will be needed by FOL provers and it doesn't hurt IPR either.
@@ -143,7 +143,7 @@
 ;;; inverse images" below instead.
 ;;;(def-term (the-set-inverse-image-of f a)
 ;;;    (the-class-of-all (x) (a-member-of (apply f x) a))
-;;;  (string "~a ^{-1} (~a)"))
+;;;  (string "@1 ^{-1} (@2)"))
 
 ;;; IPR does not need this since it uses the comprehension schema.
 ;;; This will be needed by FOL provers and it doesn't hurt IPR either.
@@ -155,7 +155,7 @@
 ;;; As above, FOL provers will need a theorem instead of this definition.
 ;;;(def-term (the-set-difference-of a b)
 ;;;    (the-class-of-all (x) (and (a-member-of x a) (not (a-member-of x b))))
-;;;  (string "the set difference of ~a and ~a"))
+;;;  (string "the set difference of @1 and @2"))
 
 ;;; This is the FOL substitute for the above definition.
 ;;;(def-theorem set-difference
@@ -170,7 +170,7 @@
 ;;;		      (for-some ((x))
 ;;;				(and (a-member-of x (the-domain-of f))
 ;;;				     (= z (the-ordered-pair x (apply f x))))))
-;;;  (string "the graph of ~a"))
+;;;  (string "the graph of @1"))
 
 ;;; Needed by an FOL prover.
 (def-theorem graph

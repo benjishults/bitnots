@@ -1,7 +1,7 @@
 package com.benjishults.bitnots.inference.rules
 
 import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
+import com.benjishults.bitnots.model.formulas.fol.VarsBindingFormula
 import com.benjishults.bitnots.model.terms.Function.FunctionConstructor
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Sub
@@ -9,7 +9,7 @@ import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.theory.formula.SignedFormula
 import com.benjishults.bitnots.theory.formula.createSignedFormula
 
-abstract class DeltaFormula<F : VarBindingFormula>(formula: F, sign: Boolean) : SignedFormula<F>(formula, sign) {
+abstract class DeltaFormula<F : VarsBindingFormula>(formula: F, sign: Boolean) : SignedFormula<F>(formula, sign) {
     override fun generateChildren(): List<SignedFormula<Formula<*>>> {
         val unboundVars = formula.formula.getFreeVariables()
         val skolems = formula.variables.fold(EmptySub) { s: Substitution, t ->

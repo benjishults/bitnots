@@ -30,7 +30,7 @@ abstract class VarArgPropositionalFormula(cons: FormulaConstructor, vararg val f
                 NotUnifiable
             } ?: sub
 
-    override fun unifyUnchached(other: Formula<*>, sub: Substitution): Substitution =
+    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution =
             if (other::class === this::class) {
                 val otherOne = other as VarArgPropositionalFormula
                 unifyHelper(Iterable(formulas::iterator), otherOne.formulas.asList(), sub)

@@ -2,6 +2,8 @@
 
 -- DROP DATABASE bitnots;
 
+-- log in with psql and execute this
+
 CREATE DATABASE bitnots
     WITH 
     OWNER = postgres

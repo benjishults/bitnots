@@ -7,4 +7,4 @@ import com.benjishults.bitnots.model.terms.BoundVariable
 
 
 class ForAll(vararg variables: BoundVariable, formula: Formula<*>) :
-        VarBindingFormula(FormulaConstructor.intern(LogicalOperators.`for-all`.name), *variables, formula = formula)
+        VarsBindingFormula(FormulaConstructor.intern(LogicalOperators.`for-all`.name), *variables, formula = formula)

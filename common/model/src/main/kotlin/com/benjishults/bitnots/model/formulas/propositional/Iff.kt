@@ -8,7 +8,7 @@ import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.unifier.NotUnifiable
 
 data class Iff(val first: Formula<*>, val second: Formula<*>) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.iff.name)) {
-    override fun unifyUnchached(other: Formula<*>, sub: Substitution): Substitution {
+    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution {
         if (other is Iff) {
             Formula.unify(first, other.first, sub).takeIf {
                 it !== NotUnifiable

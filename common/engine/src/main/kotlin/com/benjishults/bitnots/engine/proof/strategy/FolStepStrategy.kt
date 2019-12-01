@@ -5,7 +5,7 @@ import com.benjishults.bitnots.engine.proof.Tableau
 import com.benjishults.bitnots.engine.proof.TableauNode
 import com.benjishults.bitnots.inference.rules.DeltaFormula
 import com.benjishults.bitnots.inference.rules.GammaFormula
-import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
+import com.benjishults.bitnots.model.formulas.fol.VarsBindingFormula
 import com.benjishults.bitnots.theory.formula.SignedFormula
 import java.util.PriorityQueue
 
@@ -29,7 +29,7 @@ open class FolStepStrategy(
     // TODO make this splice
     private fun applyDelta(tableau: Tableau): Boolean {
         with(tableau) {
-            var delta: DeltaFormula<out VarBindingFormula>? = null
+            var delta: DeltaFormula<out VarsBindingFormula>? = null
             val node = root.breadthFirst<FolTableauNode> {
                 delta = it.newFormulas.firstOrNull { it is DeltaFormula<*> } as DeltaFormula<*>?
                 delta !== null

@@ -82,7 +82,8 @@ create table axiom_set_dim (
     axiom_set_source_detail text null -- e.g., file name or URI
 
 );
-create unique index on axiom_set_dim (axiom_set_source, axiom_set_name, axiom_set_source_detail) where axiom_set_source_detail is not null;
+create unique index on axiom_set_dim (axiom_set_source, axiom_set_name, axiom_set_source_detail)
+where axiom_set_source_detail is not null;
 
 create table axiom_axiom_set (
     axiom_set_id bigint not null references axiom_set_dim on delete cascade,

@@ -2,17 +2,17 @@
 
 (def-term (the-union-of a b)
   ()
-  (format "the union of ~a and ~a")
+  (format "the union of @1 and @2")
   )
 
 (def-term (the-intersection-of a b)
   ()
-  (format "the intersection of ~a and ~a")
+  (format "the intersection of @1 and @2")
   )
 
 (def-term (the-power-set-of a)
   ()
-  (format "the power set of ~a")
+  (format "the power set of @1")
   )
 
 (setq *format-only* nil)
@@ -20,7 +20,7 @@
 (def-predicate (a-subset-of a b)
   (forall ((x)) (implies (a-member-of x a)
 		  (a-member-of x b)))
-  (format "~a is a subset of ~a")
+  (format "@1 is a subset of @2")
   (description "the definition of subset"))
 
 (def-theorem union

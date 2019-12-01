@@ -2,37 +2,37 @@
 
 (def-predicate (a-continuous-function-from-onto f x y)
   ()
-  (format "~a is a continuous function from ~a to ~a")
+  (format "@1 is a continuous function from @2 to @3")
   (name "the definition of a continuous function")
   )
 
 (def-term (the-projection-function a x b)
   ()
-  (format "the ~ath projection function from the product of ~a over ~a")
+  (format "the @1th projection function from the product of @2 over @3")
   (name "the definition of the projection function")
   )
 
 (def-term (the-product-top-space-over x a)
   ()
-  (format "the product topological space of ~a over the index set ~a")
+  (format "the product topological space of @1 over the index set @2")
   (name "the definition of the product space")
   )
 
 (def-term (apply f x)
   ()
-  (format "{~a}(~a)")
+  (format "{@1}(@2)")
   (name "the definition of function application")
   )
 
 (def-predicate (an-open-function-from-onto f a b)
   ()
-  (format "~a is an open function from ~a onto ~a")
+  (format "@1 is an open function from @2 onto @3")
   (name "the definition of an open function")
   )
 
 (def-predicate (a-locally-compact-top-space a)
   ()
-  (format "~a is a locally compact topological space")
+  (format "@1 is a locally compact topological space")
   (name "the definition of a locally compact space")
   )
 

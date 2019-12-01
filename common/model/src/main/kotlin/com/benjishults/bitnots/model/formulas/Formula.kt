@@ -14,12 +14,12 @@ abstract class Formula<C : FormulaConstructor>(val constructor: C) {
          */
         val unify = object : (Formula<*>, Formula<*>, Substitution) -> Substitution {
             override fun invoke(first: Formula<*>, second: Formula<*>, sub: Substitution): Substitution {
-                return first.unifyUnchached(second, sub)
+                return first.unifyUncached(second, sub)
             }
         }.memoize()
     }
 
-    protected abstract fun unifyUnchached(other: Formula<*>, sub: Substitution = EmptySub): Substitution
+    protected abstract fun unifyUncached(other: Formula<*>, sub: Substitution = EmptySub): Substitution
 
     abstract fun applySub(substitution: Substitution): Formula<C>
 
@@ -29,6 +29,6 @@ abstract class Formula<C : FormulaConstructor>(val constructor: C) {
     abstract fun contains(variable: Variable<*>, sub: Substitution): Boolean
 
     override fun toString() = "(${constructor.name})"
-    override abstract fun equals(other: Any?): Boolean
-    override abstract fun hashCode(): Int
+    abstract override fun equals(other: Any?): Boolean
+    abstract override fun hashCode(): Int
 }

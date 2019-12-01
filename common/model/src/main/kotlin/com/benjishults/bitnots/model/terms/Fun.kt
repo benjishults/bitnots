@@ -98,7 +98,7 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
                 it.containsInternal(variable, sub)
             }
 
-    override fun unifyUnchached(other: Term<*>, sub: Substitution): Substitution =
+    override fun unifyUncached(other: Term<*>, sub: Substitution): Substitution =
             if (other is Function) {
                 if (other.cons === cons) {
                     arguments.foldIndexed(sub) { i, s, t ->

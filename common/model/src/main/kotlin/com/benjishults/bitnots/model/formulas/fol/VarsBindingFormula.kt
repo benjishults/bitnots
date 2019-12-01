@@ -8,7 +8,11 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 import kotlin.reflect.KParameter
 
-abstract class VarBindingFormula(cons: FormulaConstructor, vararg val variables: BoundVariable, val formula: Formula<*>) : Formula<FormulaConstructor>(cons) {
+abstract class VarsBindingFormula(
+    cons: FormulaConstructor,
+    vararg val variables: BoundVariable,
+    val formula: Formula<*>
+) : Formula<FormulaConstructor>(cons) {
 
     override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
         TODO()
@@ -18,12 +22,12 @@ abstract class VarBindingFormula(cons: FormulaConstructor, vararg val variables:
         require(variables.size > 0)
     }
 
-    override fun unifyUnchached(other: Formula<*>, sub: Substitution): Substitution {
+    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution {
         TODO()
     }
 
     override fun getFreeVariables(): Set<FreeVariable> =
-            formula.getFreeVariables()
+        formula.getFreeVariables()
 
     override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
         return formula.getVariablesUnboundExcept(boundVars.plus(variables))
@@ -40,10 +44,10 @@ abstract class VarBindingFormula(cons: FormulaConstructor, vararg val variables:
     }
 
     override fun toString(): String =
-            "(${constructor.name} ((${variables.joinToString(") (")})) ${formula})"
+        "(${constructor.name} ((${variables.joinToString(") (")})) ${formula})"
 
     override fun hashCode(): Int =
-            variables.contentHashCode() + this::class.hashCode()
+        variables.contentHashCode() + this::class.hashCode()
 
     override fun equals(other: Any?): Boolean {
         // FIXME make this smarter

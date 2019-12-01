@@ -4,7 +4,7 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.ForAll
 import com.benjishults.bitnots.model.formulas.fol.ForSome
 import com.benjishults.bitnots.model.formulas.fol.Pred
-import com.benjishults.bitnots.model.formulas.fol.VarBindingFormula
+import com.benjishults.bitnots.model.formulas.fol.VarsBindingFormula
 import com.benjishults.bitnots.model.formulas.fol.equality.Equals
 import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.Iff

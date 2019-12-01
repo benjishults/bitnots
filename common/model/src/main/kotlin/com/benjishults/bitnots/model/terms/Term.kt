@@ -12,7 +12,7 @@ abstract class Term<C : TermConstructor>(val cons: C) {
          */
         val unify = object : (Term<*>, Term<*>, Substitution) -> Substitution {
             override fun invoke(first: Term<*>, second: Term<*>, sub: Substitution): Substitution {
-                return first.unifyUnchached(second, sub)
+                return first.unifyUncached(second, sub)
             }
         }.memoize()
     }
@@ -21,7 +21,7 @@ abstract class Term<C : TermConstructor>(val cons: C) {
      * The behavior of this function is undefined if [sub] is not idempotent or if variables in [sub] occur in either receiver or [other].
      * This returns an idempotent most general unifier of the receiver and [other] or [NotUnifiable] if there is no unifier.
      */
-    protected abstract fun unifyUnchached(other: Term<*>, sub: Substitution = EmptySub): Substitution
+    protected abstract fun unifyUncached(other: Term<*>, sub: Substitution = EmptySub): Substitution
 
     abstract fun applySub(substitution: Substitution): Term<*>
     /**
@@ -38,10 +38,11 @@ abstract class Term<C : TermConstructor>(val cons: C) {
 
     abstract fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>>
     abstract fun getFreeVariables(): Set<FreeVariable>
-    /**
-     * maps free variables occurring in the receiver to the number of times the variable occurs in the receiver
-     */
+    //    /**
+//     * maps free variables occurring in the receiver to the number of times the variable occurs in the receiver
+//     */
     //    abstract fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int>
-    override abstract fun equals(other: Any?): Boolean
-    override abstract fun hashCode(): Int
+    abstract override fun equals(other: Any?): Boolean
+
+    abstract override fun hashCode(): Int
 }

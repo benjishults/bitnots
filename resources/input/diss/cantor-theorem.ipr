@@ -2,13 +2,13 @@
 
 (def-term (ordered-pair a b)
   ()
-  "<~1, ~2>"
+  "<@1, @2>"
   "the definition of ordered pair"
   )
 
 (def-term (power a)
   ()
-  "Power(~1)"
+  "Power(@1)"
   "the definition of the power set"
   )
 
@@ -30,7 +30,7 @@
        (implies (and (a-member-of (ordered-pair c d) f)
 		     (a-member-of (ordered-pair e d) f))
 	 (= c e)))
-  "~1 is a function from ~2 to ~3"
+  "@1 is a function from @2 to @3"
   "the definition of a function"
   )
 

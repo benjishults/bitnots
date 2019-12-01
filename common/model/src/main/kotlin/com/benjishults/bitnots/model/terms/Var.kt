@@ -36,7 +36,7 @@ class BoundVariable private constructor(name: String) : Variable<BVConstructor>(
 
     class BVConstructor(name: String) : TermConstructor(name)
 
-    override fun unifyUnchached(other: Term<*>, sub: Substitution): Substitution =
+    override fun unifyUncached(other: Term<*>, sub: Substitution): Substitution =
             if (other === this)
                 sub
             else
@@ -68,7 +68,7 @@ class FreeVariable private constructor(name: String) : Variable<FVConstructor>(F
 
     class FVConstructor(name: String) : TermConstructor(name)
 
-    override fun unifyUnchached(other: Term<*>, sub: Substitution): Substitution {
+    override fun unifyUncached(other: Term<*>, sub: Substitution): Substitution {
         sub[this].let {
             if (it !== this)
                 return Term.unify(it, other, sub)

@@ -16,7 +16,7 @@
            (= (apply-binary (operator h) (apply f g1) (apply f g2))
               (apply f (apply-binary (operator g) g1 g2))))))
   (string "the definition of homomorphism")
-  (format "~1 is a homomorphism from ~1 to ~2")
+  (format "@1 is a homomorphism from @1 to @2")
   )
 
 (def-predicate (function f A B)
@@ -39,7 +39,7 @@
              (and (= z (the-ordered-pair x y))
                   (a-member-of x A))))))
   (string "the definition of a function")
-  (format "~1:~2 -> ~3 is a function")
+  (format "@1:@2 -> @3 is a function")
   )
 
 (def-theorem function-application1
@@ -69,7 +69,7 @@
              (and (a-member-of g a_)
                   (= (apply f g) h))))))
   (string "the definition of onto")
-  (format "~1:~2->~3 is onto")
+  (format "@1:@2->@3 is onto")
   )
 
 (def-theorem quotient-group-element
@@ -85,7 +85,7 @@
       (and (= x (the-ordered-pair (leftCoset g (kernel f)) (apply f g)))
            (a-member-of g (group-to-set g_)))))
   (string "the definition of the function phi")
-  (format "phi_(~1, ~2)")
+  (format "phi_(@1, @2)")
   )
 
 (def-target crucial-lemma

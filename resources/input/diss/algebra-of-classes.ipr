@@ -4,12 +4,12 @@
 
 (def-term (the-intersection-of a b)
   (the-class-of-all (x) (and (a-member-of x a) (a-member-of x b)))
-  (format "the intersection of ~a and ~a")
+  (format "the intersection of @1 and @2")
   )
 
 (def-term (the-union-of a b)
   (the-class-of-all (x) (or (a-member-of x a) (a-member-of x b)))
-  (format "~a U ~a")
+  (format "@1 U @2")
   )
 
 (setq *format-only* nil)

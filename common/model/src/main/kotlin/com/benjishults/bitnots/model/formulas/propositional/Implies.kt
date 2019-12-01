@@ -14,7 +14,7 @@ data class Implies(
     override fun contains(variable: Variable<*>, sub: Substitution) =
             antecedent.contains(variable, sub) || consequent.contains(variable, sub)
 
-    override fun unifyUnchached(other: Formula<*>, sub: Substitution): Substitution {
+    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution {
         if (other is Implies) {
             Formula.unify(antecedent, other.antecedent, sub).takeIf {
                 it !== NotUnifiable
