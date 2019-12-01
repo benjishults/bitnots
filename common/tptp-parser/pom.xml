@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>model</artifactId>
+            <artifactId>language</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -7,9 +7,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>model</artifactId>
+    <artifactId>language</artifactId>
 
-    <name>BITNOTS :: Common :: Model</name>
+    <name>BITNOTS :: Common :: Language</name>
 
     <dependencies>
         <dependency>

@@ -31,7 +31,7 @@
 
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>model</artifactId>
+            <arti?factId>language</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -58,6 +58,11 @@
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>inference</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
         </dependency>
 
         <dependency>

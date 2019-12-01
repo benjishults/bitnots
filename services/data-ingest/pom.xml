@@ -37,7 +37,7 @@
 
 <!--         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>model</artifactId>
+            <arti?factId>language</artifactId>
         </dependency> -->
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>

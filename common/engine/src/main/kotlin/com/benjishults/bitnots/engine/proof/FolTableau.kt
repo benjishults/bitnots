@@ -7,11 +7,11 @@ import com.benjishults.bitnots.engine.proof.strategy.PropositionalInitialization
 import com.benjishults.bitnots.engine.proof.strategy.StepStrategy
 
 class FolTableau(
-        root: FolTableauNode,
-        stepStrategy: StepStrategy<Tableau> = FolStepStrategy { sf, p ->
-            FolTableauNode(sf, p as FolTableauNode?, PropositionalInitializationStrategy())
-        }
-) : AbstractTableau(root, FolUnificationClosingStrategy(), { UnifyingClosedIndicator( it) }, stepStrategy) {
+    root: FolTableauNode,
+    stepStrategy: StepStrategy<Tableau> = FolStepStrategy { sf, p ->
+        FolTableauNode(sf, p as FolTableauNode?, PropositionalInitializationStrategy())
+    }
+) : AbstractTableau(root, FolUnificationClosingStrategy(), { UnifyingClosedIndicator(it) }, stepStrategy) {
 
     override fun toString(): String {
         return buildString {

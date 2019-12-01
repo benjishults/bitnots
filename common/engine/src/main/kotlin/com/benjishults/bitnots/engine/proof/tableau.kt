@@ -1,17 +1,10 @@
 package com.benjishults.bitnots.engine.proof
 
-import com.benjishults.bitnots.engine.proof.closer.BooleanClosedIndicator
 import com.benjishults.bitnots.engine.proof.closer.InProgressTableauClosedIndicator
 import com.benjishults.bitnots.engine.proof.closer.NotCompatible
-import com.benjishults.bitnots.engine.proof.closer.UnifyingClosedIndicator
-import com.benjishults.bitnots.engine.proof.strategy.FolStepStrategy
-import com.benjishults.bitnots.engine.proof.strategy.FolUnificationClosingStrategy
-import com.benjishults.bitnots.engine.proof.strategy.PropositionalClosingStrategy
-import com.benjishults.bitnots.engine.proof.strategy.PropositionalInitializationStrategy
-import com.benjishults.bitnots.engine.proof.strategy.PropositionalStepStrategy
 import com.benjishults.bitnots.engine.proof.strategy.StepStrategy
 import com.benjishults.bitnots.engine.proof.strategy.TableauClosingStrategy
-import java.util.Stack
+import java.util.*
 
 interface Tableau {
 
@@ -34,23 +27,22 @@ interface Tableau {
 }
 
 abstract class AbstractTableau(
-        override val root: AbstractTableauNode,
-        val nodeClosingStrategy: TableauClosingStrategy,
-        val closedIndicatorFactory: (TableauNode) -> InProgressTableauClosedIndicator,
-        val stepStrategy: StepStrategy<AbstractTableau>
+    override val root: AbstractTableauNode,
+    private val nodeClosingStrategy: TableauClosingStrategy,
+    val closedIndicatorFactory: (TableauNode) -> InProgressTableauClosedIndicator,
+    private val stepStrategy: StepStrategy<AbstractTableau>
 ) : Tableau {
 
     private var closer: InProgressTableauClosedIndicator = NotCompatible
 
-    override fun getCloser(): InProgressTableauClosedIndicator =
-            closer
+    override fun getCloser(): InProgressTableauClosedIndicator =        closer
 
     protected fun setCloser(closer: InProgressTableauClosedIndicator) {
         this.closer = closer
     }
 
     override fun findCloser(): InProgressTableauClosedIndicator { // = root.isClosed()
-        nodeClosingStrategy.populateBranchClosers(this)  // TODO could this indicated that not all branches have branch-closers?
+        nodeClosingStrategy.populateBranchClosers(this)  // TODO could this indicate that not all branches have branch-closers?
         // will this ever exceed size 1?
         val toBeExtended = Stack<InProgressTableauClosedIndicator>().apply { push(closedIndicatorFactory(root)) }
         do {
@@ -77,5 +69,5 @@ abstract class AbstractTableau(
     }
 
     override fun step(): Boolean =
-            stepStrategy.step(this)
+        stepStrategy.step(this)
 }

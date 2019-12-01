@@ -15,20 +15,19 @@
 
     <modules>
         <module>util</module>
-        <!-- TODO rename from "model" to "language" -->
         <!-- TODO separate propositional from fol from pra from set from equality, etc. -->
-        <module>model</module>
+        <module>language</module>
         <module>theory</module>
-<!-- 
-        <module>file-parser</module>
- -->
-        <module>parser</module>
-        <module>sexp-parser</module>
-        <module>tptp-parser</module>
         <module>inference</module>
         <module>engine</module>
-        <module>data-access</module>
+        <module>parser</module>
+<!--
+        <module>file-parser</module>
+ -->
+        <module>sexp-parser</module>
+        <module>tptp-parser</module>
         <module>config</module>
+<!--        <module>data-access</module>-->
     </modules>
 
 </project>
