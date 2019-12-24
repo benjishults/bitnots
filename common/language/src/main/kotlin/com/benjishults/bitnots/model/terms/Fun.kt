@@ -1,11 +1,9 @@
 package com.benjishults.bitnots.model.terms
 
 import com.benjishults.bitnots.model.terms.Function.FunctionConstructor
-import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.NotUnifiable
-import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
-import com.benjishults.bitnots.model.util.InternTableWithOther
+import com.benjishults.bitnots.util.intern.InternTableWithOther
 
 /**
  * Returns a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.

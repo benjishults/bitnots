@@ -1,6 +1,6 @@
 package com.benjishults.bitnots.model.formulas
 
-import com.benjishults.bitnots.model.util.InternTable
+import com.benjishults.bitnots.util.intern.InternTable
 
 open class FormulaConstructor(val name: String) {
     override fun equals(other: Any?): Boolean {

@@ -1,6 +1,8 @@
-package com.benjishults.bitnots.model.util
+package com.benjishults.bitnots.util
 
-import java.util.Stack
+import com.benjishults.bitnots.util.collection.Queue
+import com.benjishults.bitnots.util.collection.SkippableIterator
+import java.util.*
 
 @Suppress("UNCHECKED_CAST")
 interface TreeNode {
@@ -9,9 +11,7 @@ interface TreeNode {
 
     fun <T : TreeNode> toAncestors(function: (T) -> Unit) {
         function(this as T)
-        parent?.let {
-            it.toAncestors(function)
-        }
+        parent?.toAncestors(function)
     }
 
     fun <T : TreeNode> breadthFirst(function: (T) -> Boolean): T? {

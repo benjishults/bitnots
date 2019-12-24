@@ -1,4 +1,4 @@
-package com.benjishults.bitnots.model.util
+package com.benjishults.bitnots.util.collection
 
 interface SkippableIterator<T> : Iterator<T> {
     /**
@@ -7,11 +7,11 @@ interface SkippableIterator<T> : Iterator<T> {
     fun skipToNext(): T
 
     var skipMode: Boolean
-    
+
     /**
      * If skip mode is on, behaves like skipToNext()
      */
-    override fun next(): T 
+    override fun next(): T
     /**
      * If skip mode is on, this behaves like hasSkipToNext().
      */

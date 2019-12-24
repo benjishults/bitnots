@@ -1,8 +1,8 @@
 package com.benjishults.bitnots.model.terms
 
-import com.benjishults.bitnots.model.util.memoize
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Substitution
+import com.benjishults.bitnots.util.memoize
 
 abstract class Term<C : TermConstructor>(val cons: C) {
 

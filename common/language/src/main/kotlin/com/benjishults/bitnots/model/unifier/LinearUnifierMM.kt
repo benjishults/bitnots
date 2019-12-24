@@ -1,11 +1,5 @@
 package com.benjishults.bitnots.model.unifier
 
-import com.benjishults.bitnots.model.terms.FreeVariable
-import com.benjishults.bitnots.model.terms.Function
-import com.benjishults.bitnots.model.terms.Term
-import com.benjishults.bitnots.model.util.DirectedGraph
-import com.benjishults.bitnots.model.util.EquivalenceClasses
-
 //fun Term<*>.linearUnifyMM(other: Term<*>): Substitution = SystemOfMultiEquations(this, other).solve()
 //
 //val BAD: Int = 5

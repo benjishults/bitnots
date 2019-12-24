@@ -4,7 +4,7 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Substitution
-import com.benjishults.bitnots.model.util.memoize
+import com.benjishults.bitnots.util.memoize
 
 // NOTE should be immutable
 abstract class Formula<C : FormulaConstructor>(val constructor: C) {

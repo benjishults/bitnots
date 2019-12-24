@@ -17,8 +17,8 @@
 
     <modules>
         <!--        <module>data-ingest</module>-->
-        <!--        <module>proof-service</module>-->
-        <module>harness</module>
+        <module>proof-service</module>
+        <!--        <module>harness</module>-->
     </modules>
 
 </project>

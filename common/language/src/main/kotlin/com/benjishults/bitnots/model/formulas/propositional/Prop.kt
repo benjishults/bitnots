@@ -1,9 +1,7 @@
 package com.benjishults.bitnots.model.formulas.propositional
 
 import com.benjishults.bitnots.model.formulas.FormulaConstructor
-import com.benjishults.bitnots.model.terms.Variable
-import com.benjishults.bitnots.model.unifier.Substitution
-import com.benjishults.bitnots.model.util.InternTable
+import com.benjishults.bitnots.util.intern.InternTable
 
 fun Prop(cons : String) = PropositionalVariable.intern(cons)
 fun PropU(cons : String) = PropositionalVariable.new(cons)

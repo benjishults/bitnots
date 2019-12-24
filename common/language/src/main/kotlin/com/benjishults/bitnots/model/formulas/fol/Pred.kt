@@ -8,7 +8,7 @@ import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotUnifiable
 import com.benjishults.bitnots.model.unifier.Substitution
-import com.benjishults.bitnots.model.util.InternTableWithOther
+import com.benjishults.bitnots.util.intern.InternTableWithOther
 
 
 /**

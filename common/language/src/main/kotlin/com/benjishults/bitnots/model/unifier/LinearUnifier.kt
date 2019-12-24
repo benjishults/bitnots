@@ -1,11 +1,5 @@
 package com.benjishults.bitnots.model.unifier
 
-import com.benjishults.bitnots.model.terms.FreeVariable
-import com.benjishults.bitnots.model.terms.Variable
-import com.benjishults.bitnots.model.terms.Function
-import com.benjishults.bitnots.model.terms.Term
-import com.benjishults.bitnots.model.util.UFNode
-
 //fun Term<*>.linearUnify(other: Term<*>) = linearUnify(UFNode(this), UFNode(other))
 //
 //fun linearUnify(s: UFNode<Term<*>>, t: UFNode<Term<*>>): Substitution {
@@ -27,7 +21,7 @@ import com.benjishults.bitnots.model.util.UFNode
 //                if (linearUnify(UFNode(sTerm.arguments[index]), UFNode(tTerm.arguments[index])) === NotUnifiable) {
 //                    return NotUnifiable
 //                } else {
-//                    
+//
 //                }
 //            }
 //            return EmptySub

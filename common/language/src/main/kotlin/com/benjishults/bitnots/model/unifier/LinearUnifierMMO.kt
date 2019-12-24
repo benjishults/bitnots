@@ -1,12 +1,5 @@
 package com.benjishults.bitnots.model.unifier
 
-import com.benjishults.bitnots.model.terms.BoundVariable
-import com.benjishults.bitnots.model.terms.FreeVariable
-import com.benjishults.bitnots.model.terms.Function
-import com.benjishults.bitnots.model.terms.Fn
-import com.benjishults.bitnots.model.terms.Term
-import com.benjishults.bitnots.model.util.MergingEquivalenceClass
-
 //fun Term<*>.linearUnify(other: Term<*>): Substitution = SystemOfMultiEquations(this, other).solve()
 
 //val BAD: Int = 5
@@ -37,7 +30,7 @@ import com.benjishults.bitnots.model.util.MergingEquivalenceClass
 //
 //	tailrec fun solve(): Substitution {
 //		val addToT = reduce()
-//		if (addToT !== null) { 
+//		if (addToT !== null) {
 //			compactify(addToT)
 ////			val addToT = mutableListOf<MultiEquation>()
 ////			U.removeIf { multiEq ->
@@ -188,7 +181,7 @@ import com.benjishults.bitnots.model.util.MergingEquivalenceClass
 //		}
 //
 //		override fun compareTo(other: MultiEquation): Int = counter.compareTo(other.counter)
-//		
+//
 //		override fun toString() : String {
 //			return "[${counter}] ${S}=${M}"
 //		}

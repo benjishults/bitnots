@@ -3,9 +3,8 @@ package com.benjishults.bitnots.model.terms
 import com.benjishults.bitnots.model.terms.BoundVariable.BVConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable.FVConstructor
 import com.benjishults.bitnots.model.unifier.NotUnifiable
-import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
-import com.benjishults.bitnots.model.util.InternTable
+import com.benjishults.bitnots.util.intern.InternTable
 
 sealed class Variable<C : TermConstructor>(name: C) : Term<C>(name) {
 

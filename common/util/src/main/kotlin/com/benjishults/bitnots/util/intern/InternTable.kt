@@ -1,4 +1,4 @@
-package com.benjishults.bitnots.model.util
+package com.benjishults.bitnots.util.intern
 
 /**
  * Currently not thread safe.
