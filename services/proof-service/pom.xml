@@ -13,10 +13,11 @@
     <name>BITNOTS :: Services :: Proof Service</name>
 
     <properties>
-        <start-class>com.benjishults.bitnots.proofService.ProofServiceApplication</start-class>
+        <start-class>com.benjishults.bitnots.proofService.ProofServiceApplicationKt</start-class>
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>util</artifactId>
@@ -40,6 +41,19 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
+            <classifier>linux</classifier>
+            <version>11.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <classifier>linux</classifier>
+            <version>11.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <classifier>linux</classifier>
             <version>11.0.2</version>
         </dependency>
         <dependency>
@@ -47,18 +61,36 @@
             <artifactId>tornadofx</artifactId>
             <version>1.7.19</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-spring-javaconfig</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
+            <artifactId>camel-core-engine</artifactId>
+            <version>${camel.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-spring</artifactId>
+            <artifactId>camel-main</artifactId>
+            <version>${camel.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-core</artifactId>
+            <scope>runtime</scope>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-api</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.camel</groupId>-->
+<!--            <artifactId>camel-spring</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
