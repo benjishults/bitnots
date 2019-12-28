@@ -12,3 +12,9 @@ Also, I had to comment out the formula named `single_quoted` in `Problems/SYN/SY
 comment at the end because my parser could not deal.
 
 There is an [issue](https://github.com/benjishults/bitnots/issues/7) to make this optional.
+
+## Run UI
+
+Hit the javafx:run target in proof-service to start a UI.  Doesn't do much so far.
+
+Will create a folder named `.bitnots` in your home directory for your personal preferences.

@@ -6,21 +6,24 @@ import com.benjishults.bitnots.proofService.control.ProofKickoff
 import com.benjishults.bitnots.util.threads.interruptAndJoin
 import com.benjishults.bitnots.util.threads.safeSaveAndStartThread
 import javafx.application.Application
+import javafx.scene.layout.Region
 import javafx.stage.Stage
 import org.apache.camel.CamelContext
-import org.apache.camel.RuntimeCamelException
 import org.apache.camel.impl.DefaultCamelContext
-import org.apache.camel.spi.PropertiesComponent
 import org.apache.camel.support.LifecycleStrategySupport
 import java.nio.file.Files
+import java.nio.file.NoSuchFileException
 import java.nio.file.Path
+import java.util.*
 import java.util.concurrent.CountDownLatch
 
 class FxApplication : Application() {
 
     private val contextStarted = CountDownLatch(1)
     private lateinit var context: CamelContext
-    private lateinit var properties: PropertiesComponent
+    private lateinit var primaryStage: Stage
+    private lateinit var uiSettingsFile: Path
+    private lateinit var uiProperties: Properties
 
     init {
         safeSaveAndStartThread(ServiceThread, Thread {
@@ -37,16 +40,48 @@ class FxApplication : Application() {
                     super.onContextStop(context)
                 }
             })
-            wireUpServiceConfiguration()
-            // TODO simplify loading of config
             startServiceAsync()
         })
+        wireUpUiConfiguration()
+    }
+
+    private fun wireUpUiConfiguration() {
+        val folder = Path.of(System.getProperty("user.home"), ".bitnots")
+        uiSettingsFile = folder.resolve("ui-settings.properties")
+        try {
+            loadUserConfig()
+        } catch (e: NoSuchFileException) {
+            Files.createDirectories(folder)
+            if (Files.notExists(uiSettingsFile)) {
+                Files.copy(
+                        this.javaClass.getResourceAsStream("/ui-settings.properties"),
+                        uiSettingsFile)
+            }
+            loadUserConfig()
+        }
+    }
+
+    private fun loadUserConfig() {
+        Files.newInputStream(uiSettingsFile).use {
+            Properties().run {
+                load(it)
+                uiProperties = this
+            }
+        }
     }
 
     override fun start(primaryStage: Stage) {
+        this.primaryStage = primaryStage
         primaryStage.title = "Theory"
+        primaryStage.x = uiProperties.getProperty("ui.framePosX", Region.USE_COMPUTED_SIZE.toString()).toDouble()
+        primaryStage.y = uiProperties.getProperty("ui.framePosY", Region.USE_COMPUTED_SIZE.toString()).toDouble()
+        val width = uiProperties.getProperty("ui.appWidth", Region.USE_COMPUTED_SIZE.toString()).toDouble()
+        val height = uiProperties.getProperty("ui.appHeight", Region.USE_COMPUTED_SIZE.toString()).toDouble()
         contextStarted.await()
-        primaryStage.scene = TheoryEditor(context)
+        primaryStage.scene = TheoryEditor(
+                context,
+                width,
+                height)
         primaryStage.show()
     }
 
@@ -55,37 +90,24 @@ class FxApplication : Application() {
         context.start()
     }
 
-    private fun wireUpServiceConfiguration() {
-        properties = context.propertiesComponent
-        properties.setIgnoreMissingLocation(false)
-        properties.addLocation("classpath:ui.properties")
-        try {
-            addUserConfigToContext()
-        } catch (e: RuntimeCamelException) {
-            val folder = Path.of(properties.resolveProperty("ui.userConfigFolder")
-                                         .orElse(Path.of(System.getProperty("user.home"), ".bitnots")
-                                                         .toString()))
-            Files.createDirectories(folder)
-            if (Files.notExists(folder.resolve("ui-settings.properties"))) {
-                Files.copy(this.javaClass.getResourceAsStream("/ui-settings.properties"), folder.resolve("ui-settings.properties"))
-            }
-            addUserConfigToContext()
-        }
-    }
-
-    private fun addUserConfigToContext() {
-        properties.addLocation("file:${Path.of(properties.resolveProperty("ui.userConfigFolder")
-                                                       .orElse(Path.of(System.getProperty("user.home"), ".bitnots")
-                                                                       .toString()), "ui-settings.properties")}")
-    }
-
     /**
      * Stop the service thread first.
      */
     override fun stop() {
+        writeUiProperties()
         // TODO give warning message in UI
         AppThread.set(null)
         interruptAndJoin(ServiceThread)
+    }
+
+    private fun writeUiProperties() {
+        uiProperties.put("ui.framePosY", primaryStage.y.toString())
+        uiProperties.put("ui.framePosX", primaryStage.x.toString())
+        uiProperties.put("ui.appHeight", primaryStage.scene.height.toString())
+        uiProperties.put("ui.appWidth", primaryStage.scene.width.toString())
+        Files.newOutputStream(uiSettingsFile).use {
+            uiProperties.store(it, null)
+        }
     }
 
 }

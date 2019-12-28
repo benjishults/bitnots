@@ -14,7 +14,7 @@ import javafx.stage.FileChooser
 import org.apache.camel.CamelContext
 import java.io.File
 
-class TheoryEditor(val context: CamelContext) : Scene(BorderPane()) {
+class TheoryEditor(val context: CamelContext, width: Double, height: Double) : Scene(BorderPane(), width, height) {
 
     private val fileName = SimpleStringProperty("no file loaded")
     private val fileType = SimpleStringProperty("tptp")
