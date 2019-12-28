@@ -124,7 +124,7 @@
 <!--            </dependency>-->
             <dependency>
                 <groupId>com.benjishults.bitnots</groupId>
-                <artifactId>sexp-parser</artifactId>
+                <artifactId>ipr-parser</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -149,7 +149,7 @@
             </dependency>
             <dependency>
                 <groupId>com.benjishults.bitnots</groupId>
-                <artifactId>file-parser</artifactId>
+                <artifactId>bitnots-parser</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

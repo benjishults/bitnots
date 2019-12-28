@@ -21,10 +21,8 @@
         <module>inference</module>
         <module>engine</module>
         <module>parser</module>
-<!--
-        <module>file-parser</module>
- -->
-        <module>sexp-parser</module>
+        <module>bitnots-parser</module>
+        <module>ipr-parser</module>
         <module>tptp-parser</module>
         <module>config</module>
 <!--        <module>data-access</module>-->

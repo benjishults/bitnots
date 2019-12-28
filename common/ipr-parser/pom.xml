@@ -7,9 +7,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sexp-parser</artifactId>
+    <artifactId>ipr-parser</artifactId>
 
-    <name>BITNOTS :: Common :: S-Expression Parser</name>
+    <name>BITNOTS :: Common :: IPR Parser</name>
 
     <dependencies>
         <dependency>

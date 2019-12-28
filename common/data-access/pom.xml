@@ -31,12 +31,12 @@
 
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
-            <arti?factId>language</artifactId>
+            <artifactId>language</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>sexp-parser</artifactId>
+            <artifactId>ipr-parser</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

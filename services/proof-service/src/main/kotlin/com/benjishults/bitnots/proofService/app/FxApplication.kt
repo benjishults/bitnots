@@ -2,19 +2,18 @@ package com.benjishults.bitnots.proofService.app
 
 import com.benjishults.bitnots.proofService.AppThread
 import com.benjishults.bitnots.proofService.ServiceThread
-import com.benjishults.bitnots.proofService.app.config.UiConfig
 import com.benjishults.bitnots.proofService.control.ProofKickoff
 import com.benjishults.bitnots.util.threads.interruptAndJoin
 import com.benjishults.bitnots.util.threads.safeSaveAndStartThread
 import javafx.application.Application
-import javafx.beans.property.SimpleStringProperty
-import javafx.stage.FileChooser
 import javafx.stage.Stage
 import org.apache.camel.CamelContext
+import org.apache.camel.RuntimeCamelException
 import org.apache.camel.impl.DefaultCamelContext
 import org.apache.camel.spi.PropertiesComponent
 import org.apache.camel.support.LifecycleStrategySupport
-import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.concurrent.CountDownLatch
 
 class FxApplication : Application() {
@@ -22,13 +21,6 @@ class FxApplication : Application() {
     private val contextStarted = CountDownLatch(1)
     private lateinit var context: CamelContext
     private lateinit var properties: PropertiesComponent
-
-    private lateinit var uiConfig: UiConfig
-
-    private val fileName = SimpleStringProperty("file")
-    private val fileType = SimpleStringProperty("tptp")
-    private val fileContents = SimpleStringProperty()
-    private lateinit var file: File
 
     init {
         safeSaveAndStartThread(ServiceThread, Thread {
@@ -54,22 +46,7 @@ class FxApplication : Application() {
     override fun start(primaryStage: Stage) {
         primaryStage.title = "Theory"
         contextStarted.await()
-        uiConfig = UiConfig(
-                properties.resolveProperty("ui.monoFontSize")
-                        .orElse("12.0").toDouble(),
-                properties.resolveProperty("ui.uiFontSize")
-                        .orElse("12.0").toDouble())
-        context.registry.bind("uiConfig", uiConfig)
-        file = FileChooser().run {
-            initialDirectory = File(properties.resolveProperty("ui.baseInputFolder").orElse(null))
-            title = "Select theory file"
-            showOpenDialog(null)
-        }
-        fileName.value = file.absolutePath
-        fileContents.value = file.inputStream().use {
-            String(it.readAllBytes())
-        }
-        primaryStage.scene = TheoryEditor(uiConfig, file)
+        primaryStage.scene = TheoryEditor(context)
         primaryStage.show()
     }
 
@@ -80,8 +57,26 @@ class FxApplication : Application() {
 
     private fun wireUpServiceConfiguration() {
         properties = context.propertiesComponent
-        properties.addLocation("classpath:ui.properties")
         properties.setIgnoreMissingLocation(false)
+        properties.addLocation("classpath:ui.properties")
+        try {
+            addUserConfigToContext()
+        } catch (e: RuntimeCamelException) {
+            val folder = Path.of(properties.resolveProperty("ui.userConfigFolder")
+                                         .orElse(Path.of(System.getProperty("user.home"), ".bitnots")
+                                                         .toString()))
+            Files.createDirectories(folder)
+            if (Files.notExists(folder.resolve("ui-settings.properties"))) {
+                Files.copy(this.javaClass.getResourceAsStream("/ui-settings.properties"), folder.resolve("ui-settings.properties"))
+            }
+            addUserConfigToContext()
+        }
+    }
+
+    private fun addUserConfigToContext() {
+        properties.addLocation("file:${Path.of(properties.resolveProperty("ui.userConfigFolder")
+                                                       .orElse(Path.of(System.getProperty("user.home"), ".bitnots")
+                                                                       .toString()), "ui-settings.properties")}")
     }
 
     /**

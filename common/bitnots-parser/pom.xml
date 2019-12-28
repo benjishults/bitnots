@@ -7,9 +7,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>file-parser</artifactId>
+    <artifactId>bitnots-parser</artifactId>
 
-    <name>BITNOTS :: Common :: File Parser</name>
+    <name>BITNOTS :: Common :: Bitnots Parser</name>
 
     <dependencies>
         <dependency>
@@ -27,7 +27,7 @@
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
-            <arti?factId>language</artifactId>
+            <artifactId>language</artifactId>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
