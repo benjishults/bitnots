@@ -15,7 +15,6 @@ import com.benjishults.bitnots.model.formulas.propositional.Truth
 import com.benjishults.bitnots.model.terms.BV
 import com.benjishults.bitnots.model.terms.BoundVariable
 import com.benjishults.bitnots.parser.Tokenizer
-import com.benjishults.bitnots.theory.formula.AnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 
 sealed class BinaryConnector(open val connector: String) {
@@ -62,68 +61,68 @@ sealed class BinaryConnector(open val connector: String) {
 /**
  * NOTE: In TPTP, function symbols and predicate symbols should be disjoint in order to avoid parsing trouble.
  */
-object TptpFofParser : AbstractTptpParser<Formula<*>>() {
+object TptpFofParser : AbstractTptpParser<FolAnnotatedFormula, Formula<*>>() {
     override val annotatedFormulaFactory = FolAnnotatedFormula::class.constructors.first()
     override val formulaType: String = "fof"
+    private val includeParser = IncludeParser<FolAnnotatedFormula>()
 
-    override fun parse(tokenizer: TptpTokenizer): TptpFile {
-        return TptpFile(
-                mutableListOf<AnnotatedFormula>().apply {
-                    while (true) {
-                        try {
-                            tokenizer.peekKeyword()
-                        } catch (e: Exception) {
-                            if (e.message == tokenizer.finishMessage(Tokenizer.UNEXPECTED_END_OF_INPUT))
-                                break
-                            else
-                                throw e
-                        }.let {
-                            when (it) {
-                                "fof" -> add(parseAnnotatedFormula(tokenizer))
-                                "include" -> addAll(Include.parse(tokenizer, TptpFofParser))
-                                else -> error(tokenizer.finishMessage("Parsing for '${it}' not yet implemented"))
-                            }
-                        }
+    override fun parse(tokenizer: TptpTokenizer): List<FolAnnotatedFormula> {
+        return mutableListOf<FolAnnotatedFormula>().apply {
+            while (true) {
+                try {
+                    tokenizer.peekKeyword()
+                } catch (e: Exception) {
+                    if (e.message == tokenizer.finishMessage(Tokenizer.UNEXPECTED_END_OF_INPUT))
+                        break
+                    else
+                        throw e
+                }.let {
+                    when (it) {
+                        "fof" -> add(parseAnnotatedFormula(tokenizer))
+                        "include" -> addAll(includeParser.parse(tokenizer, TptpFofParser))
+                        else -> error(tokenizer.finishMessage("Parsing for '${it}' not yet implemented"))
                     }
-                })
+                }
+            }
+        }
     }
 
-//    override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula<*> =
-//            tokenizer.peek().let {
-//                if (it.first().isLetter()) {
-//                    // this could be an inequality so, parse a functor, check the next thing, and behave appropriately
-//                    Functor.parse(tokenizer).let { first ->
-//                        tokenizer.peek().let {
-//                            when (it) {
-//                                "!=" -> {
-//                                    // TODO unreachable?
-//                                    tokenizer.popToken()
-//                                    parseAfterUnitaryFormula(Not(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs)))/*, Unary*/, tokenizer, bvs)
-//                                }
-//                                "=" -> {
-//                                    // TODO unreachable?
-//                                    tokenizer.popToken()
-//                                    parseAfterUnitaryFormula(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs))/*, Unary*/, tokenizer, bvs)
-//                                }
-//                                else -> {
-//                                    // TODO check whether I ever use the second component of the formWrapper
-//                                    parseAfterUnitaryFormula(first.toFormula(bvs), tokenizer, bvs)
-//                                }
-//                            }
-//                        }
-//                    }
-//                } else if (it in InnerParser.unitaryFormulaInitial) {
-//                    parseAfterUnitaryFormula(parseUnitaryFof(tokenizer, bvs), tokenizer, bvs)
-//                } else if (it == "\$true") {
-//                    tokenizer.popToken()
-//                    parseAfterUnitaryFormula(Truth/*, Atomic*/, tokenizer, bvs)
-//                } else if (it == "\$false") {
-//                    tokenizer.popToken()
-//                    parseAfterUnitaryFormula(Falsity/*, Atomic*/, tokenizer, bvs)
-//                } else {
-//                    error(tokenizer.finishMessage("Unexpected character at beginning of logic FOF: '${it}'"))
-//                }
-//            }
+    //    override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula<*> =
+    //            tokenizer.peek().let {
+    //                if (it.first().isLetter()) {
+    //                    // this could be an inequality so, parse a functor, check the next thing, and behave appropriately
+    //                    Functor.parse(tokenizer).let { first ->
+    //                        tokenizer.peek().let {
+    //                            when (it) {
+    //                                "!=" -> {
+    //                                    // TODO unreachable?
+    //                                    tokenizer.popToken()
+    //                                    parseAfterUnitaryFormula(Not(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs)))/*, Unary*/, tokenizer, bvs)
+    //                                }
+    //                                "=" -> {
+    //                                    // TODO unreachable?
+    //                                    tokenizer.popToken()
+    //                                    parseAfterUnitaryFormula(Equals(first.toTerm(bvs), Functor.parse(tokenizer).toTerm(bvs))/*, Unary*/, tokenizer, bvs)
+    //                                }
+    //                                else -> {
+    //                                    // TODO check whether I ever use the second component of the formWrapper
+    //                                    parseAfterUnitaryFormula(first.toFormula(bvs), tokenizer, bvs)
+    //                                }
+    //                            }
+    //                        }
+    //                    }
+    //                } else if (it in InnerParser.unitaryFormulaInitial) {
+    //                    parseAfterUnitaryFormula(parseUnitaryFof(tokenizer, bvs), tokenizer, bvs)
+    //                } else if (it == "\$true") {
+    //                    tokenizer.popToken()
+    //                    parseAfterUnitaryFormula(Truth/*, Atomic*/, tokenizer, bvs)
+    //                } else if (it == "\$false") {
+    //                    tokenizer.popToken()
+    //                    parseAfterUnitaryFormula(Falsity/*, Atomic*/, tokenizer, bvs)
+    //                } else {
+    //                    error(tokenizer.finishMessage("Unexpected character at beginning of logic FOF: '${it}'"))
+    //                }
+    //            }
 
     override fun parseFormula(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula<*> =
             tokenizer.peek().let {

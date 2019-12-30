@@ -40,18 +40,44 @@ class FxApplication : Application() {
                     super.onContextStop(context)
                 }
             })
+            context.registry.bind("fxApplication", this)
+            context.propertiesComponent.setIgnoreMissingLocation(false)
+            context.propertiesComponent.addLocation("classpath:/application.properties")
             startServiceAsync()
         })
+    }
+
+    override fun start(primaryStage: Stage) {
+        this.primaryStage = primaryStage
+        primaryStage.title = "Theory"
+        contextStarted.await()
         wireUpUiConfiguration()
+        primaryStage.x = uiProperties.getProperty("ui.framePosX", Region.USE_COMPUTED_SIZE.toString()).toDouble()
+        primaryStage.y = uiProperties.getProperty("ui.framePosY", Region.USE_COMPUTED_SIZE.toString()).toDouble()
+        val width = uiProperties.getProperty("ui.appWidth", Region.USE_COMPUTED_SIZE.toString()).toDouble()
+        val height = uiProperties.getProperty("ui.appHeight", Region.USE_COMPUTED_SIZE.toString()).toDouble()
+        primaryStage.scene = TheoryEditor(
+                context,
+                uiProperties,
+                width,
+                height)
+        // context.registry.bind("theoryEditor", primaryStage.scene)
+        primaryStage.show()
+    }
+
+    private fun startServiceAsync() {
+        context.addRoutes(ProofKickoff())
+        context.start()
     }
 
     private fun wireUpUiConfiguration() {
-        val folder = Path.of(System.getProperty("user.home"), ".bitnots")
-        uiSettingsFile = folder.resolve("ui-settings.properties")
         try {
+            val folder = Path.of(System.getProperty("user.home"), ".bitnots")
+            Files.createDirectories(folder)
+            uiSettingsFile = folder.resolve("ui-settings.properties")
+            // context.propertiesComponent.addLocation("file:${uiSettingsFile}")
             loadUserConfig()
         } catch (e: NoSuchFileException) {
-            Files.createDirectories(folder)
             if (Files.notExists(uiSettingsFile)) {
                 Files.copy(
                         this.javaClass.getResourceAsStream("/ui-settings.properties"),
@@ -70,26 +96,6 @@ class FxApplication : Application() {
         }
     }
 
-    override fun start(primaryStage: Stage) {
-        this.primaryStage = primaryStage
-        primaryStage.title = "Theory"
-        primaryStage.x = uiProperties.getProperty("ui.framePosX", Region.USE_COMPUTED_SIZE.toString()).toDouble()
-        primaryStage.y = uiProperties.getProperty("ui.framePosY", Region.USE_COMPUTED_SIZE.toString()).toDouble()
-        val width = uiProperties.getProperty("ui.appWidth", Region.USE_COMPUTED_SIZE.toString()).toDouble()
-        val height = uiProperties.getProperty("ui.appHeight", Region.USE_COMPUTED_SIZE.toString()).toDouble()
-        contextStarted.await()
-        primaryStage.scene = TheoryEditor(
-                context,
-                width,
-                height)
-        primaryStage.show()
-    }
-
-    private fun startServiceAsync() {
-        context.addRoutes(ProofKickoff())
-        context.start()
-    }
-
     /**
      * Stop the service thread first.
      */
@@ -101,6 +107,13 @@ class FxApplication : Application() {
     }
 
     private fun writeUiProperties() {
+        // uiProperties.keys.forEach { objectKey ->
+        //     (objectKey as String).let { key ->
+        //         context.propertiesComponent.resolveProperty(key).ifPresent { value ->
+        //             uiProperties.put(key, value)
+        //         }
+        //     }
+        // }
         uiProperties.put("ui.framePosY", primaryStage.y.toString())
         uiProperties.put("ui.framePosX", primaryStage.x.toString())
         uiProperties.put("ui.appHeight", primaryStage.scene.height.toString())

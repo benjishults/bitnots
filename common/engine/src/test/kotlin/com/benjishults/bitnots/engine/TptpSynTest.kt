@@ -48,7 +48,7 @@ class TptpSynTest {
                     o1?.getFileName()?.toString()?.compareTo(o2?.getFileName()?.toString() ?: "") ?: 0
         }).forEach { path ->
             TptpFofParser.parseFile(path).let { tptpFile ->
-                tptpFile.inputs.fold(mutableListOf<Formula<*>>() to mutableListOf<Formula<*>>()) { (hyps, targets), input ->
+                tptpFile.fold(mutableListOf<Formula<*>>() to mutableListOf<Formula<*>>()) { (hyps, targets), input ->
                     (input as FolAnnotatedFormula).let { annotated ->
                         when (annotated.formulaRole) {
                             FormulaRoles.axiom,
@@ -295,7 +295,7 @@ class TptpSynTest {
                         nodeFactory(mutableListOf<SignedFormula<Formula<*>>>(
                                 if (hyps > 0) {
                                     Implies(
-                                            tptp.inputs.dropLast(hyps).map {
+                                            tptp.dropLast(hyps).map {
                                                 (it as FolAnnotatedFormula).formula
                                             }.toTypedArray().let {
                                                 if (it.size > 1) {
@@ -304,9 +304,9 @@ class TptpSynTest {
                                                     it[0]
                                                 }
                                             },
-                                            (tptp.inputs.last() as FolAnnotatedFormula).formula).createSignedFormula()
+                                            (tptp.last() as FolAnnotatedFormula).formula).createSignedFormula()
                                 } else {
-                                    (tptp.inputs.last() as FolAnnotatedFormula).formula.createSignedFormula()
+                                    (tptp.last() as FolAnnotatedFormula).formula.createSignedFormula()
                                 }))).also { tableau ->
                     //                    var steps = 0
                     while (true) {
@@ -335,7 +335,7 @@ class TptpSynTest {
             TptpFofParser.parseFile(path).let { tptp ->
                 PropositionalTableau(
                         PropositionalTableauNode(mutableListOf<SignedFormula<Formula<*>>>(
-                                (tptp.inputs.last() as FolAnnotatedFormula).formula.createSignedFormula()),
+                                (tptp.last() as FolAnnotatedFormula).formula.createSignedFormula()),
                                 null)).also { tableau ->
                     while (true) {
                         if (tableau.findCloser().isCloser())

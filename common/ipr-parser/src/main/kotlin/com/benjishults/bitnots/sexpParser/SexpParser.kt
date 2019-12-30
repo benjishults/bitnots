@@ -22,10 +22,10 @@ import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.parser.Parser
 import com.benjishults.bitnots.parser.Tokenizer
-import com.benjishults.bitnots.theory.formula.AnnotatedFormula
+import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import java.io.BufferedReader
 
-object SexpParser : Parser<Unit, SexpTokenizer, Formula<*>> {
+object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula<*>> {
     override val tokenizerFactory: (BufferedReader, String) -> SexpTokenizer
         get() = TODO()
 
@@ -33,7 +33,7 @@ object SexpParser : Parser<Unit, SexpTokenizer, Formula<*>> {
         TODO()
     }
 
-    override fun parseAnnotatedFormula(tokenizer: SexpTokenizer): AnnotatedFormula {
+    override fun parseAnnotatedFormula(tokenizer: SexpTokenizer): FolAnnotatedFormula {
         TODO()
     }
 
