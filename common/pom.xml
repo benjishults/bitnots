@@ -19,6 +19,7 @@
         <module>language</module>
         <module>theory</module>
         <module>inference</module>
+        <module>tableau</module>
         <module>engine</module>
         <module>parser</module>
         <module>bitnots-parser</module>
@@ -26,6 +27,7 @@
         <module>tptp-parser</module>
         <module>config</module>
 <!--        <module>data-access</module>-->
+        <module>test</module>
     </modules>
 
 </project>

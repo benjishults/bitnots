@@ -34,11 +34,6 @@
             <artifactId>language</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>theory</artifactId>
-            <scope>provided</scope>
-        </dependency>
 
     </dependencies>
 

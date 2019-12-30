@@ -1,5 +1,7 @@
 package com.benjishults.bitnots.inference.rules
 
+import com.benjishults.bitnots.inference.SignedFormula
+import com.benjishults.bitnots.inference.createSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.VarsBindingFormula
 import com.benjishults.bitnots.model.terms.FV
@@ -7,8 +9,6 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
-import com.benjishults.bitnots.theory.formula.SignedFormula
-import com.benjishults.bitnots.theory.formula.createSignedFormula
 
 abstract class GammaFormula<F : VarsBindingFormula>(formula: F, sign: Boolean) : SignedFormula<F>(formula, sign) {
 

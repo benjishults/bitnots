@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -30,12 +31,12 @@
     </properties>
 
     <repositories>
-<!--
-        <repository>
-            <id>java.net</id>
-            <url>https://maven.java.net/content/repositories/public/</url>
-        </repository>
- -->
+        <!--
+                <repository>
+                    <id>java.net</id>
+                    <url>https://maven.java.net/content/repositories/public/</url>
+                </repository>
+         -->
         <repository>
             <id>jcenter</id>
             <name>JCenter</name>
@@ -59,18 +60,18 @@
             <name>JCenter</name>
             <url>https://jcenter.bintray.com/</url>
         </pluginRepository>
-<!--
-        <pluginRepository>
-            <id>dokka</id>
-            <name>Kotlin Dokka</name>
-            <url>https://dl.bintray.com/kotlin/dokka/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>central</id>
-            <name>Maven Central</name>
-            <url>http://central.maven.org/maven2/</url>
-        </pluginRepository>
- -->
+        <!--
+                <pluginRepository>
+                    <id>dokka</id>
+                    <name>Kotlin Dokka</name>
+                    <url>https://dl.bintray.com/kotlin/dokka/</url>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>central</id>
+                    <name>Maven Central</name>
+                    <url>http://central.maven.org/maven2/</url>
+                </pluginRepository>
+         -->
     </pluginRepositories>
 
     <dependencyManagement>
@@ -114,14 +115,19 @@
             </dependency>
             <dependency>
                 <groupId>com.benjishults.bitnots</groupId>
+                <artifactId>tableau</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.benjishults.bitnots</groupId>
                 <artifactId>config</artifactId>
                 <version>${project.version}</version>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>com.benjishults.bitnots</groupId>-->
-<!--                <artifactId>data-access</artifactId>-->
-<!--                <version>${project.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.benjishults.bitnots</groupId>-->
+            <!--                <artifactId>data-access</artifactId>-->
+            <!--                <version>${project.version}</version>-->
+            <!--            </dependency>-->
             <dependency>
                 <groupId>com.benjishults.bitnots</groupId>
                 <artifactId>ipr-parser</artifactId>
@@ -198,28 +204,28 @@
                 <version>2.0.4</version>
             </dependency>
 
-<!--             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot</artifactId>
-                <version>${boot.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-core</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-parent</artifactId>
-                <version>${boot.version}</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter</artifactId>
-                <version>${boot.version}</version>
-            </dependency> -->
+            <!--             <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot</artifactId>
+                            <version>${boot.version}</version>
+                            <exclusions>
+                                <exclusion>
+                                    <groupId>org.springframework</groupId>
+                                    <artifactId>spring-core</artifactId>
+                                </exclusion>
+                            </exclusions>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-parent</artifactId>
+                            <version>${boot.version}</version>
+                            <type>pom</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter</artifactId>
+                            <version>${boot.version}</version>
+                        </dependency> -->
 
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -247,13 +253,13 @@
                 <version>${spring.version}</version>
             </dependency>
 
-<!--             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>1.5.7.RELEASE</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency> -->
+            <!--             <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-dependencies</artifactId>
+                            <version>1.5.7.RELEASE</version>
+                            <type>pom</type>
+                            <scope>import</scope>
+                        </dependency> -->
 
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -334,11 +340,11 @@
                 <scope>import</scope>
             </dependency>
 
-<!--             <dependency>
-                <groupId>org.springframework.webflow</groupId>
-                <artifactId>spring-webflow</artifactId>
-                <version>2.4.6.RELEASE</version>
-            </dependency> -->
+            <!--             <dependency>
+                            <groupId>org.springframework.webflow</groupId>
+                            <artifactId>spring-webflow</artifactId>
+                            <version>2.4.6.RELEASE</version>
+                        </dependency> -->
 
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -388,11 +394,11 @@
                 <version>42.2.8</version>
             </dependency>
 
-<!--             <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-web</artifactId>
-                <version>${log4j.version}</version>
-            </dependency> -->
+            <!--             <dependency>
+                            <groupId>org.apache.logging.log4j</groupId>
+                            <artifactId>log4j-web</artifactId>
+                            <version>${log4j.version}</version>
+                        </dependency> -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
@@ -454,30 +460,30 @@
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <pluginManagement>
             <plugins>
-<!--                 <plugin>
-                    <groupId>org.jetbrains.dokka</groupId>
-                    <artifactId>dokka-maven-plugin</artifactId>
-                    <version>${dokka.version}</version>
-                    <executions>
-                        <execution>
-                            <phase>pre-site</phase>
-                            <goals>
-                                <goal>dokka</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <reportNotDocumented>false</reportNotDocumented>
-                        <jdkVersion>11</jdkVersion>
-                        <sourceLinks>
-                            <link>
-                                <dir>${project.basedir}/src/main/kotlin</dir>
-                                <url>http://github.com/benjishults/bitnots</url>
-                                <urlSuffix>#L</urlSuffix>
-                            </link>
-                        </sourceLinks>
-                    </configuration>
-                </plugin> -->
+                <!--                 <plugin>
+                                    <groupId>org.jetbrains.dokka</groupId>
+                                    <artifactId>dokka-maven-plugin</artifactId>
+                                    <version>${dokka.version}</version>
+                                    <executions>
+                                        <execution>
+                                            <phase>pre-site</phase>
+                                            <goals>
+                                                <goal>dokka</goal>
+                                            </goals>
+                                        </execution>
+                                    </executions>
+                                    <configuration>
+                                        <reportNotDocumented>false</reportNotDocumented>
+                                        <jdkVersion>11</jdkVersion>
+                                        <sourceLinks>
+                                            <link>
+                                                <dir>${project.basedir}/src/main/kotlin</dir>
+                                                <url>http://github.com/benjishults/bitnots</url>
+                                                <urlSuffix>#L</urlSuffix>
+                                            </link>
+                                        </sourceLinks>
+                                    </configuration>
+                                </plugin> -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -601,17 +607,17 @@
                         <mainClass>${start-class}</mainClass>
                     </configuration>
                 </plugin>
-<!--                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.6</version>
-                    <configuration>
-                        <delimiters>
-                            <delimiter>${resource.delimiter}</delimiter>
-                        </delimiters>
-                        <useDefaultDelimiters>false</useDefaultDelimiters>
-                    </configuration>
-                </plugin> -->
+                <!--                 <plugin>
+                                    <groupId>org.apache.maven.plugins</groupId>
+                                    <artifactId>maven-resources-plugin</artifactId>
+                                    <version>2.6</version>
+                                    <configuration>
+                                        <delimiters>
+                                            <delimiter>${resource.delimiter}</delimiter>
+                                        </delimiters>
+                                        <useDefaultDelimiters>false</useDefaultDelimiters>
+                                    </configuration>
+                                </plugin> -->
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
@@ -659,17 +665,22 @@
                             </goals>
                             <configuration>
                                 <transformers>
-                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                         <resource>META-INF/spring.handlers</resource>
                                     </transformer>
-                                    <transformer implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
+                                    <transformer
+                                            implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
                                         <resource>META-INF/spring.factories</resource>
                                     </transformer>
-                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                         <resource>META-INF/spring.schemas</resource>
                                     </transformer>
-                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                         <mainClass>${start-class}</mainClass>
                                     </transformer>
                                 </transformers>

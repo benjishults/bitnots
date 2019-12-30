@@ -37,7 +37,6 @@
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>parser</artifactId>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -191,6 +190,30 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
+                        <configuration>
+                            <!-- <ignoreNonCompile>true</ignoreNonCompile> -->
+                            <failOnWarning>true</failOnWarning>
+                            <ignoreNonCompile>true</ignoreNonCompile>
+                            <usedDependencies>
+
+                            </usedDependencies>
+                            <ignoredUnusedDeclaredDependencies>
+                                <ignoredUnusedDeclaredDependency>com.benjishults.bitnots:parser</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>org.jetbrains.kotlin:kotlin-stdlib</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>org.jetbrains.kotlin:kotlin-reflect:::test</ignoredUnusedDeclaredDependency>
+                            </ignoredUnusedDeclaredDependencies>
+                            <ignoredUsedUndeclaredDependencies>
+                                <ignoredUsedUndeclaredDependency>org.jetbrains.kotlin:kotlin-stdlib-jre7</ignoredUsedUndeclaredDependency>
+                                <ignoredUsedUndeclaredDependency>org.jetbrains.kotlin:kotlin-stdlib</ignoredUsedUndeclaredDependency>
+                            </ignoredUsedUndeclaredDependencies>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
