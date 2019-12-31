@@ -9,7 +9,7 @@ import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.terms.Function
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
-import com.benjishults.bitnots.theory.formula.FormulaRoles
+import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
@@ -43,33 +43,33 @@ class TptpSynTest {
         }).forEach { path ->
             TptpFofParser.parseFile(path).let { tptpFile ->
                 tptpFile.fold(mutableListOf<Formula<*>>() to mutableListOf<Formula<*>>()) { (hyps, targets), input ->
-                    (input as FolAnnotatedFormula).let { annotated ->
+                    input.let { annotated ->
                         when (annotated.formulaRole) {
-                            FormulaRoles.axiom,
-                            FormulaRoles.hypothesis,
-                            FormulaRoles.assumption,
-                            FormulaRoles.definition,
-                            FormulaRoles.theorem,
-                            FormulaRoles.lemma -> {
+                            FormulaRole.axiom,
+                            FormulaRole.hypothesis,
+                            FormulaRole.assumption,
+                            FormulaRole.definition,
+                            FormulaRole.theorem,
+                            FormulaRole.lemma              -> {
                                 hyps.add(annotated.formula)
                             }
 
-                            FormulaRoles.conjecture -> {
+                            FormulaRole.conjecture         -> {
                                 targets.add(annotated.formula)
                             }
-                            FormulaRoles.negated_conjecture -> {
+                            FormulaRole.negated_conjecture -> {
                                 targets.add(Not(annotated.formula))
                             }
 
-                            FormulaRoles.corollary,
-                            FormulaRoles.fi_domain,
-                            FormulaRoles.fi_functors,
-                            FormulaRoles.fi_predicates,
-                            FormulaRoles.plain,
-                            FormulaRoles.type -> {
+                            FormulaRole.corollary,
+                            FormulaRole.fi_domain,
+                            FormulaRole.fi_functors,
+                            FormulaRole.fi_predicates,
+                            FormulaRole.plain,
+                            FormulaRole.type               -> {
                                 error("Don't know what to do with ${annotated.formulaRole}.")
                             }
-                            FormulaRoles.unknown -> {
+                            FormulaRole.unknown            -> {
                                 // do nothing
                                 // error("Unknown role found.")
                             }

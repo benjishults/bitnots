@@ -2,7 +2,7 @@ package com.benjishults.bitnots.proofService.app
 
 import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
-import com.benjishults.bitnots.theory.formula.FormulaRoles
+import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.theory.problem.Problem
 import com.benjishults.bitnots.tptp.parser.TptpFofParser
 import javafx.beans.property.SimpleStringProperty
@@ -86,13 +86,13 @@ class TheoryEditor(
         // TODO create a single theory and a problem for each conjecture
         TptpFofParser.parseFile(path).forEach { annotatedFormula ->
             when (annotatedFormula.formulaRole) {
-                FormulaRoles.conjecture -> {
+                FormulaRole.conjecture                                                                    -> {
                     conjectures.add(annotatedFormula)
                 }
-                FormulaRoles.assumption, FormulaRoles.axiom, FormulaRoles.definition, FormulaRoles.hypothesis -> {
+                FormulaRole.assumption, FormulaRole.axiom, FormulaRole.definition, FormulaRole.hypothesis -> {
                     axioms.add(annotatedFormula)
                 }
-                else -> {
+                else                                                                                      -> {
                     // ignore for now
                 }
             }
@@ -101,7 +101,7 @@ class TheoryEditor(
             Problem(emptyList(),
                     FolAnnotatedFormula(
                             "problem",
-                            FormulaRoles.conjecture,
+                            FormulaRole.conjecture,
                             axioms.map {
                                 it.formula
                             }.fold(it.formula) { target, axiom ->

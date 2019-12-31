@@ -23,6 +23,11 @@
             <artifactId>kotlin-stdlib</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>

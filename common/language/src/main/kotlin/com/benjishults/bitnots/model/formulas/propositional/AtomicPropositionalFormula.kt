@@ -7,7 +7,7 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotUnifiable
 import com.benjishults.bitnots.model.unifier.Substitution
 
-abstract class AtomicPropositionalFormula(cons: FormulaConstructor) : PropositionalFormula(cons) {
+abstract class AtomicPropositionalFormula(cons: FormulaConstructor) : Formula<FormulaConstructor>(cons) {
 
     override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution =
             if (this == other)

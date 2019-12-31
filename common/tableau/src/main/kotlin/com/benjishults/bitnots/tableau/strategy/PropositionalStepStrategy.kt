@@ -1,10 +1,10 @@
 package com.benjishults.bitnots.tableau.strategy
 
-import com.benjishults.bitnots.tableau.Tableau
-import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.inference.SignedFormula
 import com.benjishults.bitnots.inference.rules.BetaFormula
 import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.tableau.Tableau
+import com.benjishults.bitnots.tableau.TableauNode
 
 open class PropositionalStepStrategy(
         val nodeFactory: (MutableList<SignedFormula<*>>, TableauNode) -> TableauNode
@@ -27,15 +27,15 @@ open class PropositionalStepStrategy(
 
     fun applyBeta(tableau: Tableau): Boolean =
             with(tableau) {
-                var beta: BetaFormula<Formula<*>>? = null
+                var betaMaybeNull: BetaFormula<Formula<*>>? = null
                 val node = root.breadthFirst<TableauNode> {
-                    beta = it.newFormulas.firstOrNull { it is BetaFormula<*> } as BetaFormula<*>?
-                    beta !== null
+                    betaMaybeNull = it.newFormulas.firstOrNull { it is BetaFormula<*> } as BetaFormula<*>?
+                    betaMaybeNull !== null
                 }
                 if (node === null)
                     false
                 else
-                    beta?.let { beta ->
+                    betaMaybeNull?.let { beta ->
                         node.newFormulas.remove(beta);
                         addChildFormulasToNewLeaves(beta, node)
                         true

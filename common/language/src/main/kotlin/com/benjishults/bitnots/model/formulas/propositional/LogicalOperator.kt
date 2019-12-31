@@ -1,7 +1,7 @@
 package com.benjishults.bitnots.model.formulas.propositional
 
-enum class LogicalOperators() {
-	
+enum class LogicalOperator() {
+
 	and,
 	or,
 	implies,
@@ -12,5 +12,5 @@ enum class LogicalOperators() {
 	not,
 	`for-all`,
 	`for-some`;
-	
+
 }

@@ -10,7 +10,7 @@ import com.benjishults.bitnots.model.unifier.Substitution
 data class Implies(
         val antecedent: Formula<*>,
         val consequent: Formula<*>
-) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.implies.name)) {
+) : Formula<FormulaConstructor>(FormulaConstructor.intern(LogicalOperator.implies.name)) {
     override fun contains(variable: Variable<*>, sub: Substitution) =
             antecedent.contains(variable, sub) || consequent.contains(variable, sub)
 

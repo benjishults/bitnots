@@ -6,9 +6,8 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotUnifiable
 import com.benjishults.bitnots.model.unifier.Substitution
-import com.benjishults.bitnots.model.unifier.EmptySub
 
-abstract class VarArgPropositionalFormula(cons: FormulaConstructor, vararg val formulas: Formula<*>) : PropositionalFormula(cons) {
+abstract class VarArgPropositionalFormula(cons: FormulaConstructor, vararg val formulas: Formula<*>) : Formula<FormulaConstructor>(cons) {
     override fun contains(variable: Variable<*>, sub: Substitution): Boolean =
             formulas.any {
                 it.contains(variable, sub)

@@ -1,6 +1,6 @@
 package com.benjishults.bitnots.theory.formula
 
-enum class FormulaRoles {
+enum class FormulaRole {
     axiom,
     hypothesis,
     definition,

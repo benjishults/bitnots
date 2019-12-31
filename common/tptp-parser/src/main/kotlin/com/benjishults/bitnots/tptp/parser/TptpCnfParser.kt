@@ -1,11 +1,10 @@
 package com.benjishults.bitnots.tptp.parser
 
 import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.formulas.fol.Predicate
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.formulas.propositional.Or
-import com.benjishults.bitnots.model.formulas.propositional.PropositionalFormula
-import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
+import com.benjishults.bitnots.model.formulas.util.isAtomic
+import com.benjishults.bitnots.model.formulas.util.isLiteral
 import com.benjishults.bitnots.parser.Tokenizer
 import com.benjishults.bitnots.theory.formula.CnfAnnotatedFormula
 
@@ -27,9 +26,9 @@ object TptpCnfParser : AbstractTptpParser<CnfAnnotatedFormula, Formula<*>>() {
                         throw e
                 }.let {
                     when (it) {
-                        "cnf" -> add(parseAnnotatedFormula(tokenizer))
+                        "cnf"     -> add(parseAnnotatedFormula(tokenizer))
                         "include" -> addAll(includeParser.parse(tokenizer, TptpCnfParser))
-                        else -> error(tokenizer.finishMessage("Parsing for '${it}' not yet implemented"))
+                        else      -> error(tokenizer.finishMessage("Parsing for '${it}' not yet implemented"))
                     }
                 }
             }
@@ -57,14 +56,12 @@ object TptpCnfParser : AbstractTptpParser<CnfAnnotatedFormula, Formula<*>>() {
         return generateSequence(parseLiteral(tokenizer)) {
             tokenizer.peek().let {
                 when (it) {
-                    "|" -> {
+                    "|"                        -> {
                         tokenizer.popToken()
                         parseLiteral(tokenizer)
                     }
-                    in InnerParser.punctuation -> {
-                        null
-                    }
-                    else -> error(tokenizer.finishMessage("Unexpected token: '$it'"))
+                    in InnerParser.punctuation -> null
+                    else                       -> error(tokenizer.finishMessage("Unexpected token: '$it'"))
                 }
             }
         }.asIterable().toList().run {
@@ -79,17 +76,18 @@ object TptpCnfParser : AbstractTptpParser<CnfAnnotatedFormula, Formula<*>>() {
             if (tokenizer.peek() == "~") {
                 tokenizer.popToken()
                 Functor.parse(tokenizer).toFormula(emptySet()).let {
-                    when (it) {
-                        is Predicate, is PropositionalFormula -> Not(it)
-                        else -> error(tokenizer.finishMessage("Unexpected type of formula '${it::class.simpleName}'"))
+                    if (it.isAtomic()) {
+                        Not(it)
+                    } else {
+                        error(tokenizer.finishMessage("Unexpected type of formula '${it::class.simpleName}'"))
                     }
                 }
             } else {
-                Functor.parse(tokenizer).toFormula(emptySet()).let {
-                    when (it) {
-                        is PropositionalVariable, is Predicate -> it
-                        else -> error(tokenizer.finishMessage("Unexpected type of formula '${it::class.simpleName}'"))
-                    }
+                Functor.parse(tokenizer).toFormula(emptySet()).let { parsedFormula ->
+                    parsedFormula.takeIf {
+                        it.isLiteral()
+                    } ?: error(
+                            tokenizer.finishMessage("Unexpected type of formula '${parsedFormula::class.simpleName}'"))
                 }
             }
 

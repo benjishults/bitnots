@@ -1,7 +1,7 @@
 package com.benjishults.bitnots.tptp.parser
 
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
-import com.benjishults.bitnots.theory.formula.FormulaRoles
+import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
@@ -17,7 +17,7 @@ class ProblemBuilderTest {
             TptpFofParser.parseFile(path).let {
                 Assert.assertEquals(9, it.size)
                 Assert.assertTrue(it.all { it is FolAnnotatedFormula })
-                Assert.assertTrue(it.any { it.formulaRole == FormulaRoles.conjecture })
+                Assert.assertTrue(it.any { it.formulaRole == FormulaRole.conjecture })
             }
         } catch (e: Exception) {
             e.printStackTrace()

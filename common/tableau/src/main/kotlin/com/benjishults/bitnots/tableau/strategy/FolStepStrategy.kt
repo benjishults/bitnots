@@ -1,13 +1,14 @@
 package com.benjishults.bitnots.tableau.strategy
 
-import com.benjishults.bitnots.tableau.FolTableauNode
-import com.benjishults.bitnots.tableau.Tableau
-import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.inference.SignedFormula
 import com.benjishults.bitnots.inference.rules.DeltaFormula
 import com.benjishults.bitnots.inference.rules.GammaFormula
 import com.benjishults.bitnots.model.formulas.fol.VarsBindingFormula
+import com.benjishults.bitnots.tableau.FolTableauNode
+import com.benjishults.bitnots.tableau.Tableau
+import com.benjishults.bitnots.tableau.TableauNode
 import java.util.PriorityQueue
+import kotlin.Comparator
 
 open class FolStepStrategy(
         var qLimit: Int = 3,
@@ -29,14 +30,14 @@ open class FolStepStrategy(
     // TODO make this splice
     private fun applyDelta(tableau: Tableau): Boolean {
         with(tableau) {
-            var delta: DeltaFormula<out VarsBindingFormula>? = null
+            var deltaMaybeNull: DeltaFormula<out VarsBindingFormula>? = null
             val node = root.breadthFirst<FolTableauNode> {
-                delta = it.newFormulas.firstOrNull { it is DeltaFormula<*> } as DeltaFormula<*>?
-                delta !== null
+                deltaMaybeNull = it.newFormulas.firstOrNull { it is DeltaFormula<*> } as DeltaFormula<*>?
+                deltaMaybeNull !== null
             }
             if (node === null)
                 return false
-            delta?.let { delta ->
+            deltaMaybeNull?.let { delta ->
                 node.newFormulas.remove(delta);
                 addChildFormulasToNewLeaves(delta, node)
                 return true

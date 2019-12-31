@@ -2,7 +2,7 @@ package com.benjishults.bitnots.proofService.app
 
 import com.benjishults.bitnots.proofService.AppThread
 import com.benjishults.bitnots.proofService.ServiceThread
-import com.benjishults.bitnots.proofService.control.ProofKickoff
+import com.benjishults.bitnots.proofService.config.ProofKickoff
 import com.benjishults.bitnots.util.threads.interruptAndJoin
 import com.benjishults.bitnots.util.threads.safeSaveAndStartThread
 import javafx.application.Application

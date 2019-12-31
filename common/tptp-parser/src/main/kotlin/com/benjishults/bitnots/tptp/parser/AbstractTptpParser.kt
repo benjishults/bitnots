@@ -3,7 +3,7 @@ package com.benjishults.bitnots.tptp.parser
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.parser.Parser
 import com.benjishults.bitnots.theory.formula.AnnotatedFormula
-import com.benjishults.bitnots.theory.formula.FormulaRoles
+import com.benjishults.bitnots.theory.formula.FormulaRole
 import java.io.BufferedReader
 import kotlin.reflect.KFunction
 
@@ -26,7 +26,7 @@ abstract class AbstractTptpParser<AF: AnnotatedFormula, F : Formula<*>> : Parser
                         error(tokenizer.finishMessage(it))
                     }
                 },
-                FormulaRoles.valueOf(tokenizer.popToken()).also {
+                FormulaRole.valueOf(tokenizer.popToken()).also {
                     TptpTokenizer.ensure(",", tokenizer.popToken())?.let {
                         error(tokenizer.finishMessage(it))
                     }

@@ -4,10 +4,10 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.FormulaConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
-import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.unifier.NotUnifiable
+import com.benjishults.bitnots.model.unifier.Substitution
 
-data class Iff(val first: Formula<*>, val second: Formula<*>) : PropositionalFormula(FormulaConstructor.intern(LogicalOperators.iff.name)) {
+data class Iff(val first: Formula<*>, val second: Formula<*>) : Formula<FormulaConstructor>(FormulaConstructor.intern(LogicalOperator.iff.name)) {
     override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution {
         if (other is Iff) {
             Formula.unify(first, other.first, sub).takeIf {

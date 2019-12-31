@@ -1,8 +1,6 @@
 package com.benjishults.bitnots.tptp.parser
 
-import com.benjishults.bitnots.theory.formula.CnfAnnotatedFormula
-import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
-import com.benjishults.bitnots.theory.formula.FormulaRoles
+import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
@@ -19,8 +17,7 @@ class ParserTest {
         try {
             TptpCnfParser.parseFile(path).let {
                 Assert.assertEquals(16, it.size)
-                Assert.assertTrue(it.all { it is CnfAnnotatedFormula })
-                Assert.assertTrue((it.last() as CnfAnnotatedFormula).formulaRole === FormulaRoles.negated_conjecture)
+                Assert.assertTrue((it.last()).formulaRole === FormulaRole.negated_conjecture)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -34,8 +31,7 @@ class ParserTest {
             val path = TptpFileFetcher.findProblemFile(TptpDomain.PLA, TptpFormulaForm.FOF, 24, 1)
             TptpFofParser.parseFile(path).let {
                 Assert.assertEquals(53, it.size)
-                Assert.assertTrue(it.all { it is FolAnnotatedFormula })
-                Assert.assertTrue((it.last() as FolAnnotatedFormula).formulaRole === FormulaRoles.conjecture)
+                Assert.assertTrue((it.last()).formulaRole === FormulaRole.conjecture)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -49,8 +45,7 @@ class ParserTest {
             val path = TptpFileFetcher.findProblemFile(TptpDomain.PLA, TptpFormulaForm.FOF, 34, 1)
             TptpFofParser.parseFile(path).let {
                 Assert.assertEquals(2, it.size)
-                Assert.assertTrue(it.all { it is FolAnnotatedFormula })
-                Assert.assertTrue("Was ${it.last()}", (it.last() as FolAnnotatedFormula).formulaRole === FormulaRoles.axiom)
+                Assert.assertTrue("Was ${it.last()}", (it.last()).formulaRole === FormulaRole.axiom)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -64,8 +59,7 @@ class ParserTest {
             val path = TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 981, 1)
             TptpFofParser.parseFile(path).let {
                 Assert.assertEquals(1, it.size)
-                Assert.assertTrue(it.all { it is FolAnnotatedFormula })
-                Assert.assertTrue("Was ${it.last()}", (it.last() as FolAnnotatedFormula).formulaRole === FormulaRoles.conjecture)
+                Assert.assertTrue("Was ${it.last()}", (it.last()).formulaRole === FormulaRole.conjecture)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -79,8 +73,8 @@ class ParserTest {
             val path = TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 78, 1)
             TptpFofParser.parseFile(path).let {
                 Assert.assertEquals(1, it.size)
-                Assert.assertTrue(it.all { it is FolAnnotatedFormula })
-                Assert.assertTrue("Was ${it.last()}", (it.last() as FolAnnotatedFormula).formulaRole === FormulaRoles.conjecture)
+                Assert.assertTrue("Was ${it.last()}",
+                                  (it.last()).formulaRole === FormulaRole.conjecture)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -94,8 +88,7 @@ class ParserTest {
             val path = TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 0, 1)
             TptpFofParser.parseFile(path).let {
                 Assert.assertEquals(11, it.size)
-                Assert.assertTrue(it.all { it is FolAnnotatedFormula })
-                Assert.assertTrue("Was ${it[7]}", (it[7] as FolAnnotatedFormula).formulaRole === FormulaRoles.conjecture)
+                Assert.assertTrue("Was ${it[7]}", (it[7]).formulaRole === FormulaRole.conjecture)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -109,7 +102,6 @@ class ParserTest {
             val path = TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 0, 2)
             TptpFofParser.parseFile(path).let {
                 Assert.assertEquals(16, it.size)
-                Assert.assertTrue(it.all { it is FolAnnotatedFormula })
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -123,7 +115,6 @@ class ParserTest {
             val path = TptpFileFetcher.findProblemFile(TptpDomain.TOP, TptpFormulaForm.FOF, 20, 1)
             TptpFofParser.parseFile(path).let {
                 Assert.assertEquals(9, it.size)
-                Assert.assertTrue(it.all { it is FolAnnotatedFormula  })
             }
         } catch (e: Exception) {
             e.printStackTrace()
