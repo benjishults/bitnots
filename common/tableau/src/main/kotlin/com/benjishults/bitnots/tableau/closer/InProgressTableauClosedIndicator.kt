@@ -2,7 +2,11 @@ package com.benjishults.bitnots.tableau.closer
 
 import com.benjishults.bitnots.tableau.TableauNode
 
-interface InProgressTableauClosedIndicator {
+interface ProofProgressIndicator {
+    fun isDone(): Boolean
+}
+
+interface InProgressTableauClosedIndicator: ProofProgressIndicator {
 
     /**
      * returns NotCompatible if the BranchCloser is not compatible with the receiver.
@@ -17,8 +21,6 @@ interface InProgressTableauClosedIndicator {
     fun nextNode(): TableauNode
 
     fun progress(): InProgressTableauClosedIndicator
-
-    fun isCloser(): Boolean
 
     //    fun isCompatible
 }

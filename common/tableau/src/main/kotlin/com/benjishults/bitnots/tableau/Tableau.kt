@@ -2,7 +2,9 @@ package com.benjishults.bitnots.tableau
 
 import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
 
-interface Tableau {
+interface ProofInProgress
+
+interface Tableau: ProofInProgress {
 
     val root: TableauNode
     /**

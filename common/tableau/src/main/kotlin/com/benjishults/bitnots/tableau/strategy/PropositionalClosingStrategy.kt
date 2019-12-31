@@ -1,12 +1,14 @@
 package com.benjishults.bitnots.tableau.strategy
 
-import com.benjishults.bitnots.tableau.Tableau
-import com.benjishults.bitnots.tableau.TableauNode
-import com.benjishults.bitnots.tableau.closer.PropositionalBranchCloser
 import com.benjishults.bitnots.inference.SignedFormula
+import com.benjishults.bitnots.inference.SimpleSignedFormula
 import com.benjishults.bitnots.inference.rules.ClosingFormula
 import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
-import com.benjishults.bitnots.inference.SimpleSignedFormula
+import com.benjishults.bitnots.tableau.Tableau
+import com.benjishults.bitnots.tableau.TableauNode
+import com.benjishults.bitnots.tableau.closer.BooleanClosedIndicator
+import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
+import com.benjishults.bitnots.tableau.closer.PropositionalBranchCloser
 
 object PropositionalClosingStrategy : TableauClosingStrategy {
 
@@ -22,6 +24,11 @@ object PropositionalClosingStrategy : TableauClosingStrategy {
                 }
             }
         }
+    }
+
+    override fun tryFinish(tableau: Tableau): InProgressTableauClosedIndicator {
+        populateBranchClosers(tableau)
+        return BooleanClosedIndicator(tableau.root)
     }
 
     @Suppress("USELESS_CAST")

@@ -7,11 +7,15 @@ import com.benjishults.bitnots.tableau.strategy.PropositionalInitializationStrat
 import com.benjishults.bitnots.tableau.strategy.StepStrategy
 
 class FolTableau(
-    root: FolTableauNode,
-    stepStrategy: StepStrategy<Tableau> = FolStepStrategy { sf, p ->
-        FolTableauNode(sf, p as FolTableauNode?, PropositionalInitializationStrategy())
-    }
-) : AbstractTableau(root, FolUnificationClosingStrategy(), { UnifyingClosedIndicator(it) }, stepStrategy) {
+        root: FolTableauNode,
+        stepStrategy: StepStrategy<Tableau> = FolStepStrategy { sf, p ->
+            FolTableauNode(sf, p as FolTableauNode?, PropositionalInitializationStrategy())
+        }
+) : AbstractTableau(
+        root,
+        FolUnificationClosingStrategy(),
+        { UnifyingClosedIndicator(it) },
+        stepStrategy) {
 
     override fun toString(): String {
         return buildString {
@@ -19,7 +23,7 @@ class FolTableau(
                 this.append(path.joinToString("."))
                 this.append("\n")
                 this.append(n.toString())
-//                this.append(n.initialClosers.toString())
+                //                this.append(n.initialClosers.toString())
                 this.append("\n")
                 this.append("\n")
                 false

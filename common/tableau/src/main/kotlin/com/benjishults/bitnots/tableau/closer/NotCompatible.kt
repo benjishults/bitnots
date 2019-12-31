@@ -12,5 +12,5 @@ object NotCompatible : InProgressTableauClosedIndicator {
 
     override fun createExtension(closer: BranchCloser) = this
 
-    override fun isCloser() = false
+    override fun isDone() = false
 }

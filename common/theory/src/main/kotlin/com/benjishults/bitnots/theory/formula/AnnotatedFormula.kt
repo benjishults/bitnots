@@ -5,24 +5,22 @@ import com.benjishults.bitnots.model.formulas.util.isCnf
 
 open class AnnotatedFormula(
         val name: String,
-        val formulaRole: FormulaRole
+        val formulaRole: FormulaRole,
+        open val formula: Formula<*>
 ) {
     override fun toString(): String {
         return "AnnotatedFormula(name='$name', formulaRole=$formulaRole)"
     }
 }
 
-/**
- * @param clause must be a clause
- */
 class CnfAnnotatedFormula(
         name: String,
         formulaRole: FormulaRole,
-        val clause: Formula<*>
-) : AnnotatedFormula(name, formulaRole) {
+        override val formula: Formula<*>
+) : AnnotatedFormula(name, formulaRole, formula) {
 
     init {
-        require(clause.isCnf())
+        require(formula.isCnf())
     }
 
     override fun equals(other: Any?): Boolean {
@@ -32,19 +30,19 @@ class CnfAnnotatedFormula(
         other as CnfAnnotatedFormula
 
         if (formulaRole != other.formulaRole) return false
-        if (clause != other.clause) return false
+        if (formula != other.formula) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = formulaRole.hashCode()
-        result = 31 * result + clause.hashCode()
+        result = 31 * result + formula.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "CnfAnnotatedFormula(clause=$clause, ${super.toString()})"
+        return "CnfAnnotatedFormula(formula=$formula, ${super.toString()})"
     }
 
 }
@@ -52,8 +50,8 @@ class CnfAnnotatedFormula(
 class FolAnnotatedFormula(
         name: String,
         formulaRole: FormulaRole,
-        val formula: Formula<*>
-) : AnnotatedFormula(name, formulaRole) {
+        override val formula: Formula<*>
+) : AnnotatedFormula(name, formulaRole, formula) {
 
 
     override fun equals(other: Any?): Boolean {

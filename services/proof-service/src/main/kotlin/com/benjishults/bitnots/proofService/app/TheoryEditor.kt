@@ -1,9 +1,8 @@
 package com.benjishults.bitnots.proofService.app
 
-import com.benjishults.bitnots.model.formulas.propositional.Implies
+import com.benjishults.bitnots.engine.prover.Problem
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRole
-import com.benjishults.bitnots.theory.problem.Problem
 import com.benjishults.bitnots.tptp.parser.TptpFofParser
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
@@ -22,19 +21,20 @@ import java.nio.file.Path
 import java.util.*
 
 class TheoryEditor(
-        val context: CamelContext,
-        val uiProperties: Properties,
+        private val context: CamelContext,
+        private val uiProperties: Properties,
         width: Double,
         height: Double
 ) : Scene(BorderPane(), width, height) {
 
     private val inputFormats: List<String> = context.propertiesComponent.resolveProperty("input.formats")
-            .orElse("tptp,ipr,bitnots")
-            .split(",")
+        .orElse("tptp,ipr,bitnots")
+        .split(",")
 
     private val fileName = SimpleStringProperty("no file loaded")
     private val inputFormat = SimpleStringProperty(inputFormats.first())
     private val textArea = TextArea()
+    private lateinit var proofContext: Problem
 
     init {
         stylesheets.add("css/ui.css")
@@ -46,7 +46,8 @@ class TheoryEditor(
             center = ScrollPane(textArea)
             bottom = FlowPane().apply {
                 with(children) {
-                    add(Label("format", ComboBox(FXCollections.unmodifiableObservableList(FXCollections.observableList(inputFormats))).apply {
+                    add(Label("format", ComboBox(FXCollections.unmodifiableObservableList(
+                            FXCollections.observableList(inputFormats))).apply {
                         inputFormat.bind(valueProperty())
                         value = uiProperties.getProperty("ui.chosenInputFormat", inputFormats.first())
                         setOnAction {
@@ -97,17 +98,7 @@ class TheoryEditor(
                 }
             }
         }
-        println(conjectures.map {
-            Problem(emptyList(),
-                    FolAnnotatedFormula(
-                            "problem",
-                            FormulaRole.conjecture,
-                            axioms.map {
-                                it.formula
-                            }.fold(it.formula) { target, axiom ->
-                                Implies(axiom, target)
-                            }))
-        })
+        proofContext = Problem(axioms, conjectures)
     }
 
     private fun loadTheory() {

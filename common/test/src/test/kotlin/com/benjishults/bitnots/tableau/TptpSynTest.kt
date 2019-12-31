@@ -175,7 +175,7 @@ class TptpSynTest {
 
         override fun run() {
             while (!Thread.interrupted()) { // FIXME get a debugger in here and see if it is being interrupted
-                if (tableau.findCloser().isCloser()) {
+                if (tableau.findCloser().isDone()) {
                     result = Result.proved
                     return
                 } else if (Thread.interrupted()) {
@@ -304,7 +304,7 @@ class TptpSynTest {
                                 }))).also { tableau ->
                     //                    var steps = 0
                     while (true) {
-                        if (tableau.findCloser().isCloser())
+                        if (tableau.findCloser().isDone())
                             break
                         if (!tableau.step())
                             Assert.fail("Failed to prove it with unlimited steps.")
@@ -332,7 +332,7 @@ class TptpSynTest {
                                 (tptp.last() as FolAnnotatedFormula).formula.createSignedFormula()),
                                                                                                     null)).also { tableau ->
                     while (true) {
-                        if (tableau.findCloser().isCloser())
+                        if (tableau.findCloser().isDone())
                             break
                         if (!tableau.step())
                             Assert.fail("Failed to prove it with unlimited steps.")

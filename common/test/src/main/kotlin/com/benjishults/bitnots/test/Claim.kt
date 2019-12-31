@@ -1,12 +1,11 @@
 package com.benjishults.bitnots.test
 
+import com.benjishults.bitnots.engine.prover.ProofConstraints
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.tableau.Tableau
 import org.junit.Assert
 
 val DEFAULT_MAX_STEPS: Int = 30
-
-class ProofConstraints(val minSteps: Int, val maxSteps: Int = minSteps)
 
 sealed class Claim(
         val formula: Formula<*>
@@ -20,12 +19,12 @@ class FalseClaim(
     override fun validate(tableau: Tableau) {
         println("WARN: in some logics, this could run forever.")
         while (true) {
-            if (tableau.findCloser().isCloser())
+            if (tableau.findCloser().isDone())
                 Assert.fail("Unexpectedly proved ${formula}.")
             else if (!tableau.step())
                 break
         }
-        if (tableau.findCloser().isCloser()) {
+        if (tableau.findCloser().isDone()) {
             Assert.fail("Unexpectedly proved ${formula}.")
         }
     }
@@ -37,7 +36,7 @@ class TrueClaim(
 ) : Claim(formula) {
     override fun validate(tableau: Tableau) {
         for (step in steps.maxSteps downTo 1) {
-            if (tableau.findCloser().isCloser()) {
+            if (tableau.findCloser().isDone()) {
                 (steps.maxSteps - step).takeIf {
                     it < steps.minSteps
                 }?.let {
@@ -46,7 +45,7 @@ class TrueClaim(
             }
             tableau.step()
         }
-        if (!tableau.findCloser().isCloser()) {
+        if (!tableau.findCloser().isDone()) {
             error("Failed to prove ${formula} with ${steps.maxSteps} steps.")
         }
 

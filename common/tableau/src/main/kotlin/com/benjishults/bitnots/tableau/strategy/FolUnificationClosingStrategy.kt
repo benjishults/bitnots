@@ -1,14 +1,16 @@
 package com.benjishults.bitnots.tableau.strategy
 
-import com.benjishults.bitnots.tableau.Tableau
-import com.benjishults.bitnots.tableau.TableauNode
-import com.benjishults.bitnots.tableau.closer.UnifyingBranchCloser
 import com.benjishults.bitnots.inference.SignedFormula
+import com.benjishults.bitnots.inference.SimpleSignedFormula
 import com.benjishults.bitnots.inference.rules.ClosingFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.NotUnifiable
-import com.benjishults.bitnots.inference.SimpleSignedFormula
+import com.benjishults.bitnots.tableau.Tableau
+import com.benjishults.bitnots.tableau.TableauNode
+import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
+import com.benjishults.bitnots.tableau.closer.UnifyingBranchCloser
+import com.benjishults.bitnots.tableau.closer.UnifyingClosedIndicator
 
 open class FolUnificationClosingStrategy : TableauClosingStrategy {
 
@@ -20,6 +22,11 @@ open class FolUnificationClosingStrategy : TableauClosingStrategy {
                 }
             }
         }
+    }
+
+    override fun tryFinish(proofInProgress: Tableau): InProgressTableauClosedIndicator {
+        populateBranchClosers(proofInProgress)
+        return UnifyingClosedIndicator(proofInProgress.root)
     }
 
     private fun generateClosers(node: TableauNode) {

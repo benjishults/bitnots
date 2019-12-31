@@ -1,7 +1,7 @@
 package com.benjishults.bitnots.tableau.closer
 
 import com.benjishults.bitnots.tableau.TableauNode
-import java.util.Stack
+import java.util.*
 
 open class BooleanClosedIndicator protected constructor(
         override val branchClosers: List<BranchCloser>
@@ -29,7 +29,7 @@ open class BooleanClosedIndicator protected constructor(
 
     protected lateinit var needToClose: Stack<TableauNode>
 
-    override fun isCloser() =
+    override fun isDone() =
             needToClose.isEmpty()
 
     override fun nextNode(): TableauNode =

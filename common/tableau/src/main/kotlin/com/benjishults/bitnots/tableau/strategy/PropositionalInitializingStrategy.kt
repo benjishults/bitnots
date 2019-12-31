@@ -3,7 +3,7 @@ package com.benjishults.bitnots.tableau.strategy
 import com.benjishults.bitnots.tableau.TableauNode
 
 // TODO refactor
-interface PropositionalInitializingStrategy : InitializingStrategy {
+interface PropositionalInitializingStrategy : InitializationStrategy {
     override fun init(node: TableauNode) {
         with(node) {
             applyAllAlphas(node)

@@ -2,6 +2,6 @@ package com.benjishults.bitnots.tableau.strategy
 
 import com.benjishults.bitnots.tableau.TableauNode
 
-interface InitializingStrategy {
+interface InitializationStrategy {
     fun init(node: TableauNode)
 }

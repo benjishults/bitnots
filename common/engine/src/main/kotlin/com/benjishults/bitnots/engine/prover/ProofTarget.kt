@@ -1,21 +1,14 @@
 package com.benjishults.bitnots.engine.prover
 
-interface ProofTarget {
+import com.benjishults.bitnots.inference.createSignedFormula
+import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.tableau.FolTableau
+import com.benjishults.bitnots.tableau.FolTableauNode
 
-    fun prover()
-
-    //    fun prove(formula: Formula<*>) {
-    //        val tableau = Tableau(TableauNode(ArrayList<SignedFormula<Formula<*>>>().also {
-    //            it.add(formula.createSignedFormula())
-    //        }, null))
-    //        println(tableau)
-    //        println("is ${if (!tableau.isClosed()) "not" else ""} closed")
-    //    }
+fun Formula<*>.prove() {
+    val tableau = FolTableau(FolTableauNode(mutableListOf(createSignedFormula(false))))
+    println(tableau)
+    println("is ${if (!tableau.root.isClosed()) "not" else ""} closed")
 }
 
-interface Prover {
-
-    fun prove(proofTarget: ProofTarget)
-
-}
 

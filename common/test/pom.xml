@@ -40,6 +40,10 @@
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
             <artifactId>inference</artifactId>
         </dependency>
         <!-- TODO this should be needed only for tests! -->

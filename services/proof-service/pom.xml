@@ -28,7 +28,12 @@
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
             <artifactId>language</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>

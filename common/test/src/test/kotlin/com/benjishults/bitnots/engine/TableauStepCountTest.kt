@@ -1,5 +1,6 @@
 package com.benjishults.bitnots.engine
 
+import com.benjishults.bitnots.engine.prover.ProofConstraints
 import com.benjishults.bitnots.inference.SignedFormula
 import com.benjishults.bitnots.inference.createSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
@@ -25,7 +26,6 @@ import com.benjishults.bitnots.tableau.Tableau
 import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.test.Claim
 import com.benjishults.bitnots.test.FalseClaim
-import com.benjishults.bitnots.test.ProofConstraints
 import com.benjishults.bitnots.test.TrueClaim
 import org.junit.Test
 
