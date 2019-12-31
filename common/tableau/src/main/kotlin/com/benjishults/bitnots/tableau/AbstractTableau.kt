@@ -1,8 +1,8 @@
 package com.benjishults.bitnots.tableau
 
+import com.benjishults.bitnots.prover.strategy.StepStrategy
 import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
 import com.benjishults.bitnots.tableau.closer.NotCompatible
-import com.benjishults.bitnots.tableau.strategy.StepStrategy
 import com.benjishults.bitnots.tableau.strategy.TableauClosingStrategy
 import java.util.*
 

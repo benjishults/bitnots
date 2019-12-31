@@ -1,6 +1,6 @@
 package com.benjishults.bitnots.proofService.app
 
-import com.benjishults.bitnots.engine.prover.Problem
+import com.benjishults.bitnots.prover.Problem
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.parser.TptpFofParser

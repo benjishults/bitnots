@@ -7,9 +7,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tableau</artifactId>
+    <artifactId>tableau-prover</artifactId>
 
-    <name>BITNOTS :: Common :: Tableau</name>
+    <name>BITNOTS :: Common :: Tableau Prover</name>
 
     <dependencies>
         <dependency>
@@ -36,6 +36,16 @@
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>theory</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>tableau</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
             <artifactId>prover</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -45,17 +55,17 @@
             <scope>provided</scope>
         </dependency>
         <!-- TODO this should be needed only for tests! -->
-
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>tptp-parser</artifactId>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>parser</artifactId>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

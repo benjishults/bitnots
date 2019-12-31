@@ -4,9 +4,10 @@ import com.benjishults.bitnots.inference.SignedFormula
 import com.benjishults.bitnots.inference.SimpleSignedFormula
 import com.benjishults.bitnots.inference.rules.AlphaFormula
 import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.prover.strategy.InitializationStrategy
 import com.benjishults.bitnots.tableau.TableauNode
 
-open class PropositionalInitializationStrategy : InitializationStrategy {
+open class PropositionalInitializationStrategy : InitializationStrategy<TableauNode> {
 
     override fun init(node: TableauNode) {
         applyAllAlphas(node)

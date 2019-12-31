@@ -1,3 +1,3 @@
-package com.benjishults.bitnots.engine.prover
+package com.benjishults.bitnots.prover
 
 class ProofConstraints(val minSteps: Int, val maxSteps: Int = minSteps)

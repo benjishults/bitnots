@@ -1,4 +1,4 @@
-package com.benjishults.bitnots.engine.prover
+package com.benjishults.bitnots.prover
 
 import com.benjishults.bitnots.theory.formula.AnnotatedFormula
 

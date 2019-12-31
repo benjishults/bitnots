@@ -1,10 +1,10 @@
 package com.benjishults.bitnots.tableau
 
+import com.benjishults.bitnots.prover.strategy.StepStrategy
 import com.benjishults.bitnots.tableau.closer.BooleanClosedIndicator
 import com.benjishults.bitnots.tableau.strategy.PropositionalClosingStrategy
 import com.benjishults.bitnots.tableau.strategy.PropositionalInitializationStrategy
 import com.benjishults.bitnots.tableau.strategy.PropositionalStepStrategy
-import com.benjishults.bitnots.tableau.strategy.StepStrategy
 
 class PropositionalTableau(
         root: PropositionalTableauNode,

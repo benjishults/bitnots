@@ -1,16 +1,16 @@
 package com.benjishults.bitnots.tableau
 
-import com.benjishults.bitnots.tableau.closer.BranchCloser
-import com.benjishults.bitnots.tableau.strategy.InitializationStrategy
 import com.benjishults.bitnots.inference.SignedFormula
-import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.inference.SimpleSignedFormula
+import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.prover.strategy.InitializationStrategy
+import com.benjishults.bitnots.tableau.closer.BranchCloser
 import com.benjishults.bitnots.util.TreeNodeImpl
 
 abstract class AbstractTableauNode(
         override val newFormulas: MutableList<SignedFormula<Formula<*>>>,
         parent: TableauNode?,
-        val init: InitializationStrategy
+        val init: InitializationStrategy<TableauNode>
 ) : TreeNodeImpl(parent), TableauNode {
 
     // starts as proper ancestors and new ones are added after processing

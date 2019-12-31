@@ -1,10 +1,7 @@
 package com.benjishults.bitnots.tableau.closer
 
+import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
 import com.benjishults.bitnots.tableau.TableauNode
-
-interface ProofProgressIndicator {
-    fun isDone(): Boolean
-}
 
 interface InProgressTableauClosedIndicator: ProofProgressIndicator {
 

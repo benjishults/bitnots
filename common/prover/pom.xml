@@ -7,9 +7,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>engine</artifactId>
+    <artifactId>prover</artifactId>
 
-    <name>BITNOTS :: Common :: Engine</name>
+    <name>BITNOTS :: Common :: Prover</name>
 
     <dependencies>
         <dependency>
@@ -26,11 +26,6 @@
 
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>language</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
             <artifactId>util</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -39,26 +34,16 @@
             <artifactId>theory</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>tableau</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>inference</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <!-- TODO this should be needed only for tests! -->
+
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>tptp-parser</artifactId>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>parser</artifactId>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

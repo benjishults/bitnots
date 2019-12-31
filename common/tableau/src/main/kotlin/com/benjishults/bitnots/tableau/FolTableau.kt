@@ -1,10 +1,10 @@
 package com.benjishults.bitnots.tableau
 
+import com.benjishults.bitnots.prover.strategy.StepStrategy
 import com.benjishults.bitnots.tableau.closer.UnifyingClosedIndicator
 import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
 import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 import com.benjishults.bitnots.tableau.strategy.PropositionalInitializationStrategy
-import com.benjishults.bitnots.tableau.strategy.StepStrategy
 
 class FolTableau(
         root: FolTableauNode,

@@ -20,7 +20,8 @@
         <module>theory</module>
         <module>inference</module>
         <module>tableau</module>
-        <module>engine</module>
+        <module>prover</module>
+        <module>tableau-prover</module>
         <module>parser</module>
         <module>bitnots-parser</module>
         <module>ipr-parser</module>

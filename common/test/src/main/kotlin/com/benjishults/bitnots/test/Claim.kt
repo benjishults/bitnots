@@ -1,6 +1,6 @@
 package com.benjishults.bitnots.test
 
-import com.benjishults.bitnots.engine.prover.ProofConstraints
+import com.benjishults.bitnots.prover.ProofConstraints
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.tableau.Tableau
 import org.junit.Assert
@@ -32,7 +32,8 @@ class FalseClaim(
 
 class TrueClaim(
         formula: Formula<*>,
-        val steps: ProofConstraints = ProofConstraints(0, DEFAULT_MAX_STEPS)
+        val steps: ProofConstraints = ProofConstraints(
+                0, DEFAULT_MAX_STEPS)
 ) : Claim(formula) {
     override fun validate(tableau: Tableau) {
         for (step in steps.maxSteps downTo 1) {

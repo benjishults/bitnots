@@ -140,7 +140,7 @@
             </dependency>
             <dependency>
                 <groupId>com.benjishults.bitnots</groupId>
-                <artifactId>engine</artifactId>
+                <artifactId>prover</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

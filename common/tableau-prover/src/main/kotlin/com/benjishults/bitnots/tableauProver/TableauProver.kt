@@ -1,35 +1,25 @@
-package com.benjishults.bitnots.engine.prover
+package com.benjishults.bitnots.tableauProver
 
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.Implies
-import com.benjishults.bitnots.tableau.strategy.InitializationStrategy
-import com.benjishults.bitnots.tableau.strategy.StepStrategy
+import com.benjishults.bitnots.prover.Problem
+import com.benjishults.bitnots.prover.ProofConstraints
+import com.benjishults.bitnots.prover.Prover
+import com.benjishults.bitnots.prover.strategy.InitializationStrategy
+import com.benjishults.bitnots.prover.strategy.StepStrategy
+import com.benjishults.bitnots.tableau.Tableau
+import com.benjishults.bitnots.tableau.TableauNode
+import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
 import com.benjishults.bitnots.tableau.strategy.TableauClosingStrategy
-
-abstract class Prover<T>(
-        val target: T,
-        val initializationStrategy: InitializationStrategy,
-        val closingStrategy: TableauClosingStrategy,
-        val stepStrategy: StepStrategy<*>,
-        val proofConstraints: ProofConstraints
-) {
-    abstract fun init()
-    abstract fun step(steps: Long = 1)
-    abstract fun isDone()
-    /**
-     * Prove as far as allowed by [proofConstraints]
-     */
-    abstract fun prove()
-}
 
 class FormulaProver(
         target: Formula<*>,
-        initializationStrategy: InitializationStrategy,
+        initializationStrategy: InitializationStrategy<TableauNode>,
         closingStrategy: TableauClosingStrategy,
         stepStrategy: StepStrategy<*>,
         proofConstraints: ProofConstraints
-) : Prover<Formula<*>>(target, initializationStrategy, closingStrategy, stepStrategy, proofConstraints) {
+) : Prover<Formula<*>, TableauNode, Tableau, InProgressTableauClosedIndicator>(target, initializationStrategy, closingStrategy, stepStrategy, proofConstraints) {
     override fun init() {
     }
 
@@ -46,13 +36,16 @@ class FormulaProver(
     }
 }
 
+// TODO change name of module to prover
+// TODO move proof code from tableau to here
+
 class ProblemProver(
         target: Problem,
-        initializationStrategy: InitializationStrategy,
+        initializationStrategy: InitializationStrategy<TableauNode>,
         closingStrategy: TableauClosingStrategy,
         stepStrategy: StepStrategy<*>,
         proofConstraints: ProofConstraints
-) : Prover<Problem>(target, initializationStrategy, closingStrategy, stepStrategy, proofConstraints) {
+) : Prover<Problem, TableauNode, Tableau, InProgressTableauClosedIndicator>(target, initializationStrategy, closingStrategy, stepStrategy, proofConstraints) {
     override fun prove() {
         val hyps = And(*target.hypotheses.map {
             it.formula

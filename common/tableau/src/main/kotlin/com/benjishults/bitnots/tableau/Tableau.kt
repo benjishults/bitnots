@@ -1,8 +1,7 @@
 package com.benjishults.bitnots.tableau
 
+import com.benjishults.bitnots.prover.finish.ProofInProgress
 import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
-
-interface ProofInProgress
 
 interface Tableau: ProofInProgress {
 

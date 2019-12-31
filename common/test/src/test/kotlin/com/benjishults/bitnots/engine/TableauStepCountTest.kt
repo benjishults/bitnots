@@ -1,6 +1,6 @@
 package com.benjishults.bitnots.engine
 
-import com.benjishults.bitnots.engine.prover.ProofConstraints
+import com.benjishults.bitnots.prover.ProofConstraints
 import com.benjishults.bitnots.inference.SignedFormula
 import com.benjishults.bitnots.inference.createSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
@@ -48,20 +48,30 @@ class TableauStepCountTest {
         val R = Prop("R")
 
         val PROP_CLAIMS = arrayOf(
-                TrueClaim(Implies(Tfae(A, B, C), Implies(B, A)), steps = ProofConstraints(1)),
+                TrueClaim(Implies(Tfae(A, B, C), Implies(B, A)), steps = ProofConstraints(
+                        1)),
                 TrueClaim(Tfae(P, P, P), steps = ProofConstraints(2)),
-                TrueClaim(Implies(And(A, B), Iff(A, B)), steps = ProofConstraints(1)),
-                TrueClaim(Or(Iff(A, B), A, B), steps = ProofConstraints(1)),
-                TrueClaim(Implies(Implies(A, B), Implies(A, B)), steps = ProofConstraints(1)),
-                TrueClaim(Implies(Falsity, P), steps = ProofConstraints(0)),
+                TrueClaim(Implies(And(A, B), Iff(A, B)), steps = ProofConstraints(
+                        1)),
+                TrueClaim(Or(Iff(A, B), A, B), steps = ProofConstraints(
+                        1)),
+                TrueClaim(Implies(Implies(A, B), Implies(A, B)), steps = ProofConstraints(
+                        1)),
+                TrueClaim(Implies(Falsity, P), steps = ProofConstraints(
+                        0)),
                 TrueClaim(Implies(P, P), steps = ProofConstraints(0)),
                 TrueClaim(Or(P, Not(P)), steps = ProofConstraints(0)),
-                TrueClaim(And(Truth, Truth), steps = ProofConstraints(1)),
-                TrueClaim(Implies(Falsity, Falsity), steps = ProofConstraints(0)),
-                TrueClaim(Implies(Falsity, Truth), steps = ProofConstraints(0)),
-                TrueClaim(Implies(Truth, Truth), steps = ProofConstraints(0)),
+                TrueClaim(And(Truth, Truth), steps = ProofConstraints(
+                        1)),
+                TrueClaim(Implies(Falsity, Falsity), steps = ProofConstraints(
+                        0)),
+                TrueClaim(Implies(Falsity, Truth), steps = ProofConstraints(
+                        0)),
+                TrueClaim(Implies(Truth, Truth), steps = ProofConstraints(
+                        0)),
                 TrueClaim(Truth, steps = ProofConstraints(0)),
-                TrueClaim(Implies(Implies(Truth, Falsity), Falsity), steps = ProofConstraints(1)),
+                TrueClaim(Implies(Implies(Truth, Falsity), Falsity), steps = ProofConstraints(
+                        1)),
                 FalseClaim(Tfae(A, B, C)),
                 FalseClaim(Implies(Or(R, P), Or(And(P, Q), R))),
                 FalseClaim(Implies(And(

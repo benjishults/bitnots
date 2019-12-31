@@ -3,6 +3,7 @@ package com.benjishults.bitnots.tableau.strategy
 import com.benjishults.bitnots.inference.SignedFormula
 import com.benjishults.bitnots.inference.rules.BetaFormula
 import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.prover.strategy.StepStrategy
 import com.benjishults.bitnots.tableau.Tableau
 import com.benjishults.bitnots.tableau.TableauNode
 
