@@ -1,6 +1,6 @@
 package com.benjishults.bitnots.util
 
-open class TreeNodeImpl(
-        override var parent: TreeNode?,
-        override val children: MutableList<TreeNode> = mutableListOf()
-) : TreeNode
+open class TreeNodeImpl<TN: TreeNode<TN>>(
+        override var parent: TN?,
+        override val children: MutableList<TN> = mutableListOf()
+) : TreeNode<TN>
