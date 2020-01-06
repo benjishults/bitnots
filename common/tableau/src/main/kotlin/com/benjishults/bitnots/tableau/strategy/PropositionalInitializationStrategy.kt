@@ -4,18 +4,18 @@ import com.benjishults.bitnots.inference.SignedFormula
 import com.benjishults.bitnots.inference.SimpleSignedFormula
 import com.benjishults.bitnots.inference.rules.AlphaFormula
 import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.prover.strategy.InitializationStrategy
 import com.benjishults.bitnots.tableau.TableauNode
 
-open class PropositionalInitializationStrategy : InitializationStrategy<TableauNode> {
+object PropositionalInitializationStrategy {
 
-    override fun init(node: TableauNode) {
+    fun <T : TableauNode<*>> init(node: T): T {
         applyAllAlphas(node)
         applyRegularity(node)
         //            allFormulas.addAll(newFormulas)
+        return node
     }
 
-    fun applyAllAlphas(node: TableauNode) {
+    private fun <T : TableauNode<*>> applyAllAlphas(node: T) {
         with(node) {
             while (true) {
                 val toAdd: MutableList<SignedFormula<Formula<*>>> = mutableListOf()
@@ -36,7 +36,7 @@ open class PropositionalInitializationStrategy : InitializationStrategy<TableauN
         }
     }
 
-    fun applyRegularity(node: TableauNode) {
+    private fun <T : TableauNode<*>> applyRegularity(node: T) {
         with(node) {
             newFormulas.iterator().let { iter ->
                 while (iter.hasNext()) {

@@ -1,6 +1,5 @@
 package com.benjishults.bitnots.tptp.parser
 
-import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
@@ -16,7 +15,6 @@ class ProblemBuilderTest {
             val path = TptpFileFetcher.findProblemFile(TptpDomain.TOP, TptpFormulaForm.FOF, 20, 1)
             TptpFofParser.parseFile(path).let {
                 Assert.assertEquals(9, it.size)
-                Assert.assertTrue(it.all { it is FolAnnotatedFormula })
                 Assert.assertTrue(it.any { it.formulaRole == FormulaRole.conjecture })
             }
         } catch (e: Exception) {

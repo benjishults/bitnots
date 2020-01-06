@@ -4,35 +4,28 @@ import com.benjishults.bitnots.inference.SignedFormula
 import com.benjishults.bitnots.inference.SimpleSignedFormula
 import com.benjishults.bitnots.inference.rules.ClosingFormula
 import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
-import com.benjishults.bitnots.tableau.Tableau
+import com.benjishults.bitnots.tableau.PropositionalTableau
 import com.benjishults.bitnots.tableau.TableauNode
-import com.benjishults.bitnots.tableau.closer.BooleanClosedIndicator
 import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
 import com.benjishults.bitnots.tableau.closer.PropositionalBranchCloser
 
-object PropositionalClosingStrategy : TableauClosingStrategy {
+open class PropositionalClosingStrategy(
+        override val closedIndicatorFactory: (TableauNode<*>) -> InProgressTableauClosedIndicator
+) : TableauClosingStrategy<PropositionalTableau> {
 
-    override fun populateBranchClosers(tableau: Tableau) {
-        tableau.root.preorderIterator<TableauNode>().let { iter ->
-            while (iter.hasNext()) {
-                iter.next().let { node ->
-                    if (checkClosed(node)) {
-                        iter.skipMode = true
-                    } else {
-                        iter.skipMode = false
-                    }
-                }
+    /**
+     *
+     */
+    override fun populateBranchClosers(tableau: PropositionalTableau) {
+        with(tableau.root.preorderIterator()) {
+            while (hasNext()) {
+                skipMode = checkClosed(next())
             }
         }
     }
 
-    override fun tryFinish(tableau: Tableau): InProgressTableauClosedIndicator {
-        populateBranchClosers(tableau)
-        return BooleanClosedIndicator(tableau.root)
-    }
-
     @Suppress("USELESS_CAST")
-    private fun checkClosed(node: TableauNode): Boolean =
+    private fun checkClosed(node: TableauNode<*>): Boolean =
             with(node) {
                 if (isClosed())
                     return true
@@ -58,14 +51,14 @@ object PropositionalClosingStrategy : TableauClosingStrategy {
                 }.any { f ->
                     if (f.sign) {
                         negAbove.any {
-                            (it.formula === f.formula).apply {
+                            (it.formula == f.formula).apply {
                                 if (this)
                                     branchClosers.add(PropositionalBranchCloser(f, it))
                             }
                         }
                     } else {
                         posAbove.any {
-                            (it.formula === f.formula).apply {
+                            (it.formula == f.formula).apply {
                                 if (this)
                                     branchClosers.add(PropositionalBranchCloser(it, f))
                             }
