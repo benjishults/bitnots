@@ -1,20 +1,21 @@
 package com.benjishults.bitnots.model.formulas.propositional
 
 import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.formulas.FormulaConstructor
+import com.benjishults.bitnots.model.formulas.FormulaWithSubformulas
+import com.benjishults.bitnots.model.formulas.PropositionalFormulaConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
-import com.benjishults.bitnots.model.unifier.NotUnifiable
+import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 
-data class Not(val argument: Formula<*>) : Formula<FormulaConstructor>(FormulaConstructor.intern(LogicalOperator.not.name)) {
+data class Not(val argument: Formula<*>) : FormulaWithSubformulas<PropositionalFormulaConstructor>(PropositionalFormulaConstructor.intern(LogicalOperator.not.name), argument) {
     override fun contains(variable: Variable<*>, sub: Substitution) = argument.contains(variable, sub)
 
     override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution =
             if (other is Not)
                 Formula.unify(argument, other.argument, sub)
             else
-                NotUnifiable
+                NotCompatible
 
     override fun getFreeVariables(): Set<FreeVariable> =
             argument.getFreeVariables()

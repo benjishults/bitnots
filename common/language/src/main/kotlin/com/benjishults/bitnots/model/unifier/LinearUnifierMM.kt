@@ -21,7 +21,7 @@ package com.benjishults.bitnots.model.unifier
 //				disagreementSet(s, t)?.let {
 //					M.remove(t)
 //					setOfMultiEqns.addAll(it)
-//				} ?: return NotUnifiable
+//				} ?: return NotCompatible
 //			} ?: break
 //		}
 //		val dag = DirectedGraph(2)
@@ -48,7 +48,7 @@ package com.benjishults.bitnots.model.unifier
 //				}
 //			}
 //		}
-//		return NotUnifiable
+//		return NotCompatible
 //	}
 //
 //	private fun findEqnW2NonVariables(): Triple<MutableSet<Term<*>>, Term<*>, Term<*>>? {
@@ -92,7 +92,7 @@ package com.benjishults.bitnots.model.unifier
 //
 //		fun toSub(bigM: MutableList<MutableSet<Term<*>>>): Substitution {
 //
-//			return NotUnifiable
+//			return NotCompatible
 //		}
 //
 //	}

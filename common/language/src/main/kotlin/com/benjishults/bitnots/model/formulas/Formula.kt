@@ -32,3 +32,5 @@ abstract class Formula<C : FormulaConstructor>(val constructor: C) {
     abstract override fun equals(other: Any?): Boolean
     abstract override fun hashCode(): Int
 }
+
+abstract class FormulaWithSubformulas<C: FormulaConstructor>(constructor: C, vararg val formulas: Formula<*>): Formula<C>(constructor)

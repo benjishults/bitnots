@@ -6,7 +6,7 @@ import com.benjishults.bitnots.model.formulas.fol.Predicate.PredicateConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
-import com.benjishults.bitnots.model.unifier.NotUnifiable
+import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.util.intern.InternTableWithOther
 
@@ -95,14 +95,14 @@ class Predicate private constructor(name: PredicateConstructor, var arguments: L
             if (other.constructor === constructor) {
                 return arguments.foldIndexed(sub) { i, s, t ->
                     Term.unify(t, other.arguments[i], s).takeIf {
-                        it !== NotUnifiable
-                    } ?: return NotUnifiable
+                        it !== NotCompatible
+                    } ?: return NotCompatible
                 }
             } else {
-                return NotUnifiable
+                return NotCompatible
             }
         } else
-            return NotUnifiable
+            return NotCompatible
     }
 
     override fun getFreeVariables(): Set<FreeVariable> {

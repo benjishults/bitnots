@@ -57,7 +57,7 @@ package com.benjishults.bitnots.model.unifier
 //				s = s.compose(Sub(*multiEq.S.map { it.to(term) }.toTypedArray()))
 //			}
 //		}
-//		return NotUnifiable
+//		return NotCompatible
 //	}
 //
 //	// U' = (U - { S=M }) U { S=(C) } U F

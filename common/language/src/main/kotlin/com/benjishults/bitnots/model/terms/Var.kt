@@ -2,7 +2,7 @@ package com.benjishults.bitnots.model.terms
 
 import com.benjishults.bitnots.model.terms.BoundVariable.BVConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable.FVConstructor
-import com.benjishults.bitnots.model.unifier.NotUnifiable
+import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.util.intern.InternTable
 
@@ -39,7 +39,7 @@ class BoundVariable private constructor(name: String) : Variable<BVConstructor>(
             if (other === this)
                 sub
             else
-                NotUnifiable
+                NotCompatible
 
     override fun getFreeVariables(): Set<FreeVariable> = emptySet()
 //    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
@@ -76,7 +76,7 @@ class FreeVariable private constructor(name: String) : Variable<FVConstructor>(F
         return if (this === other)
             sub
         else if (other.contains(this, sub))
-            NotUnifiable
+            NotCompatible
         else if (other is FreeVariable)
             sub[other].let {
                 if (it !== other)

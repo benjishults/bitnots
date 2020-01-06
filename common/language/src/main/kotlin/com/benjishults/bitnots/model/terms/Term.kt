@@ -18,11 +18,16 @@ abstract class Term<C : TermConstructor>(val cons: C) {
     }
 
     /**
+     * TODO must verify that the substitution always has been applied to each side or that its application would be a no-op.
      * The behavior of this function is undefined if [sub] is not idempotent or if variables in [sub] occur in either receiver or [other].
-     * This returns an idempotent most general unifier of the receiver and [other] or [NotUnifiable] if there is no unifier.
+     * This returns an idempotent most general unifier of the receiver and [other] or [NotCompatible] if there is no unifier.
      */
-    protected abstract fun unifyUncached(other: Term<*>, sub: Substitution = EmptySub): Substitution
+    abstract fun unifyUncached(other: Term<*>, sub: Substitution = EmptySub): Substitution
 
+    /**
+     * Application of a substitution is defined as the simultaneous replacement of all variables.
+     * If the substitution is idempotent, then this distinction doesn't matter.
+     */
     abstract fun applySub(substitution: Substitution): Term<*>
     /**
      * @param variable must not be bound by [sub]

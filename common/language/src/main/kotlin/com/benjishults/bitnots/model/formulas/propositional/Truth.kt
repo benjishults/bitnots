@@ -1,5 +1,5 @@
 package com.benjishults.bitnots.model.formulas.propositional
 
-import com.benjishults.bitnots.model.formulas.FormulaConstructor
+import com.benjishults.bitnots.model.formulas.PropositionalFormulaConstructor
 
-object Truth : AtomicPropositionalFormula(FormulaConstructor.intern(LogicalOperator.`true`.name))
+object Truth : AtomicPropositionalFormula(PropositionalFormulaConstructor.intern(LogicalOperator.`true`.name))

@@ -1,32 +1,33 @@
 package com.benjishults.bitnots.model.formulas.propositional
 
 import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.formulas.FormulaConstructor
+import com.benjishults.bitnots.model.formulas.FormulaWithSubformulas
+import com.benjishults.bitnots.model.formulas.PropositionalFormulaConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Variable
-import com.benjishults.bitnots.model.unifier.NotUnifiable
+import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 
 data class Implies(
         val antecedent: Formula<*>,
         val consequent: Formula<*>
-) : Formula<FormulaConstructor>(FormulaConstructor.intern(LogicalOperator.implies.name)) {
+) : FormulaWithSubformulas<PropositionalFormulaConstructor>(PropositionalFormulaConstructor.intern(LogicalOperator.implies.name), antecedent, consequent) {
     override fun contains(variable: Variable<*>, sub: Substitution) =
             antecedent.contains(variable, sub) || consequent.contains(variable, sub)
 
     override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution {
         if (other is Implies) {
             Formula.unify(antecedent, other.antecedent, sub).takeIf {
-                it !== NotUnifiable
+                it !== NotCompatible
             }?.let {
                 Formula.unify(consequent, other.consequent, it).takeIf {
-                    it != NotUnifiable
+                    it != NotCompatible
                 }?.let {
                     return it
                 }
             }
         }
-        return NotUnifiable
+        return NotCompatible
     }
 
     override fun getFreeVariables(): Set<FreeVariable> =

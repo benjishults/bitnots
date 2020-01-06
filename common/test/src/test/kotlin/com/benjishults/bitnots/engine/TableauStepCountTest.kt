@@ -1,9 +1,5 @@
 package com.benjishults.bitnots.engine
 
-import com.benjishults.bitnots.prover.ProofConstraints
-import com.benjishults.bitnots.inference.SignedFormula
-import com.benjishults.bitnots.inference.createSignedFormula
-import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.ForAll
 import com.benjishults.bitnots.model.formulas.fol.ForSome
 import com.benjishults.bitnots.model.formulas.fol.Pred
@@ -18,15 +14,12 @@ import com.benjishults.bitnots.model.formulas.propositional.Tfae
 import com.benjishults.bitnots.model.formulas.propositional.Truth
 import com.benjishults.bitnots.model.terms.BV
 import com.benjishults.bitnots.model.terms.Fn
-import com.benjishults.bitnots.tableau.FolTableau
-import com.benjishults.bitnots.tableau.FolTableauNode
-import com.benjishults.bitnots.tableau.PropositionalTableau
-import com.benjishults.bitnots.tableau.PropositionalTableauNode
-import com.benjishults.bitnots.tableau.Tableau
-import com.benjishults.bitnots.tableau.TableauNode
+import com.benjishults.bitnots.prover.ProofConstraints
 import com.benjishults.bitnots.test.Claim
-import com.benjishults.bitnots.test.FalseClaim
-import com.benjishults.bitnots.test.TrueClaim
+import com.benjishults.bitnots.test.FalseFolClaim
+import com.benjishults.bitnots.test.FalsePropClaim
+import com.benjishults.bitnots.test.TrueFolClaim
+import com.benjishults.bitnots.test.TruePropClaim
 import org.junit.Test
 
 class TableauStepCountTest {
@@ -48,36 +41,26 @@ class TableauStepCountTest {
         val R = Prop("R")
 
         val PROP_CLAIMS = arrayOf(
-                TrueClaim(Implies(Tfae(A, B, C), Implies(B, A)), steps = ProofConstraints(
-                        1)),
-                TrueClaim(Tfae(P, P, P), steps = ProofConstraints(2)),
-                TrueClaim(Implies(And(A, B), Iff(A, B)), steps = ProofConstraints(
-                        1)),
-                TrueClaim(Or(Iff(A, B), A, B), steps = ProofConstraints(
-                        1)),
-                TrueClaim(Implies(Implies(A, B), Implies(A, B)), steps = ProofConstraints(
-                        1)),
-                TrueClaim(Implies(Falsity, P), steps = ProofConstraints(
-                        0)),
-                TrueClaim(Implies(P, P), steps = ProofConstraints(0)),
-                TrueClaim(Or(P, Not(P)), steps = ProofConstraints(0)),
-                TrueClaim(And(Truth, Truth), steps = ProofConstraints(
-                        1)),
-                TrueClaim(Implies(Falsity, Falsity), steps = ProofConstraints(
-                        0)),
-                TrueClaim(Implies(Falsity, Truth), steps = ProofConstraints(
-                        0)),
-                TrueClaim(Implies(Truth, Truth), steps = ProofConstraints(
-                        0)),
-                TrueClaim(Truth, steps = ProofConstraints(0)),
-                TrueClaim(Implies(Implies(Truth, Falsity), Falsity), steps = ProofConstraints(
-                        1)),
-                FalseClaim(Tfae(A, B, C)),
-                FalseClaim(Implies(Or(R, P), Or(And(P, Q), R))),
-                FalseClaim(Implies(And(
+                TruePropClaim(Implies(Tfae(A, B, C), Implies(B, A)), constraints = ProofConstraints(1)),
+                TruePropClaim(Tfae(P, P, P), constraints = ProofConstraints(2)),
+                TruePropClaim(Implies(And(A, B), Iff(A, B)), constraints = ProofConstraints(1)),
+                TruePropClaim(Or(Iff(A, B), A, B), constraints = ProofConstraints(1)),
+                TruePropClaim(Implies(Implies(A, B), Implies(A, B)), constraints = ProofConstraints(1)),
+                TruePropClaim(Implies(Falsity, P), constraints = ProofConstraints(0)),
+                TruePropClaim(Implies(P, P), constraints = ProofConstraints(0)),
+                TruePropClaim(Or(P, Not(P)), constraints = ProofConstraints(0)),
+                TruePropClaim(And(Truth, Truth), constraints = ProofConstraints(1)),
+                TruePropClaim(Implies(Falsity, Falsity), constraints = ProofConstraints(0)),
+                TruePropClaim(Implies(Falsity, Truth), constraints = ProofConstraints(0)),
+                TruePropClaim(Implies(Truth, Truth), constraints = ProofConstraints(0)),
+                TruePropClaim(Truth, constraints = ProofConstraints(0)),
+                TruePropClaim(Implies(Implies(Truth, Falsity), Falsity), constraints = ProofConstraints(1)),
+                FalsePropClaim(Tfae(A, B, C)),
+                FalsePropClaim(Implies(Or(R, P), Or(And(P, Q), R))),
+                FalsePropClaim(Implies(And(
                         Implies(And(A, B), C),
                         Implies(Truth, A)), C)),
-                FalseClaim(Implies(
+                FalsePropClaim(Implies(
                         And(
                                 Implies(And(A, B), C),
                                 Implies(And(A1, A2), A),
@@ -89,12 +72,12 @@ class TableauStepCountTest {
                                 Implies(Truth, B1),
                                 Implies(And(E, F), C)),
                         C)),
-                FalseClaim(Implies(A, Or(C, B))),
-                FalseClaim(Implies(Or(A, B), Or(C, B))),
-                FalseClaim(Implies(Or(A, B), Or(C, B))),
-                FalseClaim(Implies(Or(A, B), Implies(A, B))),
-                FalseClaim(And(Truth, Falsity)),
-                FalseClaim(Falsity)
+                FalsePropClaim(Implies(A, Or(C, B))),
+                FalsePropClaim(Implies(Or(A, B), Or(C, B))),
+                FalsePropClaim(Implies(Or(A, B), Or(C, B))),
+                FalsePropClaim(Implies(Or(A, B), Implies(A, B))),
+                FalsePropClaim(And(Truth, Falsity)),
+                FalsePropClaim(Falsity)
         )
 
         val a = BV("a")
@@ -116,45 +99,46 @@ class TableauStepCountTest {
         val Q_ = Pred("Q", 1)
 
         val FOL_CLAIMS = arrayOf(
-                TrueClaim(Implies(
-                        And(
-                                ForAll(x,
-                                       formula = Implies(P_(x), Q_(x))),
-                                ForSome(y,
-                                        formula = Implies(Q_(y), R_(y)))),
-                        ForSome(z,
-                                formula = Implies(P_(z), R_(z)))
-                ),
-                          steps = ProofConstraints(5, 12)),
+                TrueFolClaim(
+                        Implies(
+                                And(
+                                        ForAll(x, formula = Implies(P_(x), Q_(x))),
+                                        ForSome(y, formula = Implies(Q_(y), R_(y)))),
+                                ForSome(z, formula = Implies(P_(z), R_(z)))
+                        ),
+                        constraints = ProofConstraints(5, 12)),
                 /*
-                TrueClaim(ForAll(a,
-                        formula = ForSome(x, x2, x3, x4, y,
-                                formula = Implies(
-                                        And(
-                                                P_(a),
-                                                E_(a),
-                                                Implies(E_(x),
-                                                        Or(G(x), S(x, f(x)))),
-                                                Implies(E_(x2),
-                                                        Or(G(x2), C_(f(x2)))),
-                                                Implies(S(a, y), P_(y))),
-                                        Or(
-                                                And(P_(x3), G(x3)),
-                                                And(P_(x4), C_(x4)))))),
-                        steps = Count(100)),
+                TrueFolClaim(
+                        ForAll(
+                                a,
+                                formula = ForSome(x, x2, x3, x4, y,
+                                                  formula = Implies(
+                                                          And(
+                                                                  P_(a),
+                                                                  E_(a),
+                                                                  Implies(E_(x),
+                                                                          Or(G(x), S(x, f(x)))),
+                                                                  Implies(E_(x2),
+                                                                          Or(G(x2), C_(f(x2)))),
+                                                                  Implies(S(a, y), P_(y))),
+                                                          Or(
+                                                                  And(P_(x3), G(x3)),
+                                                                  And(P_(x4), C_(x4)))))),
+                        constraints = ProofConstraints(1, 100)),
+
                  */
-                FalseClaim(Implies(And(
-                        ForSome(x,
-                                formula = P_(x)),
-                        ForSome(x,
-                                formula = Q_(x))
-                ), ForSome(y, formula = And(P_(y), Q_(y))))
+                FalseFolClaim(
+                        Implies(
+                                And(
+                                        ForSome(x, formula = P_(x)),
+                                        ForSome(x, formula = Q_(x))
+                                ),
+                                ForSome(y, formula = And(P_(y), Q_(y))))
                 ),
-                FalseClaim(Implies(
-                        ForSome(x,
-                                formula = P_(x)),
-                        ForAll(x,
-                               formula = P_(x))))
+                FalseFolClaim(
+                        Implies(
+                                ForSome(x, formula = P_(x)),
+                                ForAll(x, formula = P_(x))))
 
         )
         // this would require some set theory implementation
@@ -178,34 +162,16 @@ class TableauStepCountTest {
     }
 
     @Test
-    fun testProps() {
-        testClaims(PROP_CLAIMS, { n: PropositionalTableauNode ->
-            PropositionalTableau(n)
-        }) { forms, p ->
-            PropositionalTableauNode(forms, p)
-        }
-    }
+    fun testProps() = testClaims(PROP_CLAIMS)
+
 
     @Test
-    //    @Ignore
-    fun testFols() {
-        testClaims<FolTableauNode, FolTableau>(FOL_CLAIMS, { n: FolTableauNode ->
-            FolTableau(n)
-        }) { forms, p: FolTableauNode? ->
-            FolTableauNode(forms, p)
-        }
-    }
+    fun testFols() = testClaims(FOL_CLAIMS)
 
-    private fun <N : TableauNode, T : Tableau> testClaims(
-            claims: Array<Claim>,
-            tabFactory: (N) -> T,
-            nodeFactory: (MutableList<SignedFormula<Formula<*>>>, N?) -> N
-    ) {
-        for (claim in claims) {
-            claim.validate(
-                    tabFactory(nodeFactory(ArrayList<SignedFormula<Formula<*>>>().also {
-                        it.add(claim.formula.createSignedFormula())
-                    }, null)))
-        }
-    }
+    private fun <C : Claim<*>> testClaims(claims: Array<C>) =
+            claims.forEach {
+                it.validate()
+                println("$it")
+            }
+
 }

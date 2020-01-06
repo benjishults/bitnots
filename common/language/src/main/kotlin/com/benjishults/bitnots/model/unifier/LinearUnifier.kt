@@ -18,14 +18,14 @@ package com.benjishults.bitnots.model.unifier
 //        tTerm is Function && sTerm is Function && tTerm.cons === sTerm.cons -> {
 //            s.union(t)
 //            for (index in 0..sTerm.arguments.lastIndex) {
-//                if (linearUnify(UFNode(sTerm.arguments[index]), UFNode(tTerm.arguments[index])) === NotUnifiable) {
-//                    return NotUnifiable
+//                if (linearUnify(UFNode(sTerm.arguments[index]), UFNode(tTerm.arguments[index])) === NotCompatible) {
+//                    return NotCompatible
 //                } else {
 //
 //                }
 //            }
 //            return EmptySub
 //        }
-//        else -> return NotUnifiable
+//        else -> return NotCompatible
 //    }
 //}

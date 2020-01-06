@@ -1,7 +1,7 @@
 package com.benjishults.bitnots.model.terms
 
 import com.benjishults.bitnots.model.terms.Function.FunctionConstructor
-import com.benjishults.bitnots.model.unifier.NotUnifiable
+import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.util.intern.InternTableWithOther
 
@@ -101,16 +101,16 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
                 if (other.cons === cons) {
                     arguments.foldIndexed(sub) { i, s, t ->
                         Term.unify(t, other.arguments[i], s).takeIf {
-                            it !== NotUnifiable
-                        } ?: NotUnifiable
+                            it !== NotCompatible
+                        } ?: NotCompatible
                     }
                 } else {
-                    NotUnifiable
+                    NotCompatible
                 }
             } else if (other is FreeVariable)
                 Term.unify(other, this, sub)
             else
-                NotUnifiable
+                NotCompatible
 
     override fun getFreeVariables(): Set<FreeVariable> =
             if (dirtyFreeVars)

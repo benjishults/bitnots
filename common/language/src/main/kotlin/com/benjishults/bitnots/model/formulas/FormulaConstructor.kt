@@ -15,3 +15,10 @@ open class FormulaConstructor(val name: String) {
     companion object : InternTable<FormulaConstructor>({ name -> FormulaConstructor(name) })
 
 }
+
+open class PropositionalFormulaConstructor(name: String): FormulaConstructor(name) {
+
+    // used by logical constructs
+    companion object : InternTable<PropositionalFormulaConstructor>({ name -> PropositionalFormulaConstructor(name) })
+
+}
