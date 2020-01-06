@@ -22,6 +22,9 @@ abstract class AtomicPropositionalFormula(cons: FormulaConstructor) : Formula<Fo
     override fun getFreeVariables(): Set<FreeVariable> = emptySet()
     override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = emptySet()
 
-    override fun equals(other: Any?): Boolean = other === this
+    override fun equals(other: Any?): Boolean =
+            other is AtomicPropositionalFormula && other.constructor === this.constructor
+
     override fun hashCode() = constructor.name.hashCode()
+
 }

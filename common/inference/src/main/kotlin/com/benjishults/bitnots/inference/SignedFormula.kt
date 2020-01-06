@@ -10,6 +10,10 @@ abstract class SignedFormula<out F : Formula<*>>(val formula: F, val sign: Boole
 
     override fun toString() = (if (sign) "Suppose: " else "Show: ") + formula
 
+    override fun equals(other: Any?): Boolean {
+        return other is SignedFormula<*> && other.sign == sign && other.formula == formula
+    }
+
 }
 
 /**
