@@ -113,7 +113,7 @@ class TptpSynTest {
                             hypothesis?.let {
                                 Implies(it, target)
                             } ?: target,
-                            FolUnificationClosingStrategy({ UnifyingClosedIndicator(it) }),
+                            FolUnificationClosingStrategy { UnifyingClosedIndicator(it) },
                             FolStepStrategy { sf, n -> FolTableauNode(mutableListOf(sf), n) }
                     ).also { prover ->
                         clearInternTables()
@@ -139,7 +139,9 @@ class TptpSynTest {
         println("Failures: ")
         failures.forEach { println(it) }
         println("Proved: ")
-        successes.forEach { println(it) }
+        successes.forEach {
+            println(it)
+        }
         println("Timeout after ${millis} milliseconds: ")
         timeouts.forEach { println(it) }
     }
