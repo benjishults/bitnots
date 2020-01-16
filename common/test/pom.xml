@@ -50,7 +50,6 @@
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>inference</artifactId>
         </dependency>
-        <!-- TODO this should be needed only for tests! -->
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>tptp-parser</artifactId>

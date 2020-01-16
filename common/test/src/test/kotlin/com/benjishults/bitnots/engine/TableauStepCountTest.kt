@@ -107,7 +107,6 @@ class TableauStepCountTest {
                                 ForSome(z, formula = Implies(P_(z), R_(z)))
                         ),
                         constraints = ProofConstraints(5, 12)),
-                /*
                 TrueFolClaim(
                         ForAll(
                                 a,
@@ -126,7 +125,6 @@ class TableauStepCountTest {
                                                                   And(P_(x4), C_(x4)))))),
                         constraints = ProofConstraints(1, 100)),
 
-                 */
                 FalseFolClaim(
                         Implies(
                                 And(

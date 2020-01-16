@@ -6,8 +6,8 @@ import com.benjishults.bitnots.inference.rules.ClosingFormula
 import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
 import com.benjishults.bitnots.tableau.PropositionalTableau
 import com.benjishults.bitnots.tableau.TableauNode
+import com.benjishults.bitnots.tableau.closer.BranchCloser
 import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
-import com.benjishults.bitnots.tableau.closer.PropositionalBranchCloser
 
 open class PropositionalClosingStrategy(
         override val closedIndicatorFactory: (TableauNode<*>) -> InProgressTableauClosedIndicator
@@ -36,13 +36,13 @@ open class PropositionalClosingStrategy(
                     (simpleFormulasAbove + newbies).forEach {
                         if (it.sign) {
                             if (it is ClosingFormula) {
-                                branchClosers.add(PropositionalBranchCloser(pos = it))
+                                branchClosers.add(BranchCloser(pos = it))
                                 return true
                             } else if (it.formula is PropositionalVariable) {
                                 posAbove.add(it) // could short-circuit this by searching here
                             }
                         } else if (it is ClosingFormula) {
-                            branchClosers.add(PropositionalBranchCloser(neg = it))
+                            branchClosers.add(BranchCloser(neg = it))
                             return true
                         } else if (it.formula is PropositionalVariable) {
                             negAbove.add(it) // could short-circuit this by searching here
@@ -53,14 +53,14 @@ open class PropositionalClosingStrategy(
                         negAbove.any {
                             (it.formula == f.formula).apply {
                                 if (this)
-                                    branchClosers.add(PropositionalBranchCloser(f, it))
+                                    branchClosers.add(BranchCloser(f, it))
                             }
                         }
                     } else {
                         posAbove.any {
                             (it.formula == f.formula).apply {
                                 if (this)
-                                    branchClosers.add(PropositionalBranchCloser(it, f))
+                                    branchClosers.add(BranchCloser(it, f))
                             }
                         }
                     }

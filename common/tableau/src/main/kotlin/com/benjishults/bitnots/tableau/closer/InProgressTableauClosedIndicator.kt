@@ -1,5 +1,7 @@
 package com.benjishults.bitnots.tableau.closer
 
+import com.benjishults.bitnots.model.unifier.EmptySub
+import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
 import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.util.collection.clone
@@ -70,7 +72,7 @@ sealed class InProgressTableauClosedIndicator : TableauProofProgressIndicator() 
      */
     abstract fun progress(): TableauProofProgressIndicator
 
-    abstract fun isCompatible(closer: BranchCloser): Pair<Boolean, Any?>
+    abstract fun isCompatible(closer: BranchCloser): Substitution
 
 }
 
@@ -108,21 +110,19 @@ open class BooleanClosedIndicator protected constructor(
             branchClosers: List<BranchCloser>,
             needToClose: MutableList<TableauNode<*>>,
             // TODO seriously, we can do better than this.
-            vararg others: Any
-    ): InProgressTableauClosedIndicator = BooleanClosedIndicator(branchClosers, needToClose)
+            substitution: Substitution = EmptySub
+    ): TableauProofProgressIndicator = BooleanClosedIndicator(branchClosers, needToClose)
 
-    override fun isCompatible(closer: BranchCloser): Pair<Boolean, Any?> = true to null
+    override fun isCompatible(closer: BranchCloser): Substitution = EmptySub
 
     override fun createExtension(closer: BranchCloser): TableauProofProgressIndicator =
-            isCompatible(closer).let { (isCompat, other) ->
-                if (isCompat)
-                    if (other !== null)
-                        indicatorFactory(branchClosers + closer, needToClose, other)
-                    else
-                        indicatorFactory(branchClosers + closer, needToClose)
-                else
-                    ExtensionFailed
-            }
+            indicatorFactory(branchClosers + closer, needToClose, isCompatible(closer))
+            // isCompatible(closer).takeUnless {
+            //     }
+            //     substitution ->
+            //             indicatorFactory(branchClosers + closer, needToClose, substitution)}
+            //         ExtensionFailed
+            // }
 
     override fun progress(): TableauProofProgressIndicator =
             nextNode().let { nextNode ->

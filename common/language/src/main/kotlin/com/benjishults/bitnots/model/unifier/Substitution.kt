@@ -123,7 +123,7 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
     constructor(vararg pairs: Pair<Variable<*>, Term<*>>) : this(mapOf(*pairs))
 
     init {
-        // TODO require idempotence and any variable/term ordering requirements
+        // require idempotence and any variable/term ordering requirements
         map = idempotentVersion()
         // println(this)
         require(isIdempotent())

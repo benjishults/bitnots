@@ -31,22 +31,19 @@ open class UnifyingClosedIndicator private constructor(
         needToClose = mutableListOf(node)
     }
 
-    override fun isCompatible(closer: BranchCloser) = // TODO why not just return the Substitution and let is speak for itself?
-            if (closer is UnifyingBranchCloser) {
-                (closer.sub + substitution).takeIf {
-                    it !== NotCompatible
-                }?.let {
-                    true to it
-                } ?: false to null
-            } else
-                false to null
+    // TODO maybe get rid of this
+    override fun isCompatible(closer: BranchCloser) =
+            closer.sub + substitution
 
-    override fun indicatorFactory(branchClosers: List<BranchCloser>, needToClose: MutableList<TableauNode<*>>,
-                                  vararg others: Any): InProgressTableauClosedIndicator =
-            others.takeIf {
-                it.isNotEmpty()
-            }?.let { other ->
-                UnifyingClosedIndicator(branchClosers, needToClose, other[0] as Substitution)
-            } ?: UnifyingClosedIndicator(branchClosers, needToClose, substitution)
+    override fun indicatorFactory(
+            branchClosers: List<BranchCloser>,
+            needToClose: MutableList<TableauNode<*>>,
+            substitution: Substitution
+    ) =
+            when (substitution) {
+                NotCompatible -> ExtensionFailed
+                else          -> UnifyingClosedIndicator(branchClosers, needToClose, substitution)
+            }
+
 
 }

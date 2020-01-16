@@ -11,11 +11,6 @@ import com.benjishults.bitnots.model.unifier.Substitution
 abstract class VarArgPropositionalFormula(cons: PropositionalFormulaConstructor, vararg formulas: Formula<*>) :
         FormulaWithSubformulas<PropositionalFormulaConstructor>(cons, *formulas) {
 
-    init {
-        // TODO really?
-        require(formulas.size >= 2) { "Must provide at least two arguments to VarArgPropositionalFormula constructor." }
-    }
-
     override fun contains(variable: Variable<*>, sub: Substitution): Boolean =
             formulas.any {
                 it.contains(variable, sub)

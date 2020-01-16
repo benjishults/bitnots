@@ -8,8 +8,8 @@ import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.tableau.FolTableau
 import com.benjishults.bitnots.tableau.TableauNode
+import com.benjishults.bitnots.tableau.closer.BranchCloser
 import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
-import com.benjishults.bitnots.tableau.closer.UnifyingBranchCloser
 
 open class FolUnificationClosingStrategy(
         override val closedIndicatorFactory: (TableauNode<*>) -> InProgressTableauClosedIndicator
@@ -34,7 +34,7 @@ open class FolUnificationClosingStrategy(
                 newFormulas.filterIsInstance<SimpleSignedFormula<*>>().also { newSimpleFormulasHere ->
                     (simpleFormulasAbove + newSimpleFormulasHere).forEach {
                         if (it is ClosingFormula) {
-                            branchClosers.add(UnifyingBranchCloser(null, it, EmptySub))
+                            branchClosers.add(BranchCloser(null, it, EmptySub))
                             return
                         } else if (it.sign) {
                             posAboveOrHere.add(it)
@@ -47,7 +47,7 @@ open class FolUnificationClosingStrategy(
                         negAboveOrHere.forEach {
                             Formula.unify(it.formula, f.formula, EmptySub).let { theta ->
                                 if (theta !== NotCompatible) {
-                                    branchClosers.add(UnifyingBranchCloser(f, it, theta))
+                                    branchClosers.add(BranchCloser(f, it, theta))
                                 }
                             }
                         }
@@ -55,7 +55,7 @@ open class FolUnificationClosingStrategy(
                         posAboveOrHere.forEach {
                             Formula.unify(it.formula, f.formula, EmptySub).let { theta ->
                                 if (theta !== NotCompatible) {
-                                    branchClosers.add(UnifyingBranchCloser(it, f, theta))
+                                    branchClosers.add(BranchCloser(it, f, theta))
                                 }
                             }
                         }
