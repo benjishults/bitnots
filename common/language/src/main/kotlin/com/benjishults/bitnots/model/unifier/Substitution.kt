@@ -13,12 +13,12 @@ sealed class Substitution {
     // /**
     //  * The composition of [this] and [other]
     //  */
-    // abstract fun compose(other: Substitution): Substitution
+    // abstract infix fun o(other: Substitution): Substitution
     //
     // /**
     //  * The composition of [this] and [other]
     //  */
-    // abstract fun compose(other: Pair<FreeVariable, Term<*>>): Substitution
+    // abstract infix fun o(other: Pair<FreeVariable, Term<*>>): Substitution
 
     /**
      * The composition of [this] and [other] but only if the two are compatible
@@ -58,7 +58,6 @@ object NotCompatible : Substitution() {
 }
 
 object EmptySub : Substitution() {
-
 
     override fun plus(other: Pair<FreeVariable, Term<*>>) = Sub(other)
 
@@ -235,14 +234,7 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
             }
 
 
-    override fun plus(other: Pair<FreeVariable
-            , Term<*>>)
-            : Substitution =
-            TODO()
-    // if (other.first in map)
-    //     NotCompatible
-    // else
-    //     this.plus(Sub(other))
+    override fun plus(other: Pair<FreeVariable, Term<*>>): Substitution = this.plus(Sub(other))
 
     override fun hashCode()
             : Int =
