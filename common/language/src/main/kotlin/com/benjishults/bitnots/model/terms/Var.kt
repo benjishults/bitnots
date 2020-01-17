@@ -4,12 +4,16 @@ import com.benjishults.bitnots.model.terms.BoundVariable.BVConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable.FVConstructor
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
+import com.benjishults.bitnots.model.unifier.get
 import com.benjishults.bitnots.util.intern.InternTable
 
 sealed class Variable<C : TermConstructor>(name: C) : Term<C>(name) {
 
     override fun applySub(substitution: Substitution): Term<*> =
             substitution[this]
+
+    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): Term<*> =
+            pair[this]
 
     override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
             if (this in boundVars)

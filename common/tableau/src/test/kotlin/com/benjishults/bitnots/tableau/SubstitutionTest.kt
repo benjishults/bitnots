@@ -27,6 +27,9 @@ class SubstitutionTest {
     val g by lazy { Fn("g", 2) }
     val q by lazy { Fn("q", 2) }
 
+    val f1 by lazy { Fn("f1", 3) }
+    val f2 by lazy { Fn("f2", 4) }
+
     val u by lazy { FV("u") }
     val w by lazy { FV("w") }
     val x by lazy { FV("x") }
@@ -60,6 +63,7 @@ class SubstitutionTest {
         var s1 = Sub(
                 x to f(y),
                 y to z)
+        Assert.assertEquals(Sub(x to f(z), y to z), s1)
         // not idempotent
         // vars occur in keys of s1
         var s2 = Sub(
@@ -67,44 +71,96 @@ class SubstitutionTest {
                 y to b,
                 z to y)
         // if I allowed non-idempotence or unsafe compositions, I would get the following:
-        /* var s3: Sub = Sub(
+        Assert.assertEquals(Sub(x to a, y to b, z to b), s2)
+        var s3: Sub = Sub(
                 x to f(b),
-                z to y)*/
+                z to y)
         Assert.assertEquals(NotCompatible, s1 + s2)
 
         // not idempotent
-        // s1 = Sub(
-        //         x to f(a),
-        //         y to g(b, z),
-        //         z to x)
+        s1 = Sub(
+                x to f(a),
+                y to g(b, z),
+                z to x)
         // not idempotent
         // vars occur in keys of s1
-        // s2 = Sub(
-        //         x to w,
-        //         y to h(z),
-        //         z to a)
-/*        s3 = Sub(
+        s2 = Sub(
+                x to w,
+                y to h(z),
+                z to a)
+        s3 = Sub(
                 x to f(a),
                 y to g(b, a),
-                z to w)*/
-        // Assert.assertEquals(NotCompatible, s1 + s2)
+                z to w)
+        Assert.assertEquals(NotCompatible, s1 + s2)
 
         // not idempotent
-        // s1 = Sub(
-        //         x to f(a),
-        //         y to g(b, z),
-        //         z to x)
+        s1 = Sub(
+                x to f(a),
+                y to g(b, z),
+                z to x)
         // not idempotent
         // vars occur in keys of s1
-        // s2 = Sub(
-        //         x to w,
-        //         y to h(z),
-        //         z to a)
-/*        s3 = Sub(
+        s2 = Sub(
+                x to w,
+                y to h(z),
+                z to a)
+        s3 = Sub(
                 x to f(a),
                 y to q(b, a),
-                z to w)*/
-        // Assert.assertEquals(NotCompatible, s1 + s2)
+                z to w)
+        Assert.assertEquals(NotCompatible, s1 + s2)
+    }
+
+    @Test
+    fun idempotenceTest() {
+        Assert.assertEquals(
+                Sub(
+                        x to f(a),
+                        y to g(b, f(a)),
+                        z to f(a),
+                        x1 to a,
+                        x2 to f1(f(a), f(a), f(a)),
+                        x3 to f(a),
+                        x4 to f(a),
+                        x5 to f(a)
+                ),
+                Sub(
+                        x to f(a),
+                        y to g(b, z),
+                        z to x,
+                        x1 to a,
+                        x2 to f1(x3, x4, x5),
+                        x3 to z,
+                        x4 to x3,
+                        x5 to x4
+                ))
+        Assert.assertEquals(
+                Sub(
+                        x to a,
+                        y to f(a),
+                        z to f(f(a)),
+                        x1 to f(f(f(a))),
+                        x2 to f(f(f(f(a)))),
+                        x3 to f(f(f(a))),
+                        x4 to f(f(f(f(f(a))))),
+                        x5 to f(f(f(f(f(f(a))))))
+                ),
+                Sub(
+                        x to a,
+                        y to f(x),
+                        z to f(y),
+                        x1 to f(z),
+                        x2 to f(x1),
+                        x3 to f(z),
+                        x4 to f(x2),
+                        x5 to f(x4)
+                ))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun cycleTest() {
+        Sub(x to y, y to x)
     }
 
     @Test

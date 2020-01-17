@@ -4,6 +4,11 @@ import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.TermConstructor
 import com.benjishults.bitnots.model.terms.Variable
+import com.benjishults.bitnots.util.collection.pop
+import com.benjishults.bitnots.util.collection.push
+import java.util.*
+
+operator fun Pair<Variable<*>, Term<*>>.get(v: Variable<*>): Term<*> = second.takeIf { v == first } ?: v
 
 /**
  * Idempotent substitution
@@ -126,7 +131,7 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
         // require idempotence and any variable/term ordering requirements
         map = idempotentVersion()
         // println(this)
-        require(isIdempotent())
+        require(isIdempotent()) { "Failed to create idempotent version: $this" }
     }
 
     private fun isIdempotent() =
@@ -135,30 +140,66 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
             }
 
     private fun idempotentVersion(): Map<Variable<*>, Term<*>> {
-        val newMap = mutableMapOf<Variable<*>, Term<*>>()
-        map.forEach { (myKey, myValue) ->
-            map.keys.forEach { myOtherKey ->
-                if (myValue.contains(myOtherKey, EmptySub)) {
-                    // not idempotent
-                    myValue.applySub(this).takeIf { result ->
-                        result != myKey
-                    }?.let { newValue ->
-                        newMap.put(myKey, newValue)
-                    }
+        // require(!isTriviallyInfiniteLoop()) {
+        //     "Undefined substitution: $this.  Variable occurs in its own replacement."
+        // }
+        val listOfTerminalVariables = map.keys.toMutableList()
+        // TODO needed?
+        val mapVarToSetOfKeysInItsValue = mutableMapOf<Variable<*>, MutableSet<Variable<*>>>()
+        val mapVarToSetOfKeyWhoseValueContainsIt = mutableMapOf<Variable<*>, MutableSet<Variable<*>>>()
+        map.forEach { (key, value) ->
+            map.keys.forEach { innerKey ->
+                if (value.contains(innerKey, EmptySub)) {
+                    // this is not idempotent
+                    // value.applySub(this).takeIf { result ->
+                    //     result != key
+                    // }?.let { newValue ->
+                        listOfTerminalVariables.remove(key)
+                        mapVarToSetOfKeysInItsValue[key]?.add(innerKey)
+                        ?: run {
+                            mapVarToSetOfKeysInItsValue[key] = mutableSetOf(innerKey)
+                        }
+                        mapVarToSetOfKeyWhoseValueContainsIt[innerKey]?.add(key)
+                        ?: run {
+                            mapVarToSetOfKeyWhoseValueContainsIt[innerKey] = mutableSetOf(key)
+                        }
+                    // }
                 }
             }
         }
-        return if (newMap.isNotEmpty()) {
-            println("WARN: non-idempotent substitution: $this")
-            newMap.also { m ->
-                map.forEach {
-                    m.putIfAbsent(it.key, it.value)
+        // INVARIANT for each key in map, mapVarToSetOfKeysInItsValue[key] contains the set of map's keys contained in map[key]
+        // INVARIANT for each key in map, mapVarToSetOfKeyWhoseValueContainsIt[key] contains the set of map's keys, k, for which map[k] contains key
+        // INVARIANT setOfTerminalVariables contains the keys in map whose values do not contain any other keys
+        // TODO try to break the above
+        require(listOfTerminalVariables.isNotEmpty()) {
+            "Cycle found in substitution: $this"
+        }
+        return map.toMutableMap().also { m ->
+            generateSequence {
+                try {
+                    listOfTerminalVariables.pop()
+                } catch (e: EmptyStackException) {
+                    null
                 }
-            }.also {
-                println("WARN:              replacing with: ${toString(newMap)}")
+            }.forEach { terminalVar ->
+                mapVarToSetOfKeyWhoseValueContainsIt[terminalVar]?.forEach { keyWhoseValueContainsTerminalVar ->
+                    m[keyWhoseValueContainsTerminalVar] = m[keyWhoseValueContainsTerminalVar]!!.applyPair(
+                            terminalVar to m[terminalVar]!!)
+                    // TODO needed?
+                    mapVarToSetOfKeysInItsValue[keyWhoseValueContainsTerminalVar]!!.let {
+                        it.remove(terminalVar)
+                        if (it.isEmpty())
+                            listOfTerminalVariables.push(keyWhoseValueContainsTerminalVar)
+                    }
+                } // ?: nothing to do in this case
             }
-        } else map
+        }
     }
+
+    private fun isTriviallyInfiniteLoop() =
+            map.any { (v, t) ->
+                t.contains(v)
+            }
 
     // override fun compose(other: Pair<FreeVariable, Term<*>>): Substitution =
     //         this + Sub(other)

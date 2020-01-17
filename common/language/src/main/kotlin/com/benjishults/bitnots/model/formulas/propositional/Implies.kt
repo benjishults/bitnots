@@ -4,6 +4,7 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.FormulaWithSubformulas
 import com.benjishults.bitnots.model.formulas.PropositionalFormulaConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable
+import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
@@ -38,6 +39,9 @@ data class Implies(
 
     override fun applySub(substitution: Substitution): Implies =
             Implies(antecedent.applySub(substitution), consequent.applySub(substitution))
+
+    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): Implies =
+            Implies(antecedent.applyPair(pair), consequent.applyPair(pair))
 
     override fun toString() = "(${constructor.name} ${antecedent} ${consequent})"
 

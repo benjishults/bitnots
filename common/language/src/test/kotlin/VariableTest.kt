@@ -1,16 +1,23 @@
 import com.benjishults.bitnots.model.terms.FreeVariable
+import org.junit.Assert
 import org.junit.Test
 
 class VariableTest {
+
     @Test
     fun testNewVariables() {
-        val names = listOf("a", "b", "c", "d", "e", "f", "a-2", "b-line", "c-")
-        val vars = names.map {
+        listOf("a", "b", "c", "d", "e", "f", "b-line", "c-").map {
             FreeVariable.new(it)
-        }.toMutableList()
-        for (name in names) {
-            vars.add(FreeVariable.new(name))
+        }.forEach { name ->
+            Assert.assertEquals(name.cons.name + "-0", FreeVariable.new(name.cons.name).cons.name)
+            Assert.assertEquals(name.cons.name + "-1", FreeVariable.new(name.cons.name).cons.name)
         }
-        println(vars)
     }
+
+    @Test
+    fun testNumericSuffixedVariables() {
+        FreeVariable.new("a-2")
+        Assert.assertEquals("a-3", FreeVariable.new("a-2").cons.name)
+    }
+
 }

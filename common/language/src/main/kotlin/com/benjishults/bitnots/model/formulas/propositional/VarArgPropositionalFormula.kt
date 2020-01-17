@@ -4,6 +4,7 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.FormulaWithSubformulas
 import com.benjishults.bitnots.model.formulas.PropositionalFormulaConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable
+import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
@@ -53,6 +54,11 @@ abstract class VarArgPropositionalFormula(cons: PropositionalFormulaConstructor,
     override fun applySub(substitution: Substitution): VarArgPropositionalFormula {
         val constructor = this::class.constructors.first()
         return constructor.call(formulas.map { it.applySub(substitution) }.toTypedArray())
+    }
+
+    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): VarArgPropositionalFormula {
+        val constructor = this::class.constructors.first()
+        return constructor.call(formulas.map { it.applyPair(pair) }.toTypedArray())
     }
 
     override fun toString() = "(${constructor.name} ${formulas.joinToString(" ")})"

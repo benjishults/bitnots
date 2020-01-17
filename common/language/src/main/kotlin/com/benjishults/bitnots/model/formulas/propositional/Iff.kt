@@ -4,6 +4,7 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.FormulaWithSubformulas
 import com.benjishults.bitnots.model.formulas.PropositionalFormulaConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable
+import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
@@ -38,6 +39,8 @@ data class Iff(val first: Formula<*>, val second: Formula<*>) : FormulaWithSubfo
     override fun applySub(substitution: Substitution): Formula<PropositionalFormulaConstructor> =
             Iff(first.applySub(substitution), second.applySub(substitution))
 
+    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): Formula<PropositionalFormulaConstructor> =
+            Iff(first.applyPair(pair), second.applyPair(pair))
 
     override fun getFreeVariables(): Set<FreeVariable> = first.getFreeVariables().union(second.getFreeVariables())
 

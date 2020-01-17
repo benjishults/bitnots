@@ -139,6 +139,11 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
                 it.applySub(substitution)
             })
 
+    override fun applyPair(pair: Pair<Variable<*>, Term<*>>) =
+            cons(arguments.map {
+                it.applyPair(pair)
+            })
+
     override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>) =
             arguments.fold(mutableSetOf<Variable<*>>()) { s, t ->
                 s.also {

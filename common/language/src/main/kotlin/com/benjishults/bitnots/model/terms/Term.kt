@@ -29,10 +29,17 @@ abstract class Term<C : TermConstructor>(val cons: C) {
      * If the substitution is idempotent, then this distinction doesn't matter.
      */
     abstract fun applySub(substitution: Substitution): Term<*>
+
+    /**
+     * Application of a substitution is defined as the simultaneous replacement of all variables.
+     * If the substitution is idempotent, then this distinction doesn't matter.
+     */
+    abstract fun applyPair(pair: Pair<Variable<*>, Term<*>>): Term<*>
+
     /**
      * @param variable must not be bound by [sub]
      */
-    fun contains(variable: Variable<*>, sub: Substitution): Boolean {
+    fun contains(variable: Variable<*>, sub: Substitution = EmptySub): Boolean {
         require(variable.applySub(sub) === variable) {
             "When calling Term::contains, the variable argument (was $variable) must not occur in the substitution (was $sub)."
         }

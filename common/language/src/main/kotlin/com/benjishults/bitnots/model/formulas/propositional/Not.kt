@@ -4,6 +4,7 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.FormulaWithSubformulas
 import com.benjishults.bitnots.model.formulas.PropositionalFormulaConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable
+import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
@@ -25,6 +26,9 @@ data class Not(val argument: Formula<*>) : FormulaWithSubformulas<PropositionalF
 
     override fun applySub(substitution: Substitution): Not =
             Not(argument.applySub(substitution))
+
+    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): Not =
+            Not(argument.applyPair(pair))
 
     override fun toString() = "(${constructor.name} ${argument})"
 

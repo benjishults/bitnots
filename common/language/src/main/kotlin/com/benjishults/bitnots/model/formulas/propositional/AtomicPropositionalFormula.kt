@@ -3,6 +3,7 @@ package com.benjishults.bitnots.model.formulas.propositional
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.PropositionalFormulaConstructor
 import com.benjishults.bitnots.model.terms.FreeVariable
+import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
@@ -20,6 +21,7 @@ abstract class AtomicPropositionalFormula(
                 NotCompatible
 
     override fun applySub(substitution: Substitution): Formula<PropositionalFormulaConstructor> = this
+    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): Formula<PropositionalFormulaConstructor> = this
 
     override fun contains(variable: Variable<*>, sub: Substitution) = false
 

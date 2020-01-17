@@ -169,7 +169,6 @@ class TableauStepCountTest {
     private fun <C : Claim<*>> testClaims(claims: Array<C>) =
             claims.forEach {
                 it.validate()
-                println("$it")
             }
 
 }

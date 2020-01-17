@@ -19,7 +19,6 @@ import com.benjishults.bitnots.tableau.strategy.PropositionalStepStrategy
 import com.benjishults.bitnots.tableauProver.FolFormulaTableauProver
 import com.benjishults.bitnots.tableauProver.PropositionalFormulaProver
 import com.benjishults.bitnots.tableauProver.TableauProver
-import org.junit.Assert
 
 val DEFAULT_MAX_STEPS: Int = 30
 val DEFAULT_Q_LIMIT: Int = 6
@@ -54,17 +53,13 @@ interface FolClaim : Claim<FolFormulaTableauProver> {
 
 interface FalseClaim<in P : TableauProver<*, *>> : Claim<P> {
     override fun validateWithProver(prover: P): ProofProgressIndicator {
-        println("WARN: in some logics, this could run forever.")
         while (true) {
             prover.searchForFinisher().let { progressIndicator ->
                 if (progressIndicator.isDone())
-                    Assert.fail("Unexpectedly proved ${formula}.")
+                    error("Unexpectedly proved ${formula}.")
                 else if (!prover.step())
                     return Done
             }
-        }
-        if (prover.searchForFinisher().isDone()) {
-            Assert.fail("Unexpectedly proved ${formula}.")
         }
     }
 }

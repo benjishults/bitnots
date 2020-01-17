@@ -14,6 +14,9 @@ fun <T : Any> MutableList<T>.peek(): T =
 
 fun <T : Any> MutableList<T>.push(t: T) = add(t)
 
+/**
+ * @throws EmptyStackException if the list is empty
+ */
 fun <T : Any> MutableList<T>.pop(): T =
         lastOrNull()?.also {
             this.removeAt(this.lastIndex)
