@@ -24,8 +24,8 @@
         <reactor.version>3.1.0.RELEASE</reactor.version>
         <dokka.version>0.9.15</dokka.version>
         <jackson.version>2.10.1</jackson.version>
-        <camel.version>3.0.0</camel.version>
-        <spring.version>5.2.1.RELEASE</spring.version>
+        <camel.version>3.0.1</camel.version>
+        <!--        <spring.version>5.2.1.RELEASE</spring.version>-->
         <boot.version>2.2.1.RELEASE</boot.version>
         <log4j.version>2.12.1</log4j.version>
     </properties>
@@ -50,7 +50,7 @@
         <repository>
             <id>central</id>
             <name>Maven Central</name>
-            <url>http://central.maven.org/maven2/</url>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
     </repositories>
 
@@ -60,18 +60,16 @@
             <name>JCenter</name>
             <url>https://jcenter.bintray.com/</url>
         </pluginRepository>
-        <!--
-                <pluginRepository>
-                    <id>dokka</id>
-                    <name>Kotlin Dokka</name>
-                    <url>https://dl.bintray.com/kotlin/dokka/</url>
-                </pluginRepository>
-                <pluginRepository>
-                    <id>central</id>
-                    <name>Maven Central</name>
-                    <url>http://central.maven.org/maven2/</url>
-                </pluginRepository>
-         -->
+        <pluginRepository>
+            <id>dokka</id>
+            <name>Kotlin Dokka</name>
+            <url>https://dl.bintray.com/kotlin/dokka/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo1.maven.org/maven2/</url>
+        </pluginRepository>
     </pluginRepositories>
 
     <dependencyManagement>
@@ -163,6 +161,11 @@
                 <artifactId>bitnots-parser</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.benjishults.bitnots</groupId>
+                <artifactId>test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>javax.annotation</groupId>
@@ -189,6 +192,12 @@
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-core</artifactId>
+                <version>1.3.2</version>
             </dependency>
 
             <dependency>
@@ -232,94 +241,94 @@
                             <version>${boot.version}</version>
                         </dependency> -->
 
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-web</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-webflux</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-test</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
+            <!--            <dependency>-->
+            <!--                <groupId>org.springframework</groupId>-->
+            <!--                <artifactId>spring-context</artifactId>-->
+            <!--                <version>${spring.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.springframework</groupId>-->
+            <!--                <artifactId>spring-beans</artifactId>-->
+            <!--                <version>${spring.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.springframework</groupId>-->
+            <!--                <artifactId>spring-web</artifactId>-->
+            <!--                <version>${spring.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.springframework</groupId>-->
+            <!--                <artifactId>spring-webflux</artifactId>-->
+            <!--                <version>${spring.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.springframework</groupId>-->
+            <!--                <artifactId>spring-test</artifactId>-->
+            <!--                <version>${spring.version}</version>-->
+            <!--            </dependency>-->
 
-            <!--             <dependency>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-dependencies</artifactId>
-                            <version>1.5.7.RELEASE</version>
-                            <type>pom</type>
-                            <scope>import</scope>
-                        </dependency> -->
+            <!--            &lt;!&ndash;             <dependency>-->
+            <!--                            <groupId>org.springframework.boot</groupId>-->
+            <!--                            <artifactId>spring-boot-dependencies</artifactId>-->
+            <!--                            <version>1.5.7.RELEASE</version>-->
+            <!--                            <type>pom</type>-->
+            <!--                            <scope>import</scope>-->
+            <!--                        </dependency> &ndash;&gt;-->
 
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-autoconfigure</artifactId>
-                <version>${boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-autoconfigure-processor</artifactId>
-                <version>${boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-configuration-processor</artifactId>
-                <version>${boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot</artifactId>
-                <version>${boot.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>log4j-over-slf4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-aop</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-expression</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>ch.qos.logback</groupId>
-                        <artifactId>logback-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>ch.qos.logback</groupId>
-                        <artifactId>logback-classic</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+            <!--            <dependency>-->
+            <!--                <groupId>org.springframework.boot</groupId>-->
+            <!--                <artifactId>spring-boot-autoconfigure</artifactId>-->
+            <!--                <version>${boot.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.springframework.boot</groupId>-->
+            <!--                <artifactId>spring-boot-autoconfigure-processor</artifactId>-->
+            <!--                <version>${boot.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.springframework.boot</groupId>-->
+            <!--                <artifactId>spring-boot-configuration-processor</artifactId>-->
+            <!--                <version>${boot.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.springframework.boot</groupId>-->
+            <!--                <artifactId>spring-boot</artifactId>-->
+            <!--                <version>${boot.version}</version>-->
+            <!--                <exclusions>-->
+            <!--                    <exclusion>-->
+            <!--                        <groupId>org.slf4j</groupId>-->
+            <!--                        <artifactId>log4j-over-slf4j</artifactId>-->
+            <!--                    </exclusion>-->
+            <!--                    <exclusion>-->
+            <!--                        <groupId>org.apache.logging.log4j</groupId>-->
+            <!--                        <artifactId>log4j-core</artifactId>-->
+            <!--                    </exclusion>-->
+            <!--                    <exclusion>-->
+            <!--                        <groupId>org.apache.logging.log4j</groupId>-->
+            <!--                        <artifactId>log4j-api</artifactId>-->
+            <!--                    </exclusion>-->
+            <!--                    <exclusion>-->
+            <!--                        <groupId>org.springframework</groupId>-->
+            <!--                        <artifactId>spring-core</artifactId>-->
+            <!--                    </exclusion>-->
+            <!--                    <exclusion>-->
+            <!--                        <groupId>org.springframework</groupId>-->
+            <!--                        <artifactId>spring-aop</artifactId>-->
+            <!--                    </exclusion>-->
+            <!--                    <exclusion>-->
+            <!--                        <groupId>org.springframework</groupId>-->
+            <!--                        <artifactId>spring-expression</artifactId>-->
+            <!--                    </exclusion>-->
+            <!--                    <exclusion>-->
+            <!--                        <groupId>ch.qos.logback</groupId>-->
+            <!--                        <artifactId>logback-core</artifactId>-->
+            <!--                    </exclusion>-->
+            <!--                    <exclusion>-->
+            <!--                        <groupId>ch.qos.logback</groupId>-->
+            <!--                        <artifactId>logback-classic</artifactId>-->
+            <!--                    </exclusion>-->
+            <!--                </exclusions>-->
+            <!--            </dependency>-->
 
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -352,14 +361,28 @@
                         </dependency> -->
 
             <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>1.13</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-core</artifactId>
+                <version>${camel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-core-engine</artifactId>
+                <version>${camel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-support</artifactId>
+                <version>${camel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-cdi</artifactId>
+                <version>${camel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-api</artifactId>
                 <version>${camel.version}</version>
             </dependency>
             <dependency>
@@ -367,26 +390,26 @@
                 <artifactId>camel-test</artifactId>
                 <version>${camel.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.camel</groupId>
-                <artifactId>camel-test-spring</artifactId>
-                <version>${camel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.camel</groupId>
-                <artifactId>camel-spring</artifactId>
-                <version>${camel.version}</version>
-            </dependency>
+            <!--            <dependency>-->
+            <!--                <groupId>org.apache.camel</groupId>-->
+            <!--                <artifactId>camel-test-spring</artifactId>-->
+            <!--                <version>${camel.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.apache.camel</groupId>-->
+            <!--                <artifactId>camel-spring</artifactId>-->
+            <!--                <version>${camel.version}</version>-->
+            <!--            </dependency>-->
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-swagger-java</artifactId>
                 <version>${camel.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.camel</groupId>
-                <artifactId>camel-spring-javaconfig</artifactId>
-                <version>${camel.version}</version>
-            </dependency>
+            <!--            <dependency>-->
+            <!--                <groupId>org.apache.camel</groupId>-->
+            <!--                <artifactId>camel-spring-javaconfig</artifactId>-->
+            <!--                <version>${camel.version}</version>-->
+            <!--            </dependency>-->
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-netty4-http</artifactId>
@@ -394,9 +417,21 @@
             </dependency>
 
             <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>42.2.8</version>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.13</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-configuration2</artifactId>
+                <version>2.6</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-dependency-analyzer</artifactId>
+                <version>1.11.1</version>
             </dependency>
 
             <!--             <dependency>
@@ -414,22 +449,17 @@
                 <artifactId>log4j-slf4j-impl</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.2.8</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>1.7.28</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.benjishults.bitnots</groupId>
-                <artifactId>test</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.maven.shared</groupId>
-                <artifactId>maven-dependency-analyzer</artifactId>
-                <version>1.11.1</version>
             </dependency>
 
             <dependency>
@@ -506,9 +536,9 @@
                     <groupId>org.jetbrains.kotlin</groupId>
                     <version>${kotlin.version}</version>
                     <configuration>
-                        <compilerPlugins>
-                            <plugin>spring</plugin>
-                        </compilerPlugins>
+                        <!--                        <compilerPlugins>-->
+                        <!--                            <plugin>spring</plugin>-->
+                        <!--                        </compilerPlugins>-->
                         <args>-Xjsr305=strict</args>
                     </configuration>
 
@@ -623,31 +653,31 @@
                                         <useDefaultDelimiters>false</useDefaultDelimiters>
                                     </configuration>
                                 </plugin> -->
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>repackage</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <mainClass>${start-class}</mainClass>
-                    </configuration>
-                </plugin>
+                <!--                <plugin>-->
+                <!--                    <groupId>org.springframework.boot</groupId>-->
+                <!--                    <artifactId>spring-boot-maven-plugin</artifactId>-->
+                <!--                    <executions>-->
+                <!--                        <execution>-->
+                <!--                            <goals>-->
+                <!--                                <goal>repackage</goal>-->
+                <!--                            </goals>-->
+                <!--                        </execution>-->
+                <!--                    </executions>-->
+                <!--                    <configuration>-->
+                <!--                        <mainClass>${start-class}</mainClass>-->
+                <!--                    </configuration>-->
+                <!--                </plugin>-->
                 <!-- Support shade packaging (if the user does not want to use our plugin) -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-maven-plugin</artifactId>
-                            <version>2.2.1.RELEASE</version>
-                        </dependency>
-                    </dependencies>
+                    <!--                    <dependencies>-->
+                    <!--                        <dependency>-->
+                    <!--                            <groupId>org.springframework.boot</groupId>-->
+                    <!--                            <artifactId>spring-boot-maven-plugin</artifactId>-->
+                    <!--                            <version>2.2.1.RELEASE</version>-->
+                    <!--                        </dependency>-->
+                    <!--                    </dependencies>-->
                     <configuration>
                         <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
                         <createDependencyReducedPom>true</createDependencyReducedPom>
@@ -670,18 +700,18 @@
                             </goals>
                             <configuration>
                                 <transformers>
-                                    <transformer
-                                            implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                        <resource>META-INF/spring.handlers</resource>
-                                    </transformer>
-                                    <transformer
-                                            implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
-                                        <resource>META-INF/spring.factories</resource>
-                                    </transformer>
-                                    <transformer
-                                            implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                        <resource>META-INF/spring.schemas</resource>
-                                    </transformer>
+                                    <!--                                    <transformer-->
+                                    <!--                                            implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">-->
+                                    <!--                                        <resource>META-INF/spring.handlers</resource>-->
+                                    <!--                                    </transformer>-->
+                                    <!--                                    <transformer-->
+                                    <!--                                            implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">-->
+                                    <!--                                        <resource>META-INF/spring.factories</resource>-->
+                                    <!--                                    </transformer>-->
+                                    <!--                                    <transformer-->
+                                    <!--                                            implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">-->
+                                    <!--                                        <resource>META-INF/spring.schemas</resource>-->
+                                    <!--                                    </transformer>-->
                                     <transformer
                                             implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                     <transformer

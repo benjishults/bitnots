@@ -17,12 +17,18 @@ import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
+import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
 import com.benjishults.bitnots.tptp.parser.TptpFofParser
+import io.micrometer.core.instrument.Clock
+import io.micrometer.core.instrument.logging.LoggingMeterRegistry
+import io.micrometer.core.instrument.logging.LoggingRegistryConfig
 import org.junit.Ignore
 import org.junit.Test
 import java.nio.file.Path
+import java.time.Duration
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+import java.util.function.Supplier
 
 class TptpSynTest {
 
@@ -34,49 +40,50 @@ class TptpSynTest {
     }
 
     val toSucceed = listOf(
-            Triple(0, 1, -1),
-            Triple(41, 1, -1),
-            Triple(73, 1, -1),
-            Triple(79, 1, -1),
-            Triple(359, 1, -1),
-            Triple(360, 1, -1),
-            Triple(363, 1, -1),
-            Triple(369, 1, -1),
-            Triple(381, 1, -1),
-            Triple(387, 1, -1),
-            Triple(388, 1, -1),
-            Triple(394, 1, -1),
-            Triple(395, 1, -1),
-            Triple(404, 1, -1),
-            Triple(405, 1, -1),
-            Triple(410, 1, -1),
-            Triple(416, 1, -1),
-            Triple(721, 1, -1),
-            Triple(727, 1, -1),
-            Triple(915, 1, -1),
-            Triple(928, 1, -1),
-            Triple(945, 1, -1),
-            Triple(952, 1, -1),
-            Triple(953, 1, -1),
-            Triple(955, 1, -1),
-            Triple(956, 1, -1),
-            Triple(958, 1, -1),
-            Triple(962, 1, -1),
-            Triple(964, 1, -1),
-            Triple(972, 1, -1),
-            Triple(973, 1, -1),
-            Triple(974, 1, -1),
-            Triple(975, 1, -1),
-            Triple(986, 1, 0)
+
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 0, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 41, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 73, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 79, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 359, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 360, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 363, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 369, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 381, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 387, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 388, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 394, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 395, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 404, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 405, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 410, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 416, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 721, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 727, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 915, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 928, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 945, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 952, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 953, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 955, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 956, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 958, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 962, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 964, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 972, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 973, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 974, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 975, 1, -1),
+            TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 0)
     )
 
     @Test
     fun testSynSyoFol() {
-        toSucceed.forEach { (number, version, size) ->
+        toSucceed.forEach { (domain, form, number, version, size) ->
             classifyFormulas(TptpFofParser.parseFile(
                     TptpFileFetcher.findProblemFile(
-                            TptpDomain.SYN,
-                            TptpFormulaForm.FOF,
+                            domain,
+                            form,
                             number,
                             version,
                             size))
@@ -99,13 +106,34 @@ class TptpSynTest {
     }
 
     @Test
-    @Ignore
     fun testAllSynSyoFol() {
-        val failures = mutableListOf<Path>()
-        val successes = mutableListOf<Path>()
-        val timeouts = mutableListOf<Path>()
 
-        TptpFileFetcher.findAll(TptpDomain.SYN, TptpFormulaForm.FOF).forEach { path ->
+        val registry = LoggingMeterRegistry(object : LoggingRegistryConfig {
+            override fun get(key: String): String? {
+                return null
+            }
+
+            override fun step(): Duration {
+                return Duration.ofSeconds(1)
+            }
+        }, Clock.SYSTEM);
+
+
+        val failures = mutableListOf<TptpProblemFileDescriptor>()
+        val successes = mutableListOf<TptpProblemFileDescriptor>()
+        val timeouts = mutableListOf<TptpProblemFileDescriptor>()
+
+        TptpFileFetcher.problemFileFilter(
+                listOf(TptpDomain.SYN),
+                listOf(TptpFormulaForm.FOF),
+                TptpProblemFileDescriptor(
+                        domain = TptpDomain.SYN,
+                        form = TptpFormulaForm.FOF,
+                        number = 361,
+                        version = 1,
+                        size = -1)
+        ).forEach {
+            val path = TptpFileFetcher.findProblemFolder(it.domain).resolve(it.toFileName())
             classifyFormulas(TptpFofParser.parseFile(path)).let { (hyps, targets) ->
                 val hypothesis = createConjunct(hyps)
                 targets.forEach { target ->
@@ -118,17 +146,23 @@ class TptpSynTest {
                     ).also { prover ->
                         clearInternTables()
                         print("Quick test for ${path}.")
-                        when (limitedTimeProve(prover, millis)) {
+                        when (registry.timer("problem",
+                                             "domain", it.domain.name.toLowerCase(),
+                                             "form", it.form.name.toLowerCase(),
+                                             "number", it.number.toString(),
+                                             "version", it.version.toString(),
+                                             "size", it.size.toString())
+                            .record(Supplier<Result> { limitedTimeProve(prover, millis) })) {
                             Result.failed  -> {
-                                failures.add(path)
+                                failures.add(it)
                                 println(" failed")
                             }
                             Result.proved  -> {
-                                successes.add(path)
+                                successes.add(it)
                                 println(" succeeded")
                             }
                             Result.timeout -> {
-                                timeouts.add(path)
+                                timeouts.add(it)
                                 println(" timed out")
                             }
                         }
@@ -144,6 +178,115 @@ class TptpSynTest {
         }
         println("Timeout after ${millis} milliseconds: ")
         timeouts.forEach { println(it) }
+    }
+
+    @Test
+    @Ignore
+    fun testSynProblems() {
+        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 1, 1))
+        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 41, 1))
+        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 44, 1), 1)
+        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 45, 1))
+        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 46, 1))
+        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 47, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 48, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 49, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 50, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 51, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 52, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 53, 1))
+
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 63, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 64, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 65, 1), 1)
+
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 73, 1))
+
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 315, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 317, 1))
+
+        // working from the end
+
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 981, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 0), 1)
+    }
+
+    @Test
+    @Ignore
+    fun equalityProblems() {
+
+    }
+
+    @Test
+    fun shouldBeAbleToGet() {
+    }
+
+    @Test
+    @Ignore
+    fun notWorkingYet() {
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 54, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 55, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 56, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 57, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 58, 1), 1)
+        //         TODO seems to require q-limit > 3
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 59, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 60, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 61, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 62, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 66, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 67, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 68, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 69, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 70, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 79, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 81, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 82, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 84, 1))
+
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 316, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 318, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 319, 1))
+        //         TODO seems to require q-limit > 3
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 320, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 321, 1))
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 322, 1))
+
+
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 1), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 2), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 3), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 4), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 5), 1)
+        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 6), 1)
+
+    }
+
+    @Test
+    @Ignore
+    fun takesTooLong() {
+
+        try {
+            val path = TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 7, 1, 14)
+
+            TptpFofParser.parseFile(path).let { tptp ->
+                PropositionalTableau(
+                        PropositionalTableauNode(mutableListOf<SignedFormula<Formula<*>>>(
+                                (tptp.last() as FolAnnotatedFormula).formula.createSignedFormula()),
+                                                 null)).also { tableau ->
+
+                    // while (true) {
+                    //     if (tableau.findCloser().isDone())
+                    //         break
+                    //     if (!tableau.step())
+                    //         Assert.fail("Failed to prove it with unlimited steps.")
+                    // }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
     }
 
     private fun createConjunct(
@@ -270,88 +413,6 @@ class TptpSynTest {
         }
     }
 
-    @Test
-    @Ignore
-    fun testSynProblems() {
-        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 1, 1))
-        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 41, 1))
-        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 44, 1), 1)
-        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 45, 1))
-        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 46, 1))
-        provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 47, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 48, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 49, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 50, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 51, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 52, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 53, 1))
-
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 63, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 64, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 65, 1), 1)
-
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 73, 1))
-
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 315, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 317, 1))
-
-        // working from the end
-
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 981, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 0), 1)
-    }
-
-    @Test
-    @Ignore
-    fun equalityProblems() {
-
-    }
-
-    @Test
-    fun shouldBeAbleToGet() {
-    }
-
-    @Test
-    @Ignore
-    fun notWorkingYet() {
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 54, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 55, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 56, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 57, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 58, 1), 1)
-        //         TODO seems to require q-limit > 3
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 59, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 60, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 61, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 62, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 66, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 67, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 68, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 69, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 70, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 79, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 81, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 82, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 84, 1))
-
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 316, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 318, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 319, 1))
-        //         TODO seems to require q-limit > 3
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 320, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 321, 1))
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 322, 1))
-
-
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 1), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 2), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 3), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 4), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 5), 1)
-        proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 6), 1)
-
-    }
-
     private fun provePropWithHyps(path: Path, hyps: Int = 0) {
         proveWithHyps(path, hyps, { l -> PropositionalTableauNode(l) }) { PropositionalTableau(it) }
     }
@@ -397,33 +458,6 @@ class TptpSynTest {
             throw e
         } finally {
             clearInternTables()
-        }
-    }
-
-    @Test
-    @Ignore
-    fun takesTooLong() {
-
-        try {
-            val path = TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 7, 1, 14)
-
-            TptpFofParser.parseFile(path).let { tptp ->
-                PropositionalTableau(
-                        PropositionalTableauNode(mutableListOf<SignedFormula<Formula<*>>>(
-                                (tptp.last() as FolAnnotatedFormula).formula.createSignedFormula()),
-                                                 null)).also { tableau ->
-
-                    // while (true) {
-                    //     if (tableau.findCloser().isDone())
-                    //         break
-                    //     if (!tableau.step())
-                    //         Assert.fail("Failed to prove it with unlimited steps.")
-                    // }
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
         }
     }
 

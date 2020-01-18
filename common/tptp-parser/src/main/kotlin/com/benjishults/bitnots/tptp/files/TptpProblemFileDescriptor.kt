@@ -3,12 +3,24 @@ package com.benjishults.bitnots.tptp.files
 import java.nio.file.Path
 import java.util.regex.Pattern
 
-data class TptpProblemFileDescriptor(val domain: TptpDomain, val form: TptpFormulaForm = TptpFormulaForm.FOF,
-                                     val number: Int = 0, val version: Int = 1, val size: Int = -1) {
+data class TptpProblemFileDescriptor(
+        val domain: TptpDomain,
+        val form: TptpFormulaForm = TptpFormulaForm.FOF,
+        val number: Int = 0,
+        val version: Int = 1,
+        val size: Int = -1) {
 
     companion object {
         val pattern = Pattern.compile(
                 "(?<domain>[A-Z]{3})(?<number>[0-9]{3})(?<form>[-+^=_])(?<version>[1-9][0-9]*)(?<size>\\.[0-9]+)?\\.p")
+
+        val comparator = object : Comparator<TptpProblemFileDescriptor> {
+            override fun compare(o1: TptpProblemFileDescriptor, o2: TptpProblemFileDescriptor) =
+                    o1.domain.compareTo(o2.domain).takeIf { it != 0 }
+                    ?: o1.number.compareTo(o2.number).takeIf { it != 0 }
+                    ?: o1.version.compareTo(o2.version).takeIf { it != 0 }
+                    ?: o1.size.compareTo(o2.size)
+        }
 
         fun parseTptpPath(path: Path): TptpProblemFileDescriptor =
                 pattern.matcher(path.fileName.toString()).let { matcher ->
@@ -34,4 +46,14 @@ data class TptpProblemFileDescriptor(val domain: TptpDomain, val form: TptpFormu
                     }
                 }
     }
+
+    fun toFileName() = domain.name +
+                       padToThreeDigits(number) +
+                       form.form.toString() +
+                       version +
+                       (if (size >= 0) {
+                           "." + padToThreeDigits(size)
+                       } else "") +
+                       ".p"
+
 }
