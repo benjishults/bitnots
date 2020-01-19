@@ -27,7 +27,7 @@ sealed class Variable<C : TermConstructor>(name: C) : Term<C>(name) {
 
     override fun equals(other: Any?): Boolean =
             other !== null && other::class === this::class &&
-                    cons.name.equals((other as Variable<*>).cons.name)
+            cons.name.equals((other as Variable<*>).cons.name)
 
 }
 
@@ -46,7 +46,7 @@ class BoundVariable private constructor(name: String) : Variable<BVConstructor>(
                 NotCompatible
 
     override fun getFreeVariables(): Set<FreeVariable> = emptySet()
-//    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
+    //    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
 
     companion object : InternTable<BoundVariable>({ name -> BoundVariable(name) })
 
@@ -72,28 +72,32 @@ class FreeVariable private constructor(name: String) : Variable<FVConstructor>(F
     class FVConstructor(name: String) : TermConstructor(name)
 
     override fun unifyUncached(other: Term<*>, sub: Substitution): Substitution {
-        sub[this].let {
-            if (it !== this)
-                return Term.unify(it, other, sub)
-        }
-        // INVARIANT: this is not bound by sub
-        return if (this === other)
-            sub
-        else if (other.contains(this, sub))
-            NotCompatible
-        else if (other is FreeVariable)
-            sub[other].let {
-                if (it !== other)
-                    Term.unify(it, this, sub)
-                else
-                    sub + (this to other.applySub(sub))
+        if (sub === NotCompatible)
+            return sub
+        else {
+            sub[this].let {
+                if (it != this)
+                    return Term.unify(it, other, sub)
             }
-        else
-            sub + (this to other.applySub(sub))
+            // INVARIANT: this is not bound by sub
+            return if (this == other)
+                sub
+            else if (other.contains(this, sub))
+                NotCompatible
+            else if (other is FreeVariable)
+                sub[other].let {
+                    if (it != other)
+                        Term.unify(it, this, sub)
+                    else
+                        sub + (this to other.applySub(sub))
+                }
+            else
+                sub + (this to other.applySub(sub))
+        }
     }
 
     override fun getFreeVariables(): Set<FreeVariable> = setOf(this)
-//    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf(this.to(1))
+    //    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf(this.to(1))
 
     companion object : InternTable<FreeVariable>({ name -> FreeVariable(name) })
 

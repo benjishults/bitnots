@@ -19,25 +19,34 @@ import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
 import com.benjishults.bitnots.tptp.parser.TptpFofParser
+import com.benjishults.bitnots.util.meter.NoOpPushMeterRegistry
 import io.micrometer.core.instrument.Clock
-import io.micrometer.core.instrument.logging.LoggingMeterRegistry
-import io.micrometer.core.instrument.logging.LoggingRegistryConfig
+import io.micrometer.core.instrument.Timer
+import io.micrometer.core.instrument.step.StepRegistryConfig
 import org.junit.Ignore
 import org.junit.Test
+import java.io.BufferedWriter
 import java.nio.file.Path
-import java.time.Duration
+import java.nio.file.Paths
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.function.Supplier
 
 class TptpSynTest {
 
-    val millis = 1000L
+    val testResourcesFolder = Paths.get(System.getProperty("user.dir"), "src", "test", "resources")
 
-    private fun clearInternTables() {
-        Predicate.PredicateConstructor.clear()
-        Function.FunctionConstructor.clear()
-    }
+    val qLimit: Int = 3
+    val millis = 1000L
+    val registry = NoOpPushMeterRegistry(object : StepRegistryConfig {
+
+        override fun get(key: String): String? {
+            return null
+        }
+
+        override fun prefix(): String = ""
+
+    }, Clock.SYSTEM);
 
     val toSucceed = listOf(
 
@@ -78,6 +87,7 @@ class TptpSynTest {
     )
 
     @Test
+    @Ignore
     fun testSynSyoFol() {
         toSucceed.forEach { (domain, form, number, version, size) ->
             classifyFormulas(TptpFofParser.parseFile(
@@ -106,78 +116,61 @@ class TptpSynTest {
     }
 
     @Test
+    // @Ignore
     fun testAllSynSyoFol() {
 
-        val registry = LoggingMeterRegistry(object : LoggingRegistryConfig {
-            override fun get(key: String): String? {
-                return null
-            }
-
-            override fun step(): Duration {
-                return Duration.ofSeconds(1)
-            }
-        }, Clock.SYSTEM);
-
-
-        val failures = mutableListOf<TptpProblemFileDescriptor>()
-        val successes = mutableListOf<TptpProblemFileDescriptor>()
-        val timeouts = mutableListOf<TptpProblemFileDescriptor>()
-
-        TptpFileFetcher.problemFileFilter(
-                listOf(TptpDomain.SYN),
-                listOf(TptpFormulaForm.FOF),
-                TptpProblemFileDescriptor(
-                        domain = TptpDomain.SYN,
-                        form = TptpFormulaForm.FOF,
-                        number = 361,
-                        version = 1,
-                        size = -1)
-        ).forEach {
-            val path = TptpFileFetcher.findProblemFolder(it.domain).resolve(it.toFileName())
-            classifyFormulas(TptpFofParser.parseFile(path)).let { (hyps, targets) ->
-                val hypothesis = createConjunct(hyps)
-                targets.forEach { target ->
-                    FolFormulaTableauProver(
-                            hypothesis?.let {
-                                Implies(it, target)
-                            } ?: target,
-                            FolUnificationClosingStrategy { UnifyingClosedIndicator(it) },
-                            FolStepStrategy { sf, n -> FolTableauNode(mutableListOf(sf), n) }
-                    ).also { prover ->
-                        clearInternTables()
-                        print("Quick test for ${path}.")
-                        when (registry.timer("problem",
-                                             "domain", it.domain.name.toLowerCase(),
-                                             "form", it.form.name.toLowerCase(),
-                                             "number", it.number.toString(),
-                                             "version", it.version.toString(),
-                                             "size", it.size.toString())
-                            .record(Supplier<Result> { limitedTimeProve(prover, millis) })) {
-                            Result.failed  -> {
-                                failures.add(it)
-                                println(" failed")
-                            }
-                            Result.proved  -> {
-                                successes.add(it)
-                                println(" succeeded")
-                            }
-                            Result.timeout -> {
-                                timeouts.add(it)
-                                println(" timed out")
+        testResourcesFolder.resolve("latest")
+            .resolve("results.csv")
+            .toFile()
+            .outputStream()
+            .bufferedWriter()
+            .use { resultsFile ->
+                writeCsvHeader(resultsFile)
+                TptpFileFetcher.problemFileFilter(
+                        listOf(TptpDomain.SYN),
+                        listOf(TptpFormulaForm.FOF),
+                        TptpProblemFileDescriptor(
+                                domain = TptpDomain.SYN,
+                                form = TptpFormulaForm.FOF,
+                                number = 361,
+                                version = 1,
+                                size = -1)
+                ).forEach {
+                    val path = TptpFileFetcher.findProblemFolder(it.domain).resolve(it.toFileName())
+                    classifyFormulas(TptpFofParser.parseFile(path)).let { (hyps, targets) ->
+                        val hypothesis = createConjunct(hyps)
+                        targets.forEach { target ->
+                            FolFormulaTableauProver(
+                                    hypothesis?.let {
+                                        Implies(it, target)
+                                    } ?: target,
+                                    FolUnificationClosingStrategy { UnifyingClosedIndicator(it) },
+                                    FolStepStrategy(qLimit) { sf, n -> FolTableauNode(mutableListOf(sf), n) }
+                            ).also { prover ->
+                                clearInternTables()
+                                println("Quick test for ${path}.")
+                                val timer = registry.timer("problem",
+                                                           "domain", it.domain.name.toLowerCase(),
+                                                           "form", it.form.name.toLowerCase(),
+                                                           "number", it.number.toString(),
+                                                           "version", it.version.toString(),
+                                                           "size", it.size.toString())
+                                when (timer.record(Supplier<Result> { limitedTimeProve(prover, millis) })) {
+                                    Result.failed  -> {
+                                        writeCsvLine(resultsFile, it, timer, "fail", millis, qLimit)
+                                    }
+                                    Result.proved  -> {
+                                        writeCsvLine(resultsFile, it, timer, "success", millis, qLimit)
+                                    }
+                                    Result.timeout -> {
+                                        writeCsvLine(resultsFile, it, timer, "timeout", millis, qLimit)
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        println("Failures: ")
-        failures.forEach { println(it) }
-        println("Proved: ")
-        successes.forEach {
-            println(it)
-        }
-        println("Timeout after ${millis} milliseconds: ")
-        timeouts.forEach { println(it) }
     }
 
     @Test
@@ -218,6 +211,7 @@ class TptpSynTest {
     }
 
     @Test
+    @Ignore
     fun shouldBeAbleToGet() {
     }
 
@@ -459,6 +453,36 @@ class TptpSynTest {
         } finally {
             clearInternTables()
         }
+    }
+
+    private fun writeCsvHeader(o: BufferedWriter) {
+        o.write("domain,number,version,form,size,millis,timeoutMillis,q-limit,status")
+        o.newLine()
+    }
+
+    private fun writeCsvLine(
+            o: BufferedWriter,
+            descriptor: TptpProblemFileDescriptor,
+            timer: Timer,
+            status: String,
+            timeOut: Long,
+            qLimit: Int) {
+        o.write(
+                "${descriptor.domain
+                },${descriptor.number
+                },${descriptor.version
+                },${descriptor.form
+                },${descriptor.size
+                },${timer.max(TimeUnit.MILLISECONDS)
+                },${timeOut
+                },${qLimit
+                },${status}")
+        o.newLine()
+    }
+
+    private fun clearInternTables() {
+        Predicate.PredicateConstructor.clear()
+        Function.FunctionConstructor.clear()
     }
 
 }

@@ -48,7 +48,8 @@ fun ConstU(name: String) =
  * @param name the FunctionConstructor for the term
  * @param arguments the arguments in the function term
  */
-class Function private constructor(name: FunctionConstructor, var arguments: List<Term<*>>) : Term<FunctionConstructor>(name) {
+class Function private constructor(name: FunctionConstructor, var arguments: List<Term<*>>) :
+        Term<FunctionConstructor>(name) {
 
     private val freeVars by lazy { mutableSetOf<FreeVariable>() }
     private var dirtyFreeVars = true
@@ -58,7 +59,10 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
             val arity: Int = 0
     ) : TermConstructor(name) {
 
-        companion object : InternTableWithOther<FunctionConstructor, Int>({ name, arity -> FunctionConstructor(name, arity) })
+        companion object : InternTableWithOther<FunctionConstructor, Int>(
+                { name, arity ->
+                    FunctionConstructor(name, arity)
+                })
 
         operator fun invoke(arguments: List<Term<*>>): Function {
             check(arguments.size == arity)
@@ -97,12 +101,14 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
             }
 
     override fun unifyUncached(other: Term<*>, sub: Substitution): Substitution =
-            if (other is Function) {
+            if (sub === NotCompatible)
+                sub
+            else if (other is Function) {
                 if (other.cons === cons) {
                     arguments.foldIndexed(sub) { i, s, t ->
                         Term.unify(t, other.arguments[i], s).takeIf {
                             it !== NotCompatible
-                        } ?: NotCompatible
+                        } ?: return NotCompatible
                     }
                 } else {
                     NotCompatible
@@ -123,15 +129,15 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
             else
                 freeVars
 
-//    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
-//            arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
-//                t.getFreeVariablesAndCounts().entries.forEach { (v, c) ->
-//                    s.get(v)?.also {
-//                        s.put(v, c + it)
-//                    } ?: s.put(v, c)
-//                }
-//                s
-//            }
+    //    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
+    //            arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
+    //                t.getFreeVariablesAndCounts().entries.forEach { (v, c) ->
+    //                    s.get(v)?.also {
+    //                        s.put(v, c + it)
+    //                    } ?: s.put(v, c)
+    //                }
+    //                s
+    //            }
 
     // simultaneous substitution
     override fun applySub(substitution: Substitution) =

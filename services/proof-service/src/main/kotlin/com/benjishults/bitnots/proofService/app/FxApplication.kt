@@ -14,6 +14,7 @@ import org.apache.camel.support.LifecycleStrategySupport
 import java.nio.file.Files
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
@@ -72,7 +73,7 @@ class FxApplication : Application() {
 
     private fun wireUpUiConfiguration() {
         try {
-            val folder = Path.of(System.getProperty("user.home"), ".bitnots")
+            val folder = Paths.get(System.getProperty("user.home"), ".bitnots")
             Files.createDirectories(folder)
             uiSettingsFile = folder.resolve("ui-settings.properties")
             // context.propertiesComponent.addLocation("file:${uiSettingsFile}")

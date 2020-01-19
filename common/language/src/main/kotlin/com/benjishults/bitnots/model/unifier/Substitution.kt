@@ -246,7 +246,7 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
                     // look for conflicts
                     other.map.forEach { (otherKey, otherValue) ->
                         map[otherKey]?.let { myValue ->
-                            myValue.unifyUncached(otherValue, EmptySub).takeUnless {
+                            myValue.unifyUncached(otherValue).takeUnless {
                                 it === NotCompatible
                             }?.let { compatibleSub ->
                                 conflictResolutions.add(compatibleSub)

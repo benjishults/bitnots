@@ -116,7 +116,7 @@ class TheoryEditor(
             uiProperties.put(folderKey, toPath().parent.toString())
             fileName.value = absolutePath
             textArea.text = inputStream().use {
-                String(it.readAllBytes())
+                String(it.readBytes())
             }
             toPath()
         }

@@ -15,6 +15,30 @@ There is an [issue](https://github.com/benjishults/bitnots/issues/7) to make thi
 
 ## Run UI
 
-Hit the javafx:run target in proof-service to start a UI.  Doesn't do much so far.
+```bash
+mvn clean install
+```
+
+Then hit the `javafx:run` target in `proof-service` to start a UI.  Doesn't do much so far.
 
 Will create a folder named `.bitnots` in your home directory for your personal preferences.
+
+## Run tests
+
+```bash
+mvn clean install
+```
+
+Some tests have problems if you use JVM 8.  JVM 11 works well.
+
+## Enhanced testing
+
+I use kscript
+
+```bash
+kscript common/test/scripts/EnhancedTests.kts
+```
+
+I'm still playing around with enhancements and there are still some manual steps but it's a promising direction.
+
+The intention is that the system will track progress and notice regressions.

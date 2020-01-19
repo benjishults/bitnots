@@ -1,6 +1,7 @@
 package com.benjishults.bitnots.model.terms
 
 import com.benjishults.bitnots.model.unifier.EmptySub
+import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.util.memoize
 
@@ -11,9 +12,11 @@ abstract class Term<C : TermConstructor>(val cons: C) {
          * Returns the substitution
          */
         val unify = object : (Term<*>, Term<*>, Substitution) -> Substitution {
-            override fun invoke(first: Term<*>, second: Term<*>, sub: Substitution): Substitution {
-                return first.unifyUncached(second, sub)
-            }
+            override fun invoke(first: Term<*>, second: Term<*>, sub: Substitution): Substitution =
+                    if (sub === NotCompatible)
+                        sub
+                    else
+                        first.unifyUncached(second, sub)
         }.memoize()
     }
 
@@ -51,8 +54,8 @@ abstract class Term<C : TermConstructor>(val cons: C) {
     abstract fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>>
     abstract fun getFreeVariables(): Set<FreeVariable>
     //    /**
-//     * maps free variables occurring in the receiver to the number of times the variable occurs in the receiver
-//     */
+    //     * maps free variables occurring in the receiver to the number of times the variable occurs in the receiver
+    //     */
     //    abstract fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int>
     abstract override fun equals(other: Any?): Boolean
 

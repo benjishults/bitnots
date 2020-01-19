@@ -31,15 +31,8 @@ object TptpFileFetcher {
         }.toList()
     }
 
-    fun findFile(descriptor: TptpProblemFileDescriptor): List<Path> {
-        val domain = descriptor.domain
-        val form = descriptor.form
-        val pattern = Pattern.compile("${domain}[0-9]{3}${form.form.takeIf {
-            it != '+'
-        }?.toString() ?: "\\+"}[1-9][0-9]*(?:\\.[0-9]{3})?\\.p")
-        return Files.newDirectoryStream(findProblemFolder(domain)).filter {
-            pattern.matcher(it.getFileName().toString()).matches()
-        }.toList()
+    fun findProblemFile(descriptor: TptpProblemFileDescriptor): Path {
+        return findProblemFolder(descriptor.domain).resolve(descriptor.toFileName())
     }
 
     fun problemFileFilter(domains: List<TptpDomain>, forms: List<TptpFormulaForm>, vararg excludes: TptpProblemFileDescriptor): List<TptpProblemFileDescriptor> {
