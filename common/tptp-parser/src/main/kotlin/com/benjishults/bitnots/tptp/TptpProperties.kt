@@ -1,7 +1,7 @@
 package com.benjishults.bitnots.tptp
 
 import java.io.File
-import java.util.Properties
+import java.util.*
 
 /**
  * If you use this class, the 'tptpHome' system property or the 'TPTP_HOME' environment variable must be set to the root of the TPTP distro.
@@ -14,5 +14,11 @@ object TptpProperties : Properties() {
     }
 
     fun getBaseFolderName() =
-            get("tptp.base.folder")
+            get("tptp.base.folder") as String
+
+    fun getWriteResultsFolderName() =
+            get("tptp.write.results.folder") as String
+
+    fun getReadResultsFolderName() =
+            get("tptp.read.results.folder") as String
 }

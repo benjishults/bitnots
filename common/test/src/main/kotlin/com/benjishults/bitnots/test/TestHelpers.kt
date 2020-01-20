@@ -1,17 +1,4 @@
-@file:CompilerOpts("-jvm-target 1.8 -Xjsr305=strict")
-@file:DependsOn("com.benjishults.bitnots:util:0.0.1-SNAPSHOT")
-@file:DependsOn("com.benjishults.bitnots:language:0.0.1-SNAPSHOT")
-@file:DependsOn("com.benjishults.bitnots:theory:0.0.1-SNAPSHOT")
-@file:DependsOn("com.benjishults.bitnots:inference:0.0.1-SNAPSHOT")
-@file:DependsOn("com.benjishults.bitnots:tableau:0.0.1-SNAPSHOT")
-@file:DependsOn("com.benjishults.bitnots:prover:0.0.1-SNAPSHOT")
-@file:DependsOn("com.benjishults.bitnots:tableau-prover:0.0.1-SNAPSHOT")
-@file:DependsOn("com.benjishults.bitnots:parser:0.0.1-SNAPSHOT")
-@file:DependsOn("com.benjishults.bitnots:tptp-parser:0.0.1-SNAPSHOT")
-@file:DependsOn("io.micrometer:micrometer-core:1.3.2")
-@file:DependsOn("org.apache.commons:commons-csv:1.7")
-@file:DependsOn("org.apache.commons:commons-csv:1.7")
-@file:DependsOn("org.jetbrains.kotlin:kotlin-main-kts:1.3.61")
+package com.benjishults.bitnots.test
 
 import com.benjishults.bitnots.inference.SignedFormula
 import com.benjishults.bitnots.inference.createSignedFormula
@@ -33,56 +20,44 @@ import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 import com.benjishults.bitnots.tableauProver.FolFormulaTableauProver
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRole
+import com.benjishults.bitnots.tptp.TptpProperties
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
 import com.benjishults.bitnots.tptp.parser.TptpFofParser
+import com.benjishults.bitnots.util.meter.NoOpPushMeterRegistry
 import io.micrometer.core.instrument.Clock
 import io.micrometer.core.instrument.Timer
-import io.micrometer.core.instrument.logging.LoggingMeterRegistry
-import io.micrometer.core.instrument.logging.LoggingRegistryConfig
+import io.micrometer.core.instrument.step.StepRegistryConfig
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
-import org.jetbrains.kotlin.script.util.DependsOn
 import java.io.BufferedWriter
 import java.nio.file.Path
 import java.nio.file.Paths
-// import java.nio.file.Path.of as pathOf
-import java.time.Duration
-import java.util.concurrent.Future
+import java.time.Instant
 import java.util.concurrent.TimeUnit
-import java.util.function.Supplier
+import java.util.concurrent.atomic.AtomicReference
 
-System.setProperty("config", "/home/benji/repos/benjishults/bitnots/common/tptp-parser/src/main/resources")
+val result: AtomicReference<Result> = AtomicReference(Error(""))
 
-val testResourcesFolder = Paths.get(System.getProperty("user.home"),
-                                    "repos",
-                                    "benjishults",
-                                    "bitnots",
-                                    "common",
-                                    "test",
-                                    "src",
-                                    "test",
-                                    "resources")
+val tptpReadResultsFolder = Paths.get(TptpProperties.getReadResultsFolderName())
+val tptpWriteResultsFolder = Paths.get(TptpProperties.getWriteResultsFolderName())
 
 val qLimit: Int = 3
 val millis = 1000L
-val registry = LoggingMeterRegistry(object : LoggingRegistryConfig {
+val registry = NoOpPushMeterRegistry(object : StepRegistryConfig {
     override fun get(key: String): String? {
         return null
     }
 
-    override fun step(): Duration {
-        return Duration.ofSeconds(1)
-    }
+    override fun prefix(): String = ""
 }, Clock.SYSTEM);
 
-val HEADER = "domain,number,version,form,size,millis,timeoutMillis,q-limit,status"
+val HEADER = "domain,number,version,form,size,millis,timeoutMillis,q-limit,status,message"
 
 fun doAsWellAsAccepted() {
-    testResourcesFolder.resolve("accepted")
-        .resolve("results.csv")
+    tptpReadResultsFolder.resolve("results.csv")
         .toFile()
         .reader()
         .use { acceptedResultsFile ->
@@ -125,10 +100,10 @@ fun doAsWellAsAccepted() {
                                                                "version", descriptor.version.toString(),
                                                                "size", descriptor.size.toString())
 
-                                    assert(
-                                            timer.record(Supplier<Result> {
-                                                limitedTimeProve(prover, acceptedMillis.toLong() + 1)
-                                            }) === Result.proved)
+                                    timer.record {
+                                        limitedTimeProve(prover, acceptedMillis.toLong() + 1)
+                                    }
+                                    assert(result.get() === Proved)
                                     val max = timer.max(TimeUnit.MILLISECONDS)
                                     if (1.0 - (Math.abs(max - acceptedMillis) / acceptedMillis) > .1)
                                         println("This run ($max) was about as fast as the previous ($acceptedMillis) for $descriptor with q-limit $acceptedQLimit")
@@ -142,27 +117,112 @@ fun doAsWellAsAccepted() {
         }
 }
 
-doAsWellAsAccepted()
-
-fun testAllSynSyoFol() {
-    testResourcesFolder.resolve("latest")
-        .resolve("results.csv")
+fun tryHigherQLimit() {
+    tptpWriteResultsFolder.resolve("results${Instant.now().toEpochMilli()}.csv")
         .toFile()
         .outputStream()
         .bufferedWriter()
         .use { resultsFile ->
             writeCsvHeader(resultsFile)
-            TptpFileFetcher.problemFileFilter(
-                    listOf(TptpDomain.SYN),
-                    listOf(TptpFormulaForm.FOF)/*,
+
+            tptpReadResultsFolder.resolve("results.csv")
+                .toFile()
+                .reader()
+                .use { acceptedResultsFile ->
+                    CSVParser(
+                            acceptedResultsFile,
+                            CSVFormat.DEFAULT.withHeader(*HEADER.split(",").toTypedArray())
+                    ).use { parser ->
+                        // if it succeeded last time
+                        parser.filter { it.get("status") == "fail" }
+                            .filter { it.get("millis").toDouble() < (it.get("timeoutMillis").toDouble() * 0.75) }
+                            .forEach { record ->
+                                val domain = TptpDomain.valueOf(record.get("domain"))
+                                val form = TptpFormulaForm.valueOf(record.get("form"))
+                                val number = record.get("number").toInt(10)
+                                val version = record.get("version").toInt(10)
+                                val size = record.get("size").toInt(10)
+                                val acceptedMillis = record.get("millis").toDouble()
+                                val acceptedTimeOut = record.get("timeoutMillis").toInt(10)
+                                val acceptedQLimit = record.get("q-limit").toInt(10)
+                                val descriptor = TptpProblemFileDescriptor(domain, form, number, version, size)
+                                classifyFormulas(
+                                        TptpFofParser.parseFile(
+                                                TptpFileFetcher.findProblemFile(descriptor))
+                                ).let { (hyps, targets) ->
+                                    val hypothesis = createConjunct(hyps)
+                                    targets.forEach { target ->
+                                        FolFormulaTableauProver(
+                                                hypothesis?.let {
+                                                    Implies(it, target)
+                                                } ?: target,
+                                                FolUnificationClosingStrategy { UnifyingClosedIndicator(it) },
+                                                FolStepStrategy(acceptedQLimit + 1) { sf, n ->
+                                                    FolTableauNode(mutableListOf(sf), n)
+                                                }
+                                        ).also { prover ->
+                                            clearInternTables()
+                                            val timer = registry.timer("problem",
+                                                                       "domain", descriptor.domain.name.toLowerCase(),
+                                                                       "form", descriptor.form.name.toLowerCase(),
+                                                                       "number", descriptor.number.toString(),
+                                                                       "version", descriptor.version.toString(),
+                                                                       "size", descriptor.size.toString())
+                                            println("Quick test for ${descriptor}.")
+                                            timer.record { limitedTimeProve(prover, millis) }
+                                            writeCsvLine(resultsFile, descriptor, timer, millis, qLimit)
+                                        }
+                                    }
+                                }
+                            }
+                    }
+                }
+        }
+
+}
+
+fun createResultsForSynFof() {
+    createResults(
+            listOf(TptpDomain.SYN),
+            listOf(TptpFormulaForm.FOF)/*,
                     TptpProblemFileDescriptor(
                             domain = TptpDomain.SYN,
                             form = TptpFormulaForm.FOF,
                             number = 361,
                             version = 1,
                             size = -1)*/
-            ).forEach {
-                val path = TptpFileFetcher.findProblemFolder(it.domain).resolve(it.toFileName())
+    )
+}
+
+fun createResultsForAllFof() {
+    createResults(
+            listOf(*TptpDomain.values()),
+            listOf(TptpFormulaForm.FOF),
+            // stack overflow on parsing file
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 680, 1, 15),
+            // stack overflow on parsing file
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 680, 1, 20),
+            // didn't even try
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 681, 1, 20),
+            // didn't even try
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 684, 1, 20),
+            // didn't even try
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 685, 1, 20),
+            // Unexpected character at beginning of FOF '+' at line 30 of /usr/local/share/tptp/Problems/LCL/LCL882+1.p.
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 882, 1)
+    )
+}
+
+fun createResults(domains: List<TptpDomain>, forms: List<TptpFormulaForm>, vararg excludes: TptpProblemFileDescriptor) {
+
+    tptpWriteResultsFolder.resolve("results${Instant.now().toEpochMilli()}.csv")
+        .toFile()
+        .outputStream()
+        .bufferedWriter()
+        .use { resultsFile ->
+            writeCsvHeader(resultsFile)
+            TptpFileFetcher.problemFileFilter(domains, forms, *excludes).forEach { descriptor ->
+                val path = TptpFileFetcher.findProblemFolder(descriptor.domain).resolve(descriptor.toFileName())
                 classifyFormulas(TptpFofParser.parseFile(path)).let { (hyps, targets) ->
                     val hypothesis = createConjunct(hyps)
                     targets.forEach { target ->
@@ -172,99 +232,13 @@ fun testAllSynSyoFol() {
                                 } ?: target,
                                 FolUnificationClosingStrategy { UnifyingClosedIndicator(it) },
                                 FolStepStrategy(qLimit) { sf, n -> FolTableauNode(mutableListOf(sf), n) }
-                        ).also { prover ->
-                            clearInternTables()
-                            print("Quick test for ${path}.")
-                            val timer = registry.timer("problem",
-                                                       "domain", it.domain.name.toLowerCase(),
-                                                       "form", it.form.name.toLowerCase(),
-                                                       "number", it.number.toString(),
-                                                       "version", it.version.toString(),
-                                                       "size", it.size.toString())
-                            when (timer.record(Supplier<Result> { limitedTimeProve(prover, millis) })) {
-                                Result.failed  -> {
-                                    writeCsvLine(resultsFile, it, timer, "fail", millis, qLimit)
-                                }
-                                Result.proved  -> {
-                                    writeCsvLine(resultsFile, it, timer, "success", millis, qLimit)
-                                }
-                                Result.timeout -> {
-                                    writeCsvLine(resultsFile, it, timer, "timeout", millis, qLimit)
-                                }
-                            }
+                        ).also {
+                            proveAndWrite(descriptor, resultsFile, it)
                         }
                     }
                 }
             }
         }
-}
-
-fun testSynProblems() {
-    provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 1, 1))
-    provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 41, 1))
-    provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 44, 1), 1)
-    provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 45, 1))
-    provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 46, 1))
-    provePropWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 47, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 48, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 49, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 50, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 51, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 52, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 53, 1))
-
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 63, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 64, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 65, 1), 1)
-
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 73, 1))
-
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 315, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 317, 1))
-
-    // working from the end
-
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 981, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 0), 1)
-}
-
-fun notWorkingYet() {
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 54, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 55, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 56, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 57, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 58, 1), 1)
-    //         TODO seems to require q-limit > 3
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 59, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 60, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 61, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 62, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 66, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 67, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 68, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 69, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 70, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 79, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 81, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 82, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 84, 1))
-
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 316, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 318, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 319, 1))
-    //         TODO seems to require q-limit > 3
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 320, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 321, 1))
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 322, 1))
-
-
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 1), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 2), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 3), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 4), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 5), 1)
-    proveFofWithHyps(TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 986, 1, 6), 1)
-
 }
 
 fun takesTooLong() {
@@ -347,75 +321,46 @@ fun classifyFormulas(
     }
 }
 
-enum class Result {
-    proved,
-    failed,
-    timeout
-}
-
-fun prove(tableauProverFol: FolFormulaTableauProver): Result {
-    while (!Thread.interrupted()) {
-        if (tableauProverFol.searchForFinisher().isDone()) {
-            return Result.proved
-        } else if (Thread.interrupted()) {
-            return Result.timeout
-        }
-        if (!tableauProverFol.step()) {
-            return Result.failed
-        }
-    }
-    return Result.timeout
-}
-
-inner class ResultThread(
-        val tableauProverFol: FolFormulaTableauProver,
-        var result: Result = Result.failed
-) : Thread(), Future<Result> {
-    override fun get(): Result {
-        join()
-        return result
-    }
-
-    override fun get(timeout: Long, unit: TimeUnit?): Result {
-        join(TimeUnit.MILLISECONDS.convert(timeout, unit))
-        if (isAlive) {
-            interrupt()
-            return Result.timeout
-        }
-        return result
-    }
-
-    override fun isDone(): Boolean {
-        return !isAlive
-    }
-
-    override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
-        if (isDone) {
-            return false;
-        } else if (mayInterruptIfRunning) {
-            interrupt()
-        }
-        return true
-    }
-
-    override fun isCancelled(): Boolean {
-        TODO()
-    }
-
-    override fun run() {
-        result = prove(tableauProverFol)
-    }
-}
-
-fun limitedTimeProve(proof: FolFormulaTableauProver, millis: Long): Result =
-        ResultThread(proof).let {
-            try {
-                it.start()
-                it.get(millis, TimeUnit.MILLISECONDS)
-            } finally {
-                it.join()
+fun prove(tableauProverFol: FolFormulaTableauProver): Unit {
+    try {
+        while (!Thread.interrupted()) {
+            if (tableauProverFol.searchForFinisher().isDone()) {
+                result.set(Proved)
+                return
+            } else if (Thread.interrupted()) {
+                break
+            }
+            if (!tableauProverFol.step()) {
+                result.set(Failed)
+                return
             }
         }
+        result.set(TimeOut)
+    } catch (t: Throwable) {
+        result.set(Error(t.message ?: ""))
+    }
+}
+
+class ResultThread(
+        val tableauProverFol: FolFormulaTableauProver
+) : Thread() {
+
+    override fun run() {
+        prove(tableauProverFol)
+    }
+}
+
+fun limitedTimeProve(proof: FolFormulaTableauProver, millis: Long): Unit {
+    ResultThread(proof).let {
+        try {
+            it.start()
+        } finally {
+            it.join(millis)
+            it.interrupt()
+            it.join()
+        }
+    }
+}
 
 fun provePropWithHyps(path: Path, hyps: Int = 0) {
     proveWithHyps(path, hyps, { l -> PropositionalTableauNode(l) }) { PropositionalTableau(it) }
@@ -425,9 +370,12 @@ fun proveFofWithHyps(path: Path, hyps: Int = 0) {
     proveWithHyps(path, hyps, { l -> FolTableauNode(l) }) { FolTableau(it) }
 }
 
-fun <N : TableauNode<N>> proveWithHyps(path: Path, hyps: Int,
-                                       nodeFactory: (MutableList<SignedFormula<Formula<*>>>) -> N,
-                                       tabFactory: (N) -> Tableau<N>) {
+fun <N : TableauNode<N>> proveWithHyps(
+        path: Path,
+        hyps: Int,
+        nodeFactory: (MutableList<SignedFormula<Formula<*>>>) -> N,
+        tabFactory: (N) -> Tableau<N>
+) {
     try {
         println("Working on ${path}.")
         TptpFofParser.parseFile(path).let { tptp ->
@@ -474,7 +422,6 @@ fun writeCsvLine(
         o: BufferedWriter,
         descriptor: TptpProblemFileDescriptor,
         timer: Timer,
-        status: String,
         timeOut: Long,
         qLimit: Int) {
     o.write(
@@ -486,11 +433,33 @@ fun writeCsvLine(
             },${timer.max(TimeUnit.MILLISECONDS)
             },${timeOut
             },${qLimit
-            },${status}")
+            },${result.get().name
+            },${result.get().let {
+                if (it is Error)
+                    it.message
+                else
+                    ""
+            }}")
     o.newLine()
 }
 
 fun clearInternTables() {
     Predicate.PredicateConstructor.clear()
     Function.FunctionConstructor.clear()
+}
+
+fun proveAndWrite(
+        descriptor: TptpProblemFileDescriptor,
+        resultsFile: BufferedWriter,
+        prover: FolFormulaTableauProver) {
+    clearInternTables()
+    println("Quick test for ${descriptor}.")
+    val timer = registry.timer("problem",
+                               "domain", descriptor.domain.name.toLowerCase(),
+                               "form", descriptor.form.name.toLowerCase(),
+                               "number", descriptor.number.toString(),
+                               "version", descriptor.version.toString(),
+                               "size", descriptor.size.toString())
+    timer.record { limitedTimeProve(prover, millis) }
+    writeCsvLine(resultsFile, descriptor, timer, millis, qLimit)
 }
