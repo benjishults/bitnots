@@ -2,7 +2,10 @@ package com.benjishults.bitnots.tableau.closer
 
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Substitution
+import com.benjishults.bitnots.prover.finish.FailedProofIndicator
 import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
+import com.benjishults.bitnots.prover.finish.SuccessfulProofIndicator
+import com.benjishults.bitnots.prover.finish.TimeOutProofIndicator
 import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.util.collection.clone
 import com.benjishults.bitnots.util.collection.peek
@@ -11,43 +14,31 @@ import com.benjishults.bitnots.util.collection.push
 
 sealed class TableauProofProgressIndicator : ProofProgressIndicator
 
-/**
- * Indicates that an attempt was made to extend an InProgressTableauClosedIndicator with a BranchCloser with which it was not compatible.
- */
-object ExtensionFailed : TableauProofProgressIndicator() {
-    /**
-     * @return false
-     */
-    override fun isDone() = false
+object TableauFailedProofIndicator : TableauProofProgressIndicator(), FailedProofIndicator
 
-}
+class TableauTimeOutProofIndicator(override val allowedMillis: Long) : TimeOutProofIndicator, FailedProofIndicator
 
-/**
- * Indicates that the ProofInProgress is doomed and cannot be completed successfully.
- */
-object Fail : TableauProofProgressIndicator() {
-    /**
-     * @return false
-     */
-    override fun isDone() = false
-
-}
+class TableauEngineErrorIndicator<T: Any>(val reason: T? = null): TableauProofProgressIndicator(), FailedProofIndicator
 
 /**
  * We don't care or don't have interesting information about how it was done.
  */
-object Done : TableauProofProgressIndicator() {
-    /**
-     * @return true
-     */
-    override fun isDone() = true
+object SuccessfulTableauProofIndicator: TableauProofProgressIndicator(), SuccessfulProofIndicator
 
-}
+/**
+ * Indicates that an attempt was made to extend an InProgressTableauClosedIndicator with a BranchCloser with which it was not compatible.
+ */
+class ExtensionFailed(val branchCloser: BranchCloser, indicator: InProgressTableauProgressIndicator) : TableauProofProgressIndicator(), FailedProofIndicator
+
+/**
+ * Indicates that the proof is not complete
+ */
+object RanOutOfRunwayTableauProgressIndicator: TableauProofProgressIndicator(), FailedProofIndicator
 
 /**
  * A tableau is a proof if its branches all have a compatible closer.
  */
-sealed class InProgressTableauClosedIndicator : TableauProofProgressIndicator() {
+sealed class InProgressTableauProgressIndicator : TableauProofProgressIndicator() {
 
     /**
      * A compatible list of branch closers.
@@ -76,9 +67,9 @@ sealed class InProgressTableauClosedIndicator : TableauProofProgressIndicator() 
 
 }
 
-open class BooleanClosedIndicator protected constructor(
+open class BooleanProgressIndicator protected constructor(
         override val branchClosers: List<BranchCloser>
-) : InProgressTableauClosedIndicator() {
+) : InProgressTableauProgressIndicator() {
 
     protected constructor(
             branchClosers: List<BranchCloser>,
@@ -111,7 +102,9 @@ open class BooleanClosedIndicator protected constructor(
             needToClose: MutableList<TableauNode<*>>,
             // TODO seriously, we can do better than this.
             substitution: Substitution = EmptySub
-    ): TableauProofProgressIndicator = BooleanClosedIndicator(branchClosers, needToClose)
+    ): TableauProofProgressIndicator =
+            // TODO this doesn't seem right.  Can't I use ExtensionFailed...
+            BooleanProgressIndicator(branchClosers, needToClose)
 
     override fun isCompatible(closer: BranchCloser): Substitution = EmptySub
 
@@ -126,10 +119,9 @@ open class BooleanClosedIndicator protected constructor(
 
     override fun progress(): TableauProofProgressIndicator =
             nextNode().let { nextNode ->
-
                 nextNode.children.takeIf {
                     it.isNotEmpty()
-                }?.reversed()?.let { reversedChildrenOfNextNode ->
+                }?.let { reversedChildrenOfNextNode ->
                     (needToClose.clone()).let { cloneOfNeedToClose ->
                         cloneOfNeedToClose.pop() // take nextNode off the cloned list
                         // push its children on in reverse
@@ -141,7 +133,7 @@ open class BooleanClosedIndicator protected constructor(
                         cloneOfNeedToClose.push(nextNode)
                         indicatorFactory(branchClosers, cloneOfNeedToClose)
                     }
-                } ?: ExtensionFailed
+                } ?: RanOutOfRunwayTableauProgressIndicator
             }
 
 }

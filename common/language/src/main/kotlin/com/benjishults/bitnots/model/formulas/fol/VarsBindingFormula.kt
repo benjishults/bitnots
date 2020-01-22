@@ -9,10 +9,10 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class VarsBindingFormula(
-    cons: FormulaConstructor,
+        override val constructor: FormulaConstructor,
     vararg val variables: BoundVariable,
     val formula: Formula<*>
-) : Formula<FormulaConstructor>(cons) {
+) : Formula<FormulaConstructor> {
 
     override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
         TODO()

@@ -7,10 +7,10 @@ import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariabl
 import com.benjishults.bitnots.tableau.PropositionalTableau
 import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.tableau.closer.BranchCloser
-import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
+import com.benjishults.bitnots.tableau.closer.InProgressTableauProgressIndicator
 
 open class PropositionalClosingStrategy(
-        override val closedIndicatorFactory: (TableauNode<*>) -> InProgressTableauClosedIndicator
+        override val progressIndicatorFactory: (TableauNode<*>) -> InProgressTableauProgressIndicator
 ) : TableauClosingStrategy<PropositionalTableau> {
 
     /**

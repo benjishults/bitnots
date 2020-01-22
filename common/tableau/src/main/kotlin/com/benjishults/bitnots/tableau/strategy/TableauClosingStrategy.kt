@@ -3,8 +3,8 @@ package com.benjishults.bitnots.tableau.strategy
 import com.benjishults.bitnots.prover.strategy.FinishingStrategy
 import com.benjishults.bitnots.tableau.Tableau
 import com.benjishults.bitnots.tableau.TableauNode
-import com.benjishults.bitnots.tableau.closer.ExtensionFailed
-import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
+import com.benjishults.bitnots.tableau.closer.InProgressTableauProgressIndicator
+import com.benjishults.bitnots.tableau.closer.RanOutOfRunwayTableauProgressIndicator
 import com.benjishults.bitnots.tableau.closer.TableauProofProgressIndicator
 import com.benjishults.bitnots.util.collection.pop
 import com.benjishults.bitnots.util.collection.push
@@ -15,15 +15,15 @@ interface TableauClosingStrategy<in T : Tableau<*>> :
     /**
      * Push only if it is InProgressTableauClosedIndicator.
      */
-    fun MutableList<InProgressTableauClosedIndicator>.safePush(item: TableauProofProgressIndicator) {
-        if (item is InProgressTableauClosedIndicator)
+    fun MutableList<InProgressTableauProgressIndicator>.safePush(item: TableauProofProgressIndicator) {
+        if (item is InProgressTableauProgressIndicator)
             push(item)
     }
 
     /**
      * This is used to create the initial, top-level indicator before anything is known.
      */
-    val closedIndicatorFactory: (TableauNode<*>) -> InProgressTableauClosedIndicator
+    val progressIndicatorFactory: (TableauNode<*>) -> InProgressTableauProgressIndicator
 
     /**
      * This finds and stores closers on every branch, if possible.
@@ -38,8 +38,8 @@ interface TableauClosingStrategy<in T : Tableau<*>> :
         // TODO could this indicate that not all branches have branch-closers?
         populateBranchClosers(proofInProgress)
         // will this ever exceed size 1?
-        val toBeExtended = mutableListOf<InProgressTableauClosedIndicator>().also {
-            it.push(closedIndicatorFactory(proofInProgress.root))
+        val toBeExtended = mutableListOf<InProgressTableauProgressIndicator>().also {
+            it.push(progressIndicatorFactory(proofInProgress.root))
         }
         do {
             toBeExtended.pop().let { extending ->
@@ -55,7 +55,7 @@ interface TableauClosingStrategy<in T : Tableau<*>> :
                 toBeExtended.safePush(extending.progress())
             }
         } while (toBeExtended.isNotEmpty());
-        return ExtensionFailed
+        return RanOutOfRunwayTableauProgressIndicator
 
     }
 

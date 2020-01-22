@@ -1,10 +1,17 @@
 package com.benjishults.bitnots.tableau
 
+import com.benjishults.bitnots.inference.createSignedFormula
+import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.tableau.strategy.PropositionalInitializationStrategy
+
 open class PropositionalTableau(
-        root: PropositionalTableauNode
-) : AbstractTableau<PropositionalTableauNode>(
-        root
-) {
+        override val root: PropositionalTableauNode
+) : Tableau<PropositionalTableauNode> {
+
+    constructor(formula: Formula<*>) : this(
+            PropositionalInitializationStrategy.init(
+                    PropositionalTableauNode(
+                            mutableListOf(formula.createSignedFormula()))))
 
     // TODO how different is this to FolTableau?
     override fun toString(): String {

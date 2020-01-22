@@ -21,9 +21,9 @@
 
 // @file:param("configFolder", String::class)
 
-import com.benjishults.bitnots.test.createResultsForAllFof
+import com.benjishults.bitnots.test.Regression
 import org.jetbrains.kotlin.script.util.DependsOn
 
 System.setProperty("config", args[0])
 
-createResultsForAllFof()
+Regression.newBaselineFof()

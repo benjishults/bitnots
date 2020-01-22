@@ -9,10 +9,8 @@ import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class AtomicPropositionalFormula(
-        cons: PropositionalFormulaConstructor
-) : Formula<PropositionalFormulaConstructor>(
-        cons
-) {
+        override val constructor: PropositionalFormulaConstructor
+) : Formula<PropositionalFormulaConstructor> {
 
     override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution =
             if (this == other)
@@ -32,5 +30,6 @@ abstract class AtomicPropositionalFormula(
             other is AtomicPropositionalFormula && other.constructor === this.constructor
 
     override fun hashCode() = constructor.name.hashCode()
+    override fun toString() = "(${constructor.name})"
 
 }

@@ -47,8 +47,6 @@ data class Iff(val first: Formula<*>, val second: Formula<*>) : FormulaWithSubfo
     override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
             first.getVariablesUnboundExcept(boundVars).union(second.getVariablesUnboundExcept(boundVars))
 
-    override fun toString(): String = "(${constructor.name} ${first} ${second})"
-
     override fun equals(other: Any?): Boolean {
         if (other === null) return false
         if (other::class === this::class) {

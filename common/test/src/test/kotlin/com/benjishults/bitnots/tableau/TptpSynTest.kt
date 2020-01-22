@@ -8,10 +8,13 @@ import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.terms.Function
-import com.benjishults.bitnots.tableau.closer.UnifyingClosedIndicator
+import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
+import com.benjishults.bitnots.tableau.closer.SuccessfulTableauProofIndicator
+import com.benjishults.bitnots.tableau.closer.UnifyingProgressIndicator
 import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
 import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 import com.benjishults.bitnots.tableauProver.FolFormulaTableauProver
+import com.benjishults.bitnots.test.limitedTimeProve
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.files.TptpDomain
@@ -28,7 +31,6 @@ import org.junit.Test
 import java.io.BufferedWriter
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.function.Supplier
 
@@ -101,14 +103,19 @@ class TptpSynTest {
                 val hypothesis = createConjunct(hyps)
                 targets.forEach { target ->
                     FolFormulaTableauProver(
-                            hypothesis?.let {
-                                Implies(it, target)
-                            } ?: target,
-                            FolUnificationClosingStrategy({ UnifyingClosedIndicator(it) }),
+
+                            FolUnificationClosingStrategy({ UnifyingProgressIndicator(it) }),
                             FolStepStrategy { sf, n -> FolTableauNode(mutableListOf(sf), n) }
                     ).also { prover ->
                         clearInternTables()
-                        assert(limitedTimeProve(prover, millis) === Result.proved)
+                        assert(
+                                limitedTimeProve(
+                                        prover,
+                                        hypothesis?.let {
+                                            Implies(it, target)
+                                        } ?: target,
+                                        millis
+                                ) is SuccessfulTableauProofIndicator)
                     }
                 }
             }
@@ -141,10 +148,8 @@ class TptpSynTest {
                         val hypothesis = createConjunct(hyps)
                         targets.forEach { target ->
                             FolFormulaTableauProver(
-                                    hypothesis?.let {
-                                        Implies(it, target)
-                                    } ?: target,
-                                    FolUnificationClosingStrategy { UnifyingClosedIndicator(it) },
+
+                                    FolUnificationClosingStrategy { UnifyingProgressIndicator(it) },
                                     FolStepStrategy(qLimit) { sf, n -> FolTableauNode(mutableListOf(sf), n) }
                             ).also { prover ->
                                 clearInternTables()
@@ -155,7 +160,11 @@ class TptpSynTest {
                                                            "number", it.number.toString(),
                                                            "version", it.version.toString(),
                                                            "size", it.size.toString())
-                                when (timer.record(Supplier<Result> { limitedTimeProve(prover, millis) })) {
+                                when (timer.record(Supplier<ProofProgressIndicator> {
+                                    limitedTimeProve(prover, hypothesis?.let {
+                                        Implies(it, target)
+                                    } ?: target, millis)
+                                })) {
                                     Result.failed  -> {
                                         writeCsvLine(resultsFile, it, timer, "fail", millis, qLimit)
                                     }
@@ -232,69 +241,6 @@ class TptpSynTest {
         proved,
         failed,
         timeout
-    }
-
-    private fun limitedTimeProve(proof: FolFormulaTableauProver, millis: Long): Result =
-            ResultThread(proof).let {
-                try {
-                    it.start()
-                    it.get(millis, TimeUnit.MILLISECONDS)
-                } finally {
-                    it.join()
-                }
-            }
-
-    inner class ResultThread(
-            val tableauProverFol: FolFormulaTableauProver,
-            var result: Result = Result.failed
-    ) : Thread(), Future<Result> {
-        override fun get(): Result {
-            join()
-            return result
-        }
-
-        override fun get(timeout: Long, unit: TimeUnit?): Result {
-            join(TimeUnit.MILLISECONDS.convert(timeout, unit))
-            if (isAlive) {
-                interrupt()
-                return Result.timeout
-            }
-            return result
-        }
-
-        override fun isDone(): Boolean {
-            return !isAlive
-        }
-
-        override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
-            if (isDone) {
-                return false;
-            } else if (mayInterruptIfRunning) {
-                interrupt()
-            }
-            return true
-        }
-
-        override fun isCancelled(): Boolean {
-            TODO()
-        }
-
-        override fun run() {
-            while (!Thread.interrupted()) {
-                if (tableauProverFol.searchForFinisher().isDone()) {
-                    result = Result.proved
-                    return
-                } else if (Thread.interrupted()) {
-                    result = Result.timeout
-                    return
-                }
-                if (!tableauProverFol.step()) {
-                    result = Result.failed
-                    return
-                }
-            }
-            result = Result.timeout
-        }
     }
 
     private fun provePropWithHyps(path: Path, hyps: Int = 0) {

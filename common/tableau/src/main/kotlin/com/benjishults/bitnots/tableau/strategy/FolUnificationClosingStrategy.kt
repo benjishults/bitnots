@@ -9,10 +9,10 @@ import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.tableau.FolTableau
 import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.tableau.closer.BranchCloser
-import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
+import com.benjishults.bitnots.tableau.closer.InProgressTableauProgressIndicator
 
 open class FolUnificationClosingStrategy(
-        override val closedIndicatorFactory: (TableauNode<*>) -> InProgressTableauClosedIndicator
+        override val progressIndicatorFactory: (TableauNode<*>) -> InProgressTableauProgressIndicator
 ) : TableauClosingStrategy<FolTableau> {
 
     override fun populateBranchClosers(tableau: FolTableau) {

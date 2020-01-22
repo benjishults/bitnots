@@ -38,7 +38,8 @@ fun PredU(name: String, arity: Int = 1): PredicateConstructor {
  * @param name the FunctionConstructor for the term
  * @param arguments the arguments in the function term
  */
-class Predicate private constructor(name: PredicateConstructor, var arguments: List<Term<*>>) : Formula<PredicateConstructor>(name) {
+class Predicate private constructor(override val constructor: PredicateConstructor, var arguments: List<Term<*>>) :
+        Formula<PredicateConstructor> {
 
     override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
         TODO()
@@ -48,7 +49,8 @@ class Predicate private constructor(name: PredicateConstructor, var arguments: L
     private var dirtyFreeVars = true
 
     open class PredicateConstructor(name: String, val arity: Int = 1) : FormulaConstructor(name) {
-        companion object : InternTableWithOther<PredicateConstructor, Int>({ name, arity -> PredicateConstructor(name, arity) })
+        companion object :
+                InternTableWithOther<PredicateConstructor, Int>({ name, arity -> PredicateConstructor(name, arity) })
 
         operator fun invoke(arguments: List<Term<*>>): Predicate {
             check(arguments.size == arity)
@@ -116,15 +118,15 @@ class Predicate private constructor(name: PredicateConstructor, var arguments: L
         } ?: freeVars
     }
 
-//    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
-//            arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
-//                t.getFreeVariablesAndCounts().entries.forEach { (v, c) ->
-//                    s.get(v)?.also {
-//                        s.put(v, c + it)
-//                    } ?: s.put(v, c)
-//                }
-//                s
-//            }
+    //    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
+    //            arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
+    //                t.getFreeVariablesAndCounts().entries.forEach { (v, c) ->
+    //                    s.get(v)?.also {
+    //                        s.put(v, c + it)
+    //                    } ?: s.put(v, c)
+    //                }
+    //                s
+    //            }
 
     override fun applySub(substitution: Substitution) =
             constructor(arguments.map {
@@ -136,14 +138,15 @@ class Predicate private constructor(name: PredicateConstructor, var arguments: L
                 it.applyPair(pair)
             })
 
-//    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>) =
-//            arguments.fold(mutableSetOf<Variable<*>>()) { s, t ->
-//                s.also {
-//                    it.addAll(t.getVariablesUnboundExcept(boundVars))
-//                }
-//            }
+    //    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>) =
+    //            arguments.fold(mutableSetOf<Variable<*>>()) { s, t ->
+    //                s.also {
+    //                    it.addAll(t.getVariablesUnboundExcept(boundVars))
+    //                }
+    //            }
 
-    override fun toString() = "(${constructor.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
+    override fun toString() =
+            "(${constructor.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
 
     override fun equals(other: Any?): Boolean {
         if (other === null) return false

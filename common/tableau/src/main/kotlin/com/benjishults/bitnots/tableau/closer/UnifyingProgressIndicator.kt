@@ -7,10 +7,10 @@ import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.util.collection.clone
 import com.benjishults.bitnots.util.collection.pop
 
-open class UnifyingClosedIndicator private constructor(
+open class UnifyingProgressIndicator private constructor(
         branchClosers: List<BranchCloser>,
         val substitution: Substitution
-) : BooleanClosedIndicator(branchClosers) {
+) : BooleanProgressIndicator(branchClosers) {
 
     private constructor(
             branchClosers: List<BranchCloser>,
@@ -41,8 +41,8 @@ open class UnifyingClosedIndicator private constructor(
             substitution: Substitution
     ) =
             when (substitution) {
-                NotCompatible -> ExtensionFailed
-                else          -> UnifyingClosedIndicator(branchClosers, needToClose, substitution)
+                NotCompatible -> ExtensionFailed(branchClosers.last(), this)
+                else          -> UnifyingProgressIndicator(branchClosers, needToClose, substitution)
             }
 
 

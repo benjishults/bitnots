@@ -9,7 +9,7 @@ import com.benjishults.bitnots.tableau.step.DeltaStep
 import com.benjishults.bitnots.tableau.step.GammaStep
 
 open class FolStepStrategy(
-        qLimit: Int = 3,
+        val qLimit: Int = 3,
         nodeFactory: (SignedFormula<*>, FolTableauNode) -> FolTableauNode
 ) : StepStrategy<FolTableau> {
 
@@ -24,7 +24,8 @@ open class FolStepStrategy(
                     taken = true
                 }
                 if (!taken)
-                    betaStep.apply(proofInProgress) || gammaStep.apply(proofInProgress) // TODO if gamma applied, no sense looking for closure unless it produces a SimpleSignedFormula
+                    betaStep.apply(proofInProgress) || gammaStep.apply(
+                            proofInProgress) // TODO if gamma applied, no sense looking for closure unless it produces a SimpleSignedFormula
                 else
                     true
             }

@@ -1,9 +1,17 @@
 package com.benjishults.bitnots.tableau
 
+import com.benjishults.bitnots.inference.createSignedFormula
+import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.tableau.strategy.PropositionalInitializationStrategy
+
 class FolTableau(
-        root: FolTableauNode
-) : AbstractTableau<FolTableauNode>(
-        root) {
+        override val root: FolTableauNode
+) : Tableau<FolTableauNode> {
+
+    constructor(formula: Formula<*>) : this(
+            PropositionalInitializationStrategy.init(
+                    FolTableauNode(
+                            mutableListOf(formula.createSignedFormula()))))
 
     override fun toString(): String {
         return buildString {

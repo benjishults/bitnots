@@ -8,7 +8,7 @@ import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.util.memoize
 
 // NOTE should be immutable
-abstract class Formula<C : FormulaConstructor>(val constructor: C) {
+interface Formula<C : FormulaConstructor> {
     companion object {
         /**
          * Returns the substitution
@@ -20,19 +20,29 @@ abstract class Formula<C : FormulaConstructor>(val constructor: C) {
         }.memoize()
     }
 
-    protected abstract fun unifyUncached(other: Formula<*>, sub: Substitution = EmptySub): Substitution
+    val constructor: C
+    fun unifyUncached(other: Formula<*>, sub: Substitution = EmptySub): Substitution
 
-    abstract fun applySub(substitution: Substitution): Formula<C>
-    abstract fun applyPair(pair: Pair<Variable<*>, Term<*>>): Formula<C>
+    fun applySub(substitution: Substitution): Formula<C>
+    fun applyPair(pair: Pair<Variable<*>, Term<*>>): Formula<C>
 
-    abstract fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>>
-    abstract fun getFreeVariables(): Set<FreeVariable>
+    fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>>
+    fun getFreeVariables(): Set<FreeVariable>
 
-    abstract fun contains(variable: Variable<*>, sub: Substitution): Boolean
+    fun contains(variable: Variable<*>, sub: Substitution): Boolean
 
-    override fun toString() = "(${constructor.name})"
-    abstract override fun equals(other: Any?): Boolean
-    abstract override fun hashCode(): Int
+    // override fun toString() = "(${constructor.name})"
+    // override fun equals(other: Any?): Boolean
+    // override fun hashCode(): Int
 }
 
-abstract class FormulaWithSubformulas<C: FormulaConstructor>(constructor: C, vararg val formulas: Formula<*>): Formula<C>(constructor)
+abstract class FormulaWithSubformulas<C : FormulaConstructor>(
+        override val constructor: C,
+        vararg val formulas: Formula<*>
+) : Formula<C> {
+    override fun toString(): String = buildString {
+        append("(${constructor.name}")
+        formulas.forEach { append(" ").append(it) }
+        append(")")
+    }
+}

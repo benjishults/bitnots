@@ -14,7 +14,6 @@ import com.benjishults.bitnots.model.formulas.propositional.Tfae
 import com.benjishults.bitnots.model.formulas.propositional.Truth
 import com.benjishults.bitnots.model.terms.BV
 import com.benjishults.bitnots.model.terms.Fn
-import com.benjishults.bitnots.prover.ProofConstraints
 import com.benjishults.bitnots.test.Claim
 import com.benjishults.bitnots.test.FalseFolClaim
 import com.benjishults.bitnots.test.FalsePropClaim
@@ -41,20 +40,20 @@ class TableauStepCountTest {
         val R = Prop("R")
 
         val PROP_CLAIMS = arrayOf(
-                TruePropClaim(Implies(Tfae(A, B, C), Implies(B, A)), constraints = ProofConstraints(1)),
-                TruePropClaim(Tfae(P, P, P), constraints = ProofConstraints(2)),
-                TruePropClaim(Implies(And(A, B), Iff(A, B)), constraints = ProofConstraints(1)),
-                TruePropClaim(Or(Iff(A, B), A, B), constraints = ProofConstraints(1)),
-                TruePropClaim(Implies(Implies(A, B), Implies(A, B)), constraints = ProofConstraints(1)),
-                TruePropClaim(Implies(Falsity, P), constraints = ProofConstraints(0)),
-                TruePropClaim(Implies(P, P), constraints = ProofConstraints(0)),
-                TruePropClaim(Or(P, Not(P)), constraints = ProofConstraints(0)),
-                TruePropClaim(And(Truth, Truth), constraints = ProofConstraints(1)),
-                TruePropClaim(Implies(Falsity, Falsity), constraints = ProofConstraints(0)),
-                TruePropClaim(Implies(Falsity, Truth), constraints = ProofConstraints(0)),
-                TruePropClaim(Implies(Truth, Truth), constraints = ProofConstraints(0)),
-                TruePropClaim(Truth, constraints = ProofConstraints(0)),
-                TruePropClaim(Implies(Implies(Truth, Falsity), Falsity), constraints = ProofConstraints(1)),
+                TruePropClaim(Implies(Tfae(A, B, C), Implies(B, A)), maxSteps = 1),
+                TruePropClaim(Tfae(P, P, P), maxSteps = 2),
+                TruePropClaim(Implies(And(A, B), Iff(A, B)), maxSteps = 1),
+                TruePropClaim(Or(Iff(A, B), A, B), maxSteps = 1),
+                TruePropClaim(Implies(Implies(A, B), Implies(A, B)), maxSteps = 1),
+                TruePropClaim(Implies(Falsity, P), maxSteps = 0),
+                TruePropClaim(Implies(P, P), maxSteps = 0),
+                TruePropClaim(Or(P, Not(P)), maxSteps = 0),
+                TruePropClaim(And(Truth, Truth), maxSteps = 1),
+                TruePropClaim(Implies(Falsity, Falsity), maxSteps = 0),
+                TruePropClaim(Implies(Falsity, Truth), maxSteps = 0),
+                TruePropClaim(Implies(Truth, Truth), maxSteps = 0),
+                TruePropClaim(Truth, maxSteps = 0),
+                TruePropClaim(Implies(Implies(Truth, Falsity), Falsity), maxSteps = 1),
                 FalsePropClaim(Tfae(A, B, C)),
                 FalsePropClaim(Implies(Or(R, P), Or(And(P, Q), R))),
                 FalsePropClaim(Implies(And(
@@ -106,7 +105,8 @@ class TableauStepCountTest {
                                         ForSome(y, formula = Implies(Q_(y), R_(y)))),
                                 ForSome(z, formula = Implies(P_(z), R_(z)))
                         ),
-                        constraints = ProofConstraints(5, 12)),
+                        minSteps = 5,
+                        maxSteps = 12),
                 TrueFolClaim(
                         ForAll(
                                 a,
@@ -123,7 +123,8 @@ class TableauStepCountTest {
                                                           Or(
                                                                   And(P_(x3), G(x3)),
                                                                   And(P_(x4), C_(x4)))))),
-                        constraints = ProofConstraints(1, 100)),
+                        minSteps = 1,
+                        maxSteps = 100),
 
                 FalseFolClaim(
                         Implies(
@@ -166,7 +167,7 @@ class TableauStepCountTest {
     @Test
     fun testFols() = testClaims(FOL_CLAIMS)
 
-    private fun <C : Claim<*>> testClaims(claims: Array<C>) =
+    private fun <C : Claim<*, *>> testClaims(claims: Array<C>) =
             claims.forEach {
                 it.validate()
             }

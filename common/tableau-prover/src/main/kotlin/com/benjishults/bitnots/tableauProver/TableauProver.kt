@@ -1,22 +1,24 @@
 package com.benjishults.bitnots.tableauProver
 
-import com.benjishults.bitnots.prover.ProofMonitor
+import com.benjishults.bitnots.prover.Prover
 import com.benjishults.bitnots.prover.strategy.StepStrategy
 import com.benjishults.bitnots.tableau.Tableau
-import com.benjishults.bitnots.tableau.closer.InProgressTableauClosedIndicator
 import com.benjishults.bitnots.tableau.closer.TableauProofProgressIndicator
 import com.benjishults.bitnots.tableau.strategy.TableauClosingStrategy
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.yield
+import kotlin.coroutines.coroutineContext
 
-interface TableauProver<T : Tableau<*>, out I : InProgressTableauClosedIndicator> : ProofMonitor<T> {
-
+interface TableauProver<T : Tableau<*>> : Prover<T> {
     val finishingStrategy: TableauClosingStrategy<T>
     val stepStrategy: StepStrategy<T>
-    var indicator: TableauProofProgressIndicator
+    // var indicator: TableauProofProgressIndicator
+    // val context: FormulaProofTarget
 
     /**
      * Expand the tableau a bit.
      */
-    fun step(): Boolean = stepStrategy.step(proofInProgress)
+    fun step(proofInProgress: T): Boolean = stepStrategy.step(proofInProgress)
 
     // fun findCloser() = finishingStrategy.searchForClosure(proofInProgress)
 
@@ -24,12 +26,29 @@ interface TableauProver<T : Tableau<*>, out I : InProgressTableauClosedIndicator
      * Check whether the tableau can be closed.
      * @return an object that indicates how much, if any, work remains to be done.
      */
-    fun searchForFinisher(): TableauProofProgressIndicator {
-        indicator = finishingStrategy.searchForClosure(proofInProgress)
-        return indicator
+    fun searchForFinisher(proofInProgress: T): TableauProofProgressIndicator {
+        return finishingStrategy.searchForClosure(proofInProgress)
     }
 
-    override fun isDone() = indicator.isDone()
+    override fun isDone(proofInProgress: T) = proofInProgress.closer().isDone()
+
+    override suspend fun prove(
+            proofInProgress: T
+    ): TableauProofProgressIndicator {
+        while (coroutineContext.isActive) {
+            val indicator = searchForFinisher(proofInProgress)
+            if (indicator.isDone()) {
+                return indicator
+            } else if (!coroutineContext.isActive) {
+                break
+            } else if (!step(proofInProgress)) {
+                return indicator
+            }
+        }
+        yield()
+        error("Impossible!")
+    }
+
 }
 
 // TODO change name of module to prover
