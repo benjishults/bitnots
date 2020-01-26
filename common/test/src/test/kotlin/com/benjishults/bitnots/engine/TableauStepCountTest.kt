@@ -124,7 +124,7 @@ class TableauStepCountTest {
                                                                   And(P_(x3), G(x3)),
                                                                   And(P_(x4), C_(x4)))))),
                         minSteps = 1,
-                        maxSteps = 100),
+                        maxSteps = 12),
 
                 FalseFolClaim(
                         Implies(
@@ -140,24 +140,6 @@ class TableauStepCountTest {
                                 ForAll(x, formula = P_(x))))
 
         )
-        // this would require some set theory implementation
-        //        val isContinuous = Pred("isContinuous", 3)
-        //        val projection = Fn("projection", 3)
-        //        val product = Fn("product", 2)
-        //        val apply = Fn("apply", 2)
-        //        val isOpenOnto = Pred("isOpenOnto", 3)
-        //        val locallyCompact = Pred("locallyCompact", 1)
-        //        val isFinite = Pred("isFinite", 1)
-        //        val member = Pred("member", 2)
-        //        val compact = Pred("compact", 1)
-        //        val X = BV("X")
-        //        val A_ = BV("A")
-        //        val a_ = BV("a")
-        //
-        //
-        //        val LOCALLY_COMPACT = arrayOf(
-        //                Claim(Implies(And()), Implies(locallyCompact(product(X, A)))
-        //        )
     }
 
     @Test

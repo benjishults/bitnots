@@ -8,9 +8,7 @@ import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.terms.Function
 import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
 import com.benjishults.bitnots.tableau.FolTableau
-import com.benjishults.bitnots.tableau.FolTableauNode
 import com.benjishults.bitnots.tableau.closer.TableauTimeOutProofIndicator
-import com.benjishults.bitnots.tableau.closer.UnifyingProgressIndicator
 import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
 import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 import com.benjishults.bitnots.tableauProver.FolFormulaTableauProver
@@ -34,6 +32,7 @@ import kotlinx.coroutines.withTimeout
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
 import java.io.BufferedWriter
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -41,10 +40,10 @@ import java.util.concurrent.atomic.AtomicReference
 
 val result: AtomicReference<Result> = AtomicReference(Error(""))
 
-val tptpReadResultsFolder = Paths.get(TptpProperties.getReadResultsFolderName())
-val tptpWriteResultsFolder = Paths.get(TptpProperties.getWriteResultsFolderName())
+val tptpReadResultsFolder: Path = Paths.get(TptpProperties.getReadResultsFolderName())
+val tptpWriteResultsFolder: Path = Paths.get(TptpProperties.getWriteResultsFolderName())
 
-val millis = 1000L
+const val millis = 1000L
 val registry = NoOpPushMeterRegistry(object : StepRegistryConfig {
     override fun get(key: String): String? {
         return null
@@ -97,7 +96,7 @@ object Regression {
                             val version = record.get("version").toInt(10)
                             val size = record.get("size").toInt(10)
                             val acceptedMillis = record.get("millis").toDouble()
-                            val acceptedTimeOut = record.get("timeoutMillis").toInt(10)
+                            // val acceptedTimeOut = record.get("timeoutMillis").toInt(10)
                             val acceptedQLimit = record.get("q-limit").toInt(10)
                             val descriptor = TptpProblemFileDescriptor(domain, form, number, version, size)
                             classifyFormulas(
@@ -107,10 +106,8 @@ object Regression {
                                 val hypothesis = createConjunct(hyps)
                                 targets.forEach { target ->
                                     FolFormulaTableauProver(
-                                            FolUnificationClosingStrategy { UnifyingProgressIndicator(it) },
-                                            FolStepStrategy(acceptedQLimit) { sf, n ->
-                                                FolTableauNode(mutableListOf(sf), n)
-                                            }
+                                            FolUnificationClosingStrategy(),
+                                            FolStepStrategy(acceptedQLimit)
                                     ).also { prover ->
                                         clearInternTables()
                                         val timer = fetchTimer(descriptor, "problem")
@@ -175,8 +172,8 @@ object PushLimits {
                                     val number = record.get("number").toInt(10)
                                     val version = record.get("version").toInt(10)
                                     val size = record.get("size").toInt(10)
-                                    val acceptedMillis = record.get("millis").toDouble()
-                                    val acceptedTimeOut = record.get("timeoutMillis").toInt(10)
+                                    // val acceptedMillis = record.get("millis").toDouble()
+                                    // val acceptedTimeOut = record.get("timeoutMillis").toInt(10)
                                     val acceptedQLimit = record.get("q-limit").toInt(10)
                                     val descriptor = TptpProblemFileDescriptor(domain, form, number, version, size)
                                     // TODO catch exception here
@@ -187,10 +184,8 @@ object PushLimits {
                                         val hypothesis = createConjunct(hyps)
                                         targets.forEach { target ->
                                             FolFormulaTableauProver(
-                                                    FolUnificationClosingStrategy { UnifyingProgressIndicator(it) },
-                                                    FolStepStrategy(acceptedQLimit + 1) { sf, n ->
-                                                        FolTableauNode(mutableListOf(sf), n)
-                                                    }
+                                                    FolUnificationClosingStrategy(),
+                                                    FolStepStrategy(acceptedQLimit + 1)
                                             ).also { prover ->
                                                 clearInternTables()
                                                 val timer = fetchTimer(descriptor, "problem")
@@ -235,11 +230,8 @@ fun createResults(
                     val hypothesis = createConjunct(hyps)
                     targets.forEach { target ->
                         FolFormulaTableauProver(
-
-                                FolUnificationClosingStrategy { UnifyingProgressIndicator(it) },
-                                FolStepStrategy(qLimit) { sf, n ->
-                                    FolTableauNode(mutableListOf(sf), n)
-                                }
+                                FolUnificationClosingStrategy(),
+                                FolStepStrategy(qLimit)
                         ).also {
                             proveAndWrite(
                                     descriptor,
@@ -305,7 +297,7 @@ fun classifyFormulas(
                 }
                 FormulaRole.unknown            -> {
                     // do nothing
-                    // error("Unknown role found.")
+                    error("Unknown role found.")
                 }
             }
         }
@@ -314,14 +306,15 @@ fun classifyFormulas(
 }
 
 fun limitedTimeProve(prover: FolFormulaTableauProver, formula: Formula<*>, millis: Long): ProofProgressIndicator =
-        runBlocking {
-            try {
+        try {
+            val proofInProgress = FolTableau(formula)
+            runBlocking {
                 withTimeout(millis) {
-                    prover.prove(FolTableau(formula))
+                    prover.prove(proofInProgress)
                 }
-            } catch (e: TimeoutCancellationException) {
-                TableauTimeOutProofIndicator(millis)
             }
+        } catch (e: TimeoutCancellationException) {
+            TableauTimeOutProofIndicator(millis)
         }
 
 object CsvHelper {

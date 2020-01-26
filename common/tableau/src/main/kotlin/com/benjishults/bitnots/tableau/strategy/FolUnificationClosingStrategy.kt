@@ -10,10 +10,9 @@ import com.benjishults.bitnots.tableau.FolTableau
 import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.tableau.closer.BranchCloser
 import com.benjishults.bitnots.tableau.closer.InProgressTableauProgressIndicator
+import com.benjishults.bitnots.tableau.closer.UnifyingProgressIndicator
 
-open class FolUnificationClosingStrategy(
-        override val progressIndicatorFactory: (TableauNode<*>) -> InProgressTableauProgressIndicator
-) : TableauClosingStrategy<FolTableau> {
+open class FolUnificationClosingStrategy : TableauClosingStrategy<FolTableau> {
 
     override fun populateBranchClosers(tableau: FolTableau) {
         with(tableau.root.preorderIterator()) {
@@ -24,39 +23,44 @@ open class FolUnificationClosingStrategy(
     }
 
     private fun generateClosers(node: TableauNode<*>) {
-        with(node) {
-            if (branchClosers.isNotEmpty()) {
-                return
-            } else {
-                // TODO might want to cache these or make them easier to access
-                val posAboveOrHere: MutableList<SignedFormula<*>> = mutableListOf()
-                val negAboveOrHere: MutableList<SignedFormula<*>> = mutableListOf()
-                newFormulas.filterIsInstance<SimpleSignedFormula<*>>().also { newSimpleFormulasHere ->
-                    (simpleFormulasAbove + newSimpleFormulasHere).forEach {
-                        if (it is ClosingFormula) {
-                            branchClosers.add(BranchCloser(null, it, EmptySub))
+        if (node.branchClosers.isNotEmpty()) {
+            return
+        } else {
+            // TODO might want to cache these or make them easier to access
+            val posAboveOrHere: MutableList<SignedFormula<*>> = mutableListOf()
+            val negAboveOrHere: MutableList<SignedFormula<*>> = mutableListOf()
+            node.newFormulas.filterIsInstance<SimpleSignedFormula<*>>().also { newSimpleFormulasHere ->
+                (node.simpleFormulasAbove + newSimpleFormulasHere).forEach {
+                    when {
+                        it is ClosingFormula -> {
+                            node.branchClosers.add(BranchCloser(
+                                    it.takeIf { it.sign },
+                                    it.takeIf { !it.sign },
+                                    EmptySub))
                             return
-                        } else if (it.sign) {
+                        }
+                        it.sign              -> {
                             posAboveOrHere.add(it)
-                        } else {
+                        }
+                        else                 -> {
                             negAboveOrHere.add(it)
                         }
                     }
-                }.forEach { f ->
-                    if (f.sign) {
-                        negAboveOrHere.forEach {
-                            Formula.unify(it.formula, f.formula, EmptySub).let { theta ->
-                                if (theta !== NotCompatible) {
-                                    branchClosers.add(BranchCloser(f, it, theta))
-                                }
+                }
+            }.forEach { f ->
+                if (f.sign) {
+                    negAboveOrHere.forEach {
+                        Formula.unify(it.formula, f.formula, EmptySub).let { theta ->
+                            if (theta !== NotCompatible) {
+                                node.branchClosers.add(BranchCloser(f, it, theta))
                             }
                         }
-                    } else {
-                        posAboveOrHere.forEach {
-                            Formula.unify(it.formula, f.formula, EmptySub).let { theta ->
-                                if (theta !== NotCompatible) {
-                                    branchClosers.add(BranchCloser(it, f, theta))
-                                }
+                    }
+                } else {
+                    posAboveOrHere.forEach {
+                        Formula.unify(it.formula, f.formula, EmptySub).let { theta ->
+                            if (theta !== NotCompatible) {
+                                node.branchClosers.add(BranchCloser(it, f, theta))
                             }
                         }
                     }
@@ -64,5 +68,8 @@ open class FolUnificationClosingStrategy(
             }
         }
     }
+
+    override fun initialProgressIndicatorFactory(tableauNode: TableauNode<*>): InProgressTableauProgressIndicator =
+            UnifyingProgressIndicator(tableauNode)
 
 }

@@ -14,6 +14,10 @@ interface TreeNode<TN:TreeNode<TN>> {
         parent?.toAncestors(function)
     }
 
+    /**
+     * Apply [function] breadth-first until it returns [true].
+     * @return the node on which [function] returned [true] or [null] if none.
+     */
     fun  breadthFirst(function: (TN) -> Boolean): TN? {
         return breadthFirstHelper(Queue<TN>().also {
             it.enqueue(this as TN)
@@ -58,7 +62,7 @@ interface TreeNode<TN:TreeNode<TN>> {
                 else
                     prev?.let {p ->
                         if (p.children.isNotEmpty()) {
-                            p.children.reversed().forEach {
+                            p.children.forEach {
                                 stack.push(it)
                             }
                         }
@@ -95,7 +99,7 @@ interface TreeNode<TN:TreeNode<TN>> {
                     add(this as TN)
                 }
                 stack.pop().also {pop ->
-                    pop.children.reversed().forEach {
+                    pop.children.forEach {
                         stack.push(it)
                     }
                 }

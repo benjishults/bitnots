@@ -13,7 +13,7 @@ class FolTableau(
                     FolTableauNode(
                             mutableListOf(formula.createSignedFormula()))))
 
-    override fun toString(): String {
+    override fun toString() = ""/*: String {
         return buildString {
             root.preOrderWithPath { n, path ->
                 this.append(path.joinToString("."))
@@ -25,6 +25,6 @@ class FolTableau(
                 false
             }
         }
-    }
+    }*/
 
 }

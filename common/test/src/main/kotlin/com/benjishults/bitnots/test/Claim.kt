@@ -11,10 +11,8 @@ import com.benjishults.bitnots.tableau.FolTableauNode
 import com.benjishults.bitnots.tableau.PropositionalTableau
 import com.benjishults.bitnots.tableau.PropositionalTableauNode
 import com.benjishults.bitnots.tableau.Tableau
-import com.benjishults.bitnots.tableau.closer.BooleanProgressIndicator
 import com.benjishults.bitnots.tableau.closer.SuccessfulTableauProofIndicator
 import com.benjishults.bitnots.tableau.closer.TableauProofProgressIndicator
-import com.benjishults.bitnots.tableau.closer.UnifyingProgressIndicator
 import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
 import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 import com.benjishults.bitnots.tableau.strategy.PropositionalClosingStrategy
@@ -52,10 +50,8 @@ abstract class PropositionalClaim(
 
     override fun validate(): ProofProgressIndicator {
         return validateWithProver(PropositionalFormulaProver(
-                PropositionalClosingStrategy { BooleanProgressIndicator(it) },
-                PropositionalStepStrategy { l, n ->
-                    PropositionalInitializationStrategy.init(PropositionalTableauNode(mutableListOf(l), n))
-                }))
+                PropositionalClosingStrategy(),
+                PropositionalStepStrategy()))
     }
 
 }
@@ -70,15 +66,12 @@ abstract class FolClaim(
 
     override val proofInProgress: FolTableau = FolTableau(
             PropositionalInitializationStrategy.init(
-                    FolTableauNode(
-                            mutableListOf(formula.createSignedFormula()))))
+                    FolTableauNode(mutableListOf(formula.createSignedFormula()))))
 
     override fun validate(): ProofProgressIndicator {
         return validateWithProver(FolFormulaTableauProver(
-                FolUnificationClosingStrategy({ UnifyingProgressIndicator(it) }),
-                FolStepStrategy(qLimit) { l, n ->
-                    PropositionalInitializationStrategy.init(FolTableauNode(mutableListOf(l), n))
-                }))
+                FolUnificationClosingStrategy(),
+                FolStepStrategy(qLimit)))
     }
 
 }

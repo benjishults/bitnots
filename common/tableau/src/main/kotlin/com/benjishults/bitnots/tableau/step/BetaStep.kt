@@ -11,21 +11,19 @@ class BetaStep<T : Tableau<N>, N : TableauNode<N>>(
 ) : Step<T>,
     TableauStep<N> {
 
-    override fun apply(pip: T): Boolean =
-            with(pip) {
-                var betaMaybeNull: BetaFormula<Formula<*>>? = null
-                val node = root.breadthFirst {
-                    betaMaybeNull = it.newFormulas.firstOrNull { it is BetaFormula<*> } as BetaFormula<*>?
-                    betaMaybeNull !== null
-                }
-                if (node === null)
-                    false
-                else
-                    betaMaybeNull?.let { beta ->
-                        node.newFormulas.remove(beta);
-                        addChildFormulasToNewLeaves(beta, node)
-                        true
-                    } ?: false
-            }
-
+    override fun apply(pip: T): Boolean {
+        var betaMaybeNull: BetaFormula<Formula<*>>? = null
+        val node = pip.root.breadthFirst {
+            betaMaybeNull = it.newFormulas.firstOrNull { it is BetaFormula<*> } as BetaFormula<*>?
+            betaMaybeNull !== null
+        }
+        return if (node === null)
+            false
+        else
+            betaMaybeNull?.let { beta ->
+                node.newFormulas.remove(beta);
+                addChildFormulasToNewLeaves(beta, node)
+                true
+            } ?: false
+    }
 }

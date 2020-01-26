@@ -1,6 +1,7 @@
 package com.benjishults.bitnots.tptp.files
 
 import com.benjishults.bitnots.tptp.TptpProperties
+import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
@@ -16,10 +17,10 @@ object TptpFileFetcher {
 
     // A regular expression for recognizing axiom file names is "[A-Z]{3}[0-9]{3}[-+^=_][1-9][0-9]*\.ax".
 
-    val FILE_SYSTEM = FileSystems.getDefault()
+    private val FILE_SYSTEM: FileSystem = FileSystems.getDefault()
 
-    fun findProblemFolder(domain: TptpDomain) = FILE_SYSTEM.getPath(
-            TptpProperties.getBaseFolderName() as String,
+    fun findProblemFolder(domain: TptpDomain): Path = FILE_SYSTEM.getPath(
+            TptpProperties.getBaseFolderName(),
             "Problems", domain.toString())
 
     fun findAll(domain: TptpDomain, form: TptpFormulaForm): List<Path> {
@@ -27,7 +28,7 @@ object TptpFileFetcher {
             it != '+'
         }?.toString() ?: "\\+"}[1-9][0-9]*(?:\\.[0-9]{3})?\\.p")
         return Files.newDirectoryStream(findProblemFolder(domain)).filter {
-            pattern.matcher(it.getFileName().toString()).matches()
+            pattern.matcher(it.fileName.toString()).matches()
         }.toList()
     }
 
@@ -35,9 +36,10 @@ object TptpFileFetcher {
         return findProblemFolder(descriptor.domain).resolve(descriptor.toFileName())
     }
 
-    fun problemFileFilter(domains: List<TptpDomain>, forms: List<TptpFormulaForm>, vararg excludes: TptpProblemFileDescriptor): List<TptpProblemFileDescriptor> {
+    fun problemFileFilter(domains: List<TptpDomain>, forms: List<TptpFormulaForm>,
+                          vararg excludes: TptpProblemFileDescriptor): List<TptpProblemFileDescriptor> {
         val base = FILE_SYSTEM.getPath(
-                TptpProperties.getBaseFolderName() as String,
+                TptpProperties.getBaseFolderName(),
                 "Problems")
         val value = mutableListOf<TptpProblemFileDescriptor>()
         domains.forEach { domain ->
@@ -50,7 +52,8 @@ object TptpFileFetcher {
                             } catch (e: IllegalStateException) {
                                 return FileVisitResult.CONTINUE
                             }
-                    if (descriptor.domain === domain && forms.contains(descriptor.form) && !excludes.contains(descriptor))
+                    if (descriptor.domain === domain && forms.contains(descriptor.form) && !excludes.contains(
+                                descriptor))
                         value.add(descriptor)
                     return FileVisitResult.CONTINUE
                 }
@@ -67,7 +70,7 @@ object TptpFileFetcher {
             size: Int = -1
     ): Path =
             FILE_SYSTEM.getPath(
-                    TptpProperties.getBaseFolderName() as String,
+                    TptpProperties.getBaseFolderName(),
                     "Problems", domain.toString(),
                     domain.toString() +
                     padToThreeDigits(problemNumber) +
@@ -88,17 +91,17 @@ object TptpFileFetcher {
     ): Path =
             if (domain === TptpDomain.SET && axiomatizationNumber == 7) {
                 FILE_SYSTEM.getPath(
-                        TptpProperties.getBaseFolderName() as String,
+                        TptpProperties.getBaseFolderName(),
                         "Axioms",
                         domain.toString() + padToThreeDigits(axiomatizationNumber),
-                        "${domain.toString()}${padToThreeDigits(
+                        "${domain}${padToThreeDigits(
                                 axiomatizationNumber)}${form.form}$version.ax"
                 )
             } else
                 FILE_SYSTEM.getPath(
-                        TptpProperties.getBaseFolderName() as String,
+                        TptpProperties.getBaseFolderName(),
                         "Axioms",
-                        "${domain.toString()}${padToThreeDigits(
+                        "${domain}${padToThreeDigits(
                                 axiomatizationNumber)}${form.form}$version.ax"
                 )
 

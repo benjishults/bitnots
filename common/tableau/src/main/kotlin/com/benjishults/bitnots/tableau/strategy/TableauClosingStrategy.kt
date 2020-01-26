@@ -15,15 +15,13 @@ interface TableauClosingStrategy<in T : Tableau<*>> :
     /**
      * Push only if it is InProgressTableauClosedIndicator.
      */
-    fun MutableList<InProgressTableauProgressIndicator>.safePush(item: TableauProofProgressIndicator) {
-        if (item is InProgressTableauProgressIndicator)
-            push(item)
-    }
+    fun MutableList<InProgressTableauProgressIndicator>.safePush(item: TableauProofProgressIndicator) =
+            item is InProgressTableauProgressIndicator && push(item)
 
     /**
      * This is used to create the initial, top-level indicator before anything is known.
      */
-    val progressIndicatorFactory: (TableauNode<*>) -> InProgressTableauProgressIndicator
+    fun initialProgressIndicatorFactory(tableauNode: TableauNode<*>) : InProgressTableauProgressIndicator
 
     /**
      * This finds and stores closers on every branch, if possible.
@@ -39,7 +37,7 @@ interface TableauClosingStrategy<in T : Tableau<*>> :
         populateBranchClosers(proofInProgress)
         // will this ever exceed size 1?
         val toBeExtended = mutableListOf<InProgressTableauProgressIndicator>().also {
-            it.push(progressIndicatorFactory(proofInProgress.root))
+            it.push(initialProgressIndicatorFactory(proofInProgress.root))
         }
         do {
             toBeExtended.pop().let { extending ->
@@ -56,7 +54,6 @@ interface TableauClosingStrategy<in T : Tableau<*>> :
             }
         } while (toBeExtended.isNotEmpty());
         return RanOutOfRunwayTableauProgressIndicator
-
     }
 
 }

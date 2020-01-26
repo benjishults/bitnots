@@ -9,9 +9,13 @@ import com.benjishults.bitnots.tableau.step.DeltaStep
 import com.benjishults.bitnots.tableau.step.GammaStep
 
 open class FolStepStrategy(
-        val qLimit: Int = 3,
-        nodeFactory: (SignedFormula<*>, FolTableauNode) -> FolTableauNode
+        val qLimit: Int = 3
 ) : StepStrategy<FolTableau> {
+
+    private val nodeFactory = { formula: SignedFormula<*>, tableauNode: FolTableauNode ->
+        PropositionalInitializationStrategy.init(
+                FolTableauNode(mutableListOf(formula), tableauNode))
+    }
 
     private val betaStep = BetaStep<FolTableau, FolTableauNode>(nodeFactory)
     private val deltaStep = DeltaStep<FolTableau, FolTableauNode>(nodeFactory)
@@ -23,10 +27,10 @@ open class FolStepStrategy(
                 while (deltaStep.apply(proofInProgress)) {
                     taken = true
                 }
-                if (!taken)
-                    betaStep.apply(proofInProgress) || gammaStep.apply(
-                            proofInProgress) // TODO if gamma applied, no sense looking for closure unless it produces a SimpleSignedFormula
-                else
+                if (!taken) {
+                    // TODO if gamma applied, no sense looking for closure unless it produces a SimpleSignedFormula
+                    betaStep.apply(proofInProgress) || gammaStep.apply(proofInProgress)
+                } else
                     true
             }
 

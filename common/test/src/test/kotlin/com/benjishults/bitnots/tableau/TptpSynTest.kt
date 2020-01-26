@@ -1,16 +1,11 @@
 package com.benjishults.bitnots.tableau
 
-import com.benjishults.bitnots.inference.SignedFormula
-import com.benjishults.bitnots.inference.createSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.Predicate
 import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.terms.Function
-import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
-import com.benjishults.bitnots.tableau.closer.SuccessfulTableauProofIndicator
-import com.benjishults.bitnots.tableau.closer.UnifyingProgressIndicator
 import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
 import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 import com.benjishults.bitnots.tableauProver.FolFormulaTableauProver
@@ -22,35 +17,16 @@ import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
 import com.benjishults.bitnots.tptp.parser.TptpFofParser
-import com.benjishults.bitnots.util.meter.NoOpPushMeterRegistry
-import io.micrometer.core.instrument.Clock
-import io.micrometer.core.instrument.Timer
-import io.micrometer.core.instrument.step.StepRegistryConfig
-import org.junit.Ignore
+import org.junit.Assert
 import org.junit.Test
-import java.io.BufferedWriter
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.concurrent.TimeUnit
-import java.util.function.Supplier
 
 class TptpSynTest {
 
-    val testResourcesFolder = Paths.get(System.getProperty("user.dir"), "src", "test", "resources")
+    // private val testResourcesFolder: Path = Paths.get(System.getProperty("user.dir"), "src", "test", "resources")
 
-    val qLimit: Int = 3
-    val millis = 1000L
-    val registry = NoOpPushMeterRegistry(object : StepRegistryConfig {
+    private val millis = 1000L
 
-        override fun get(key: String): String? {
-            return null
-        }
-
-        override fun prefix(): String = ""
-
-    }, Clock.SYSTEM);
-
-    val toSucceed = listOf(
+    private val toSucceed = listOf(
 
             TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 0, 1, -1),
             TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 41, 1, -1),
@@ -89,9 +65,10 @@ class TptpSynTest {
     )
 
     @Test
-    // @Ignore
     fun testSynSyoFol() {
-        toSucceed.forEach { (domain, form, number, version, size) ->
+        toSucceed.forEach { descriptor ->
+            val (domain, form, number, version, size) = descriptor
+            println(descriptor)
             classifyFormulas(TptpFofParser.parseFile(
                     TptpFileFetcher.findProblemFile(
                             domain,
@@ -103,83 +80,22 @@ class TptpSynTest {
                 val hypothesis = createConjunct(hyps)
                 targets.forEach { target ->
                     FolFormulaTableauProver(
-
-                            FolUnificationClosingStrategy({ UnifyingProgressIndicator(it) }),
-                            FolStepStrategy { sf, n -> FolTableauNode(mutableListOf(sf), n) }
-                    ).also { prover ->
+                            FolUnificationClosingStrategy(),
+                            FolStepStrategy()
+                    ).let { prover ->
                         clearInternTables()
-                        assert(
+                        Assert.assertTrue(
                                 limitedTimeProve(
                                         prover,
                                         hypothesis?.let {
                                             Implies(it, target)
                                         } ?: target,
                                         millis
-                                ) is SuccessfulTableauProofIndicator)
+                                ).isDone())
                     }
                 }
             }
         }
-    }
-
-    @Test
-    @Ignore
-    fun testAllSynSyoFol() {
-
-        testResourcesFolder.resolve("latest")
-            .resolve("results.csv")
-            .toFile()
-            .outputStream()
-            .bufferedWriter()
-            .use { resultsFile ->
-                writeCsvHeader(resultsFile)
-                TptpFileFetcher.problemFileFilter(
-                        listOf(TptpDomain.SYN),
-                        listOf(TptpFormulaForm.FOF),
-                        TptpProblemFileDescriptor(
-                                domain = TptpDomain.SYN,
-                                form = TptpFormulaForm.FOF,
-                                number = 361,
-                                version = 1,
-                                size = -1)
-                ).forEach {
-                    val path = TptpFileFetcher.findProblemFolder(it.domain).resolve(it.toFileName())
-                    classifyFormulas(TptpFofParser.parseFile(path)).let { (hyps, targets) ->
-                        val hypothesis = createConjunct(hyps)
-                        targets.forEach { target ->
-                            FolFormulaTableauProver(
-
-                                    FolUnificationClosingStrategy { UnifyingProgressIndicator(it) },
-                                    FolStepStrategy(qLimit) { sf, n -> FolTableauNode(mutableListOf(sf), n) }
-                            ).also { prover ->
-                                clearInternTables()
-                                println("Quick test for ${path}.")
-                                val timer = registry.timer("problem",
-                                                           "domain", it.domain.name.toLowerCase(),
-                                                           "form", it.form.name.toLowerCase(),
-                                                           "number", it.number.toString(),
-                                                           "version", it.version.toString(),
-                                                           "size", it.size.toString())
-                                when (timer.record(Supplier<ProofProgressIndicator> {
-                                    limitedTimeProve(prover, hypothesis?.let {
-                                        Implies(it, target)
-                                    } ?: target, millis)
-                                })) {
-                                    Result.failed  -> {
-                                        writeCsvLine(resultsFile, it, timer, "fail", millis, qLimit)
-                                    }
-                                    Result.proved  -> {
-                                        writeCsvLine(resultsFile, it, timer, "success", millis, qLimit)
-                                    }
-                                    Result.timeout -> {
-                                        writeCsvLine(resultsFile, it, timer, "timeout", millis, qLimit)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
     }
 
     private fun createConjunct(
@@ -200,7 +116,7 @@ class TptpSynTest {
     private fun classifyFormulas(
             tptpFile: List<FolAnnotatedFormula>): Pair<MutableList<Formula<*>>, MutableList<Formula<*>>> {
         return tptpFile.fold(
-                mutableListOf<Formula<*>>() to mutableListOf<Formula<*>>()) { (hyps, targets), input ->
+                mutableListOf<Formula<*>>() to mutableListOf()) { (hyps, targets), input ->
             input.let { annotated ->
                 when (annotated.formulaRole) {
                     FormulaRole.axiom,
@@ -228,92 +144,12 @@ class TptpSynTest {
                         error("Don't know what to do with ${annotated.formulaRole}.")
                     }
                     FormulaRole.unknown            -> {
-                        // do nothing
-                        // error("Unknown role found.")
+                        error("Unknown role found.")
                     }
                 }
             }
             hyps to targets
         }
-    }
-
-    enum class Result {
-        proved,
-        failed,
-        timeout
-    }
-
-    private fun provePropWithHyps(path: Path, hyps: Int = 0) {
-        proveWithHyps(path, hyps, { l -> PropositionalTableauNode(l) }) { PropositionalTableau(it) }
-    }
-
-    private fun proveFofWithHyps(path: Path, hyps: Int = 0) {
-        proveWithHyps(path, hyps, { l -> FolTableauNode(l) }) { FolTableau(it) }
-    }
-
-    private fun <N : TableauNode<N>> proveWithHyps(path: Path, hyps: Int,
-                                                   nodeFactory: (MutableList<SignedFormula<Formula<*>>>) -> N,
-                                                   tabFactory: (N) -> Tableau<N>) {
-        try {
-            println("Working on ${path}.")
-            TptpFofParser.parseFile(path).let { tptp ->
-                tabFactory(
-                        nodeFactory(mutableListOf<SignedFormula<Formula<*>>>(
-                                if (hyps > 0) {
-                                    Implies(
-                                            tptp.dropLast(hyps).map {
-                                                (it as FolAnnotatedFormula).formula
-                                            }.toTypedArray().let {
-                                                if (it.size > 1) {
-                                                    And(*it)
-                                                } else {
-                                                    it[0]
-                                                }
-                                            },
-                                            (tptp.last() as FolAnnotatedFormula).formula).createSignedFormula()
-                                } else {
-                                    (tptp.last() as FolAnnotatedFormula).formula.createSignedFormula()
-                                }))).also { tableau ->
-                    //                    var steps = 0
-                    // while (true) {
-                    //     if (tableau.findCloser().isDone())
-                    //         break
-                    //     if (!tableau.step())
-                    //         Assert.fail("Failed to prove it with unlimited steps.")
-                    // }
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        } finally {
-            clearInternTables()
-        }
-    }
-
-    private fun writeCsvHeader(o: BufferedWriter) {
-        o.write("domain,number,version,form,size,millis,timeoutMillis,q-limit,status")
-        o.newLine()
-    }
-
-    private fun writeCsvLine(
-            o: BufferedWriter,
-            descriptor: TptpProblemFileDescriptor,
-            timer: Timer,
-            status: String,
-            timeOut: Long,
-            qLimit: Int) {
-        o.write(
-                "${descriptor.domain
-                },${descriptor.number
-                },${descriptor.version
-                },${descriptor.form
-                },${descriptor.size
-                },${timer.max(TimeUnit.MILLISECONDS)
-                },${timeOut
-                },${qLimit
-                },${status}")
-        o.newLine()
     }
 
     private fun clearInternTables() {

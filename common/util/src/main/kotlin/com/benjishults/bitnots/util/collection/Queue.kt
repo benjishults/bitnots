@@ -11,8 +11,8 @@ class Queue<T : Any>() {
     fun isEmpty() = first == null
 
     fun enqueue(userObject: T) {
-        var lFirst = first
-        var lLast = last
+        val lFirst = first
+        val lLast = last
         if (lFirst === null || lLast === null) {
             first = LinkedNode(userObject)
             last = first
@@ -23,14 +23,12 @@ class Queue<T : Any>() {
     }
 
     fun dequeue(): T {
-        var lFirst = first
-        var lLast = last
-        if (lFirst === null || lLast === null) {
+        val lFirst = first
+        if (lFirst === null || last === null) {
             throw IllegalStateException("Cannot dequeue from an empty queue.")
         } else {
-            val value = lFirst
             first = lFirst.next
-            return value.userObject
+            return lFirst.userObject
         }
     }
 
