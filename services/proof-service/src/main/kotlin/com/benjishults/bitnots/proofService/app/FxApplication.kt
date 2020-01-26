@@ -53,6 +53,12 @@ class FxApplication : Application() {
         primaryStage.title = "Theory"
         contextStarted.await()
         wireUpUiConfiguration()
+        applyCustomProperties(primaryStage)
+        // context.registry.bind("theoryEditor", primaryStage.scene)
+        primaryStage.show()
+    }
+
+    private fun applyCustomProperties(primaryStage: Stage) {
         primaryStage.x = uiProperties.getProperty("ui.framePosX", Region.USE_COMPUTED_SIZE.toString()).toDouble()
         primaryStage.y = uiProperties.getProperty("ui.framePosY", Region.USE_COMPUTED_SIZE.toString()).toDouble()
         val width = uiProperties.getProperty("ui.appWidth", Region.USE_COMPUTED_SIZE.toString()).toDouble()
@@ -62,8 +68,6 @@ class FxApplication : Application() {
                 uiProperties,
                 width,
                 height)
-        // context.registry.bind("theoryEditor", primaryStage.scene)
-        primaryStage.show()
     }
 
     private fun startServiceAsync() {
@@ -81,7 +85,7 @@ class FxApplication : Application() {
         } catch (e: NoSuchFileException) {
             if (Files.notExists(uiSettingsFile)) {
                 Files.copy(
-                        this.javaClass.getResourceAsStream("/ui-settings.properties"),
+                        this.javaClass.getResourceAsStream("/ui-settings.properties-sample"),
                         uiSettingsFile)
             }
             loadUserConfig()
