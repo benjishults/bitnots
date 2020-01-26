@@ -89,10 +89,10 @@ class FxApplication : Application() {
     }
 
     private fun loadUserConfig() {
-        Files.newInputStream(uiSettingsFile).use {
-            Properties().run {
-                load(it)
-                uiProperties = this
+        Files.newInputStream(uiSettingsFile).use { stream ->
+            Properties().let { properties ->
+                properties.load(stream)
+                uiProperties = properties
             }
         }
     }
