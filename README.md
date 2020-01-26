@@ -25,11 +25,13 @@ Will create a folder named `.bitnots` in your home directory for your personal p
 
 ## Run tests
 
+Be sure to edit the `.properties` files in the `config` folder.
+
 ```bash
 mvn clean install
 ```
 
-Some tests have problems if you use JVM 8.  JVM 11 works well.
+Some tests have problems if you use JVM 8.  JVM 11 works well.  (I use 11.J9.)
 
 ## Enhanced testing
 
@@ -40,7 +42,7 @@ My process is to edit the file `common/test/src/main/kotlin/com/benjishults/bitn
 then run it with kscript:
 
 ```bash
-kscript common/test/src/main/kotlin/com/benjishults/bitnots/test/EnhancedTests.kts /home/benji/repos/benjishults/bitnots/common/tptp-parser/src/main/resources
+kscript common/test/src/main/kotlin/com/benjishults/bitnots/test/EnhancedTests.kts /home/benji/repos/benjishults/bitnots/config
 ```
 
 The last argument is the path to your config folder (that contains the `tptp.properties` file.) 
