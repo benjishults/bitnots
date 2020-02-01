@@ -17,7 +17,7 @@
 
     <modules>
         <!--        <module>data-ingest</module>-->
-        <module>proof-service</module>
+        <module>regression</module>
         <!--        <module>harness</module>-->
     </modules>
 

@@ -1,6 +1,8 @@
 package com.benjishults.bitnots.tptp.files
 
-enum class TptpDomain(val field: String, val subfield: String) {
+import com.benjishults.bitnots.theory.DomainCategory
+
+enum class TptpDomain(override val field: String, override val subfield: String) : DomainCategory{
     COL("Logic", "Combinatory Logic"),
     LCL("Logic", "Logic Calculi"),
     HEN("Logic", "Henkin Models"),

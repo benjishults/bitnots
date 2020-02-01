@@ -1,6 +1,8 @@
 package com.benjishults.bitnots.tptp.files
 
-enum class TptpFormulaForm(val form: Char) {
+import com.benjishults.bitnots.parser.FormulaForm
+
+enum class TptpFormulaForm(val form: Char): FormulaForm {
     CNF('-'),
     FOF('+'),
     TFF('_'),

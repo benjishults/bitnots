@@ -1,14 +1,17 @@
 package com.benjishults.bitnots.tptp.files
 
+import com.benjishults.bitnots.parser.FileDescriptor
+import com.benjishults.bitnots.theory.ProblemDescriptor
 import java.nio.file.Path
 import java.util.regex.Pattern
 
 data class TptpProblemFileDescriptor(
-        val domain: TptpDomain,
-        val form: TptpFormulaForm = TptpFormulaForm.FOF,
-        val number: Int = 0,
-        val version: Int = 1,
-        val size: Int = -1) {
+        override val domain: TptpDomain,
+        override val form: TptpFormulaForm = TptpFormulaForm.FOF,
+        override val number: Int = 0,
+        override val version: Int = 1,
+        override val size: Int = -1
+) : FileDescriptor, ProblemDescriptor {
 
     companion object {
         val pattern = Pattern.compile(
@@ -47,13 +50,15 @@ data class TptpProblemFileDescriptor(
                 }
     }
 
-    fun toFileName() = domain.name +
-                       padToThreeDigits(number) +
-                       form.form.toString() +
-                       version +
-                       (if (size >= 0) {
-                           "." + padToThreeDigits(size)
-                       } else "") +
-                       ".p"
+    override fun toFileName() =
+            buildString {
+                append(domain.name)
+                append(padToThreeDigits(number))
+                append(form.form)
+                append(version)
+                append(if (size >= 0) ("." + padToThreeDigits(size))
+                       else "")
+                append(".p")
+            }
 
 }
