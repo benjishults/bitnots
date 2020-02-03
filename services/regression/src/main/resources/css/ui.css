@@ -1,10 +1,14 @@
 
-#root {
+#root, .split-pane, .scroll-pane {
     -fx-font: 18 sans-serif;
-    -fx-hgap: 20;
-    -fx-vgap: 20;
-    -fx-padding: 25 25 25 25;
-    -fx-spacing: 20;
+    -fx-hgap: 10;
+    -fx-vgap: 10;
+    -fx-padding: 5 5 5 5;
+    -fx-spacing: 10;
+}
+
+.menu-bar {
+    -fx-font: 16 sans-serif;
 }
 
 .scroll-pane {

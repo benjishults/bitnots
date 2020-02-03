@@ -15,6 +15,7 @@
 
     <modules>
         <module>util</module>
+        <module>jfx-utils</module>
         <!-- TODO separate propositional from fol from pra from set from equality, etc. -->
         <module>language</module>
         <module>theory</module>

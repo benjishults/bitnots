@@ -21,7 +21,6 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.FlowPane
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
-import javafx.stage.Popup
 import org.apache.camel.CamelContext
 import java.io.File
 import java.nio.file.Path
@@ -52,18 +51,14 @@ class RegressionMainPane(
         val problemSetMenu = Menu("Problem Set")
         val editMenuItem = MenuItem("Edit...")
         editMenuItem.onAction = EventHandler<ActionEvent> {
-            val popup = Popup()
-            popup.content.addAll()
-            TODO("open problem-set editor with user's problem-sets")
+            EditProblemSetsPopup(window).show()
         }
-
 
         problemSetMenu.items.addAll(editMenuItem, MenuItem("Open..."), Menu("Recent"))
 
-
         menuBar.menus.addAll(problemSetMenu, Menu("Help"))
 
-        pane.idProperty().set("pane")
+        pane.idProperty().set("root")
         pane.top = Label().apply {
             textProperty().bind(fileName)
         }
@@ -108,13 +103,16 @@ class RegressionMainPane(
         // TODO create a single theory and a problem for each conjecture
         TptpFofParser.parseFile(path).forEach { annotatedFormula ->
             when (annotatedFormula.formulaRole) {
-                FormulaRole.conjecture                                                                    -> {
+                FormulaRole.conjecture -> {
                     conjectures.add(annotatedFormula)
                 }
-                FormulaRole.assumption, FormulaRole.axiom, FormulaRole.definition, FormulaRole.hypothesis -> {
+                FormulaRole.assumption,
+                FormulaRole.axiom,
+                FormulaRole.definition,
+                FormulaRole.hypothesis -> {
                     axioms.add(annotatedFormula)
                 }
-                else                                                                                      -> {
+                else                   -> {
                     // ignore for now
                 }
             }

@@ -4,113 +4,59 @@
 
     <parent>
         <groupId>com.benjishults.bitnots</groupId>
-        <artifactId>services</artifactId>
+        <artifactId>common</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>regression</artifactId>
+    <artifactId>jfx-utils</artifactId>
 
-    <name>BITNOTS :: Services :: Regression</name>
-
-    <properties>
-        <start-class>com.benjishults.bitnots.regression.RegressionApplicationKt</start-class>
-    </properties>
+    <name>BITNOTS :: Common :: OpenJFX Utilities</name>
 
     <dependencies>
 
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>theory</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>prover</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>jfx-utils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>language</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>tptp-parser</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>parser</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-reflect</artifactId>
-            <scope>runtime</scope>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <classifier>linux</classifier>
             <version>11.0.2</version>
+            <classifier>linux</classifier>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <classifier>linux</classifier>
             <version>11.0.2</version>
+            <classifier>linux</classifier>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <classifier>linux</classifier>
             <version>11.0.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-support</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core-engine</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-api</artifactId>
+            <classifier>linux</classifier>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.3</version>
-                <configuration>
-                    <mainClass>${start-class}</mainClass>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
