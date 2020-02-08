@@ -57,66 +57,48 @@
             <artifactId>kotlin-reflect</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework</groupId>-->
-        <!--            <artifactId>spring-context</artifactId>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.boot</groupId>-->
-        <!--            <artifactId>spring-boot</artifactId>-->
-        <!--            <version>2.2.1.RELEASE</version>-->
-        <!--        </dependency>-->
-
-        <!--        <dependency>-->
-        <!--            <groupId>javax.inject</groupId>-->
-        <!--            <artifactId>javax.inject</artifactId>-->
-        <!--            <version>1</version>-->
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-runtime</artifactId>
+        </dependency>
 
         <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <classifier>linux</classifier>
-            <version>11.0.2</version>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-graphics</artifactId>
-            <classifier>linux</classifier>
-            <version>11.0.2</version>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-netty</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-base</artifactId>
-            <classifier>linux</classifier>
-            <version>11.0.2</version>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-serialization</artifactId>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>no.tornado</groupId>-->
-        <!--            <artifactId>tornadofx</artifactId>-->
-        <!--            <version>1.7.19</version>-->
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-utils-jvm</artifactId>
+        </dependency>
 
-        <!--        <dependency>-->
-        <!--            <groupId>org.yaml</groupId>-->
-        <!--            <artifactId>snakeyaml</artifactId>-->
-        <!--            <version>1.25</version>-->
-        <!--        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-http -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-http</artifactId>
+        </dependency>
 
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.camel</groupId>-->
-        <!--            <artifactId>camel-spring-javaconfig</artifactId>-->
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-support</artifactId>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.camel</groupId>-->
-        <!--            <artifactId>camel-main</artifactId>-->
-        <!--            <version>${camel.version}</version>-->
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-main</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
@@ -125,6 +107,14 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core-engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jetty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-netty-http</artifactId>
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>org.apache.camel</groupId>-->
@@ -156,10 +146,6 @@
 
     <build>
         <plugins>
-            <!--             <plugin>
-                            <groupId>org.jetbrains.dokka</groupId>
-                            <artifactId>dokka-maven-plugin</artifactId>
-                        </plugin> -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -168,14 +154,6 @@
                     <mainClass>${start-class}</mainClass>
                 </configuration>
             </plugin>
-            <!--            <plugin>-->
-            <!--                <groupId>com.zenjava</groupId>-->
-            <!--                <artifactId>javafx-maven-plugin</artifactId>-->
-            <!--                <version>8.8.3</version>-->
-            <!--                <configuration>-->
-            <!--                    <mainClass>com.benjishults.bitnots.proofService.ProofServiceApplicationKt</mainClass>-->
-            <!--                </configuration>-->
-            <!--            </plugin>-->
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -198,7 +176,7 @@
                         </goals>
                         <configuration>
                             <!-- <ignoreNonCompile>true</ignoreNonCompile> -->
-                            <failOnWarning>true</failOnWarning>
+                            <failOnWarning>false</failOnWarning>
                             <ignoreNonCompile>true</ignoreNonCompile>
                             <usedDependencies>
 

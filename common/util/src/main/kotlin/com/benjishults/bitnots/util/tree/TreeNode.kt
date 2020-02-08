@@ -1,11 +1,11 @@
-package com.benjishults.bitnots.util
+package com.benjishults.bitnots.util.tree
 
 import com.benjishults.bitnots.util.collection.Queue
 import com.benjishults.bitnots.util.collection.SkippableIterator
 import java.util.*
 
 @Suppress("UNCHECKED_CAST")
-interface TreeNode<TN:TreeNode<TN>> {
+interface TreeNode<TN: TreeNode<TN>> {
     var  parent: TN?
     val children: MutableList<TN>
 

@@ -1,4 +1,4 @@
-package com.benjishults.bitnots.util
+package com.benjishults.bitnots.util.memo
 
 import java.util.concurrent.ConcurrentHashMap
 

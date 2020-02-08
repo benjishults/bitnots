@@ -4,7 +4,7 @@ import com.benjishults.bitnots.inference.SignedFormula
 import com.benjishults.bitnots.inference.SimpleSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.tableau.closer.BranchCloser
-import com.benjishults.bitnots.util.TreeNodeImpl
+import com.benjishults.bitnots.util.tree.TreeNodeImpl
 
 open class TableauNode<TN: TableauNode<TN>>(
         val newFormulas: MutableList<SignedFormula<Formula<*>>>,

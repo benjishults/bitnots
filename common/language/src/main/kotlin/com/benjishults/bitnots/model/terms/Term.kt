@@ -3,7 +3,7 @@ package com.benjishults.bitnots.model.terms
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
-import com.benjishults.bitnots.util.memoize
+import com.benjishults.bitnots.util.memo.memoize
 
 abstract class Term<C : TermConstructor>(val cons: C) {
 

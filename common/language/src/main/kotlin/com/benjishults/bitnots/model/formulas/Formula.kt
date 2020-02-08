@@ -5,7 +5,7 @@ import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Substitution
-import com.benjishults.bitnots.util.memoize
+import com.benjishults.bitnots.util.memo.memoize
 
 // NOTE should be immutable
 interface Formula<C : FormulaConstructor> {
