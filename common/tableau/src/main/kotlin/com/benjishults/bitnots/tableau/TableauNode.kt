@@ -7,13 +7,13 @@ import com.benjishults.bitnots.tableau.closer.BranchCloser
 import com.benjishults.bitnots.util.tree.TreeNodeImpl
 
 open class TableauNode<TN: TableauNode<TN>>(
-        val newFormulas: MutableList<SignedFormula<Formula<*>>>,
+        val newFormulas: MutableList<SignedFormula<Formula>>,
         parent: TN? = null
 ) : TreeNodeImpl<TN>(parent) {
 
     // starts as proper ancestors and new ones are added after processing
     // TODO see if I can get rid of this or improve it with shared structure
-    val simpleFormulasAbove: MutableList<SignedFormula<Formula<*>>> = mutableListOf<SignedFormula<Formula<*>>>().also { list ->
+    val simpleFormulasAbove: MutableList<SignedFormula<Formula>> = mutableListOf<SignedFormula<Formula>>().also { list ->
         parent?.let { nonNullParent ->
             list.addAll(nonNullParent.newFormulas.filterIsInstance<SimpleSignedFormula<*>>())
             list.addAll(nonNullParent.simpleFormulasAbove)

@@ -8,7 +8,7 @@ open class PropositionalTableau(
         override val root: PropositionalTableauNode
 ) : Tableau<PropositionalTableauNode> {
 
-    constructor(formula: Formula<*>) : this(
+    constructor(formula: Formula) : this(
             PropositionalInitializationStrategy.init(
                     PropositionalTableauNode(
                             mutableListOf(formula.createSignedFormula()))))

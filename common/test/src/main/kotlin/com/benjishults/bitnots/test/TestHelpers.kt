@@ -248,9 +248,9 @@ fun createResults(
 }
 
 fun createConjunct(
-        hyps: MutableList<Formula<*>>
-): Formula<*>? {
-    var hypothesis = null as Formula<*>?
+        hyps: MutableList<Formula>
+): Formula? {
+    var hypothesis = null as Formula?
     if (hyps.isNotEmpty()) {
         hypothesis = hyps.toTypedArray().let {
             if (it.size > 1) {
@@ -265,9 +265,9 @@ fun createConjunct(
 
 fun classifyFormulas(
         tptpFile: List<FolAnnotatedFormula>
-): Pair<MutableList<Formula<*>>, MutableList<Formula<*>>> {
+): Pair<MutableList<Formula>, MutableList<Formula>> {
     return tptpFile.fold(
-            mutableListOf<Formula<*>>() to mutableListOf<Formula<*>>()
+            mutableListOf<Formula>() to mutableListOf<Formula>()
     ) { (hyps, targets), input ->
         input.let { annotated ->
             when (annotated.formulaRole) {
@@ -305,7 +305,7 @@ fun classifyFormulas(
     }
 }
 
-fun limitedTimeProve(prover: FolFormulaTableauProver, formula: Formula<*>, millis: Long): ProofProgressIndicator =
+fun limitedTimeProve(prover: FolFormulaTableauProver, formula: Formula, millis: Long): ProofProgressIndicator =
         try {
             val proofInProgress = FolTableau(formula)
             runBlocking {
@@ -359,7 +359,7 @@ fun clearInternTables() {
 
 fun proveAndWrite(
         descriptor: TptpProblemFileDescriptor,
-        formula: Formula<*>,
+        formula: Formula,
         resultsFile: BufferedWriter,
         prover: FolFormulaTableauProver) {
     clearInternTables()

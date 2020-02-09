@@ -25,7 +25,7 @@ import com.benjishults.bitnots.parser.Tokenizer
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import java.io.BufferedReader
 
-object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula<*>> {
+object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula> {
     override val tokenizerFactory: (BufferedReader, String) -> SexpTokenizer
         get() = TODO()
 
@@ -37,7 +37,7 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula<*>> {
         TODO()
     }
 
-    override fun parseFormula(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): Formula<*> {
+    override fun parseFormula(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): Formula {
         SexpTokenizer.ensure(tokenizer.popToken(), "(")?.let { error(tokenizer.finishMessage(it)) }
         return tokenizer.peek().let {
             when (it) {
@@ -140,7 +140,7 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula<*>> {
         }
     }
 
-    private fun parseFormulasToCloseParen(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): List<Formula<*>> {
+    private fun parseFormulasToCloseParen(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): List<Formula> {
         return generateSequence {
             tokenizer.peek().takeIf {
                 it != ")"
@@ -152,7 +152,7 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula<*>> {
         }.toList()
     }
 
-    fun parseAtomicFormula(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): Formula<*> {
+    fun parseAtomicFormula(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): Formula {
         // NOTE open paren has already been consumed
         return tokenizer.popToken().let { functor ->
             require(functor.first().isLetter()) {
@@ -176,7 +176,7 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula<*>> {
         }
     }
 
-    fun parseTerm(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): Term<*> {
+    fun parseTerm(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>):  Term {
         // NOTE the open paren (if any) has NOT been consumed
         return tokenizer.popToken().let { first ->
             when (first.first()) {

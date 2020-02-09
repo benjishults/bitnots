@@ -8,7 +8,7 @@ import com.benjishults.bitnots.model.formulas.propositional.Implies
 
 
 class NegativeIff(iff: Iff) : BetaFormula<Iff>(iff, false) {
-	override fun generateChildren(): List<SignedFormula<Formula<*>>> =
+	override fun generateChildren(): List<SignedFormula<Formula>> =
 			listOf(NegativeImplies(Implies(formula.first, formula.second)),
 					NegativeImplies(Implies(formula.second, formula.first)))
 }

@@ -8,7 +8,7 @@ class FolTableau(
         override val root: FolTableauNode
 ) : Tableau<FolTableauNode> {
 
-    constructor(formula: Formula<*>) : this(
+    constructor(formula: Formula) : this(
             PropositionalInitializationStrategy.init(
                     FolTableauNode(
                             mutableListOf(formula.createSignedFormula()))))

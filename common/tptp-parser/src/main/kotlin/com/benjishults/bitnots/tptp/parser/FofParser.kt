@@ -61,7 +61,7 @@ sealed class BinaryConnector(open val connector: String) {
 /**
  * NOTE: In TPTP, function symbols and predicate symbols should be disjoint in order to avoid parsing trouble.
  */
-object TptpFofParser : AbstractTptpParser<FolAnnotatedFormula, Formula<*>>() {
+object TptpFofParser : AbstractTptpParser<FolAnnotatedFormula, Formula>() {
     override val annotatedFormulaFactory = FolAnnotatedFormula::class.constructors.first()
     override val formulaType: String = "fof"
     private val includeParser = IncludeParser<FolAnnotatedFormula>()
@@ -87,7 +87,7 @@ object TptpFofParser : AbstractTptpParser<FolAnnotatedFormula, Formula<*>>() {
         }
     }
 
-    //    override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula<*> =
+    //    override fun parse(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula =
     //            tokenizer.peek().let {
     //                if (it.first().isLetter()) {
     //                    // this could be an inequality so, parse a functor, check the next thing, and behave appropriately
@@ -124,7 +124,7 @@ object TptpFofParser : AbstractTptpParser<FolAnnotatedFormula, Formula<*>>() {
     //                }
     //            }
 
-    override fun parseFormula(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula<*> =
+    override fun parseFormula(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula =
             tokenizer.peek().let {
                 if (it == "[")
                     error(tokenizer.finishMessage("Sequents not yet supported"))
@@ -177,7 +177,7 @@ object TptpFofParser : AbstractTptpParser<FolAnnotatedFormula, Formula<*>>() {
                     error(tokenizer.finishMessage("Expected upper-case word but got '$it'"))
             }
 
-    fun parseLogicFof(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula<*> =
+    fun parseLogicFof(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula =
             tokenizer.peek().let {
                 if (it.first().isLetter()) {
                     // this could be an inequality so, parse a functor, check the next thing, and behave appropriately
@@ -214,7 +214,7 @@ object TptpFofParser : AbstractTptpParser<FolAnnotatedFormula, Formula<*>>() {
                 }
             }
 
-    fun parseAfterUnitaryFormula(initial: Formula<*>, tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula<*> {
+    fun parseAfterUnitaryFormula(initial: Formula, tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula {
         // TODO check whether I ever use the second component of the formWrapper
         return generateSequence(initial to BinaryConnector.NoConnector as BinaryConnector) { (_ /*formWrapper*/, bin) ->
             tokenizer.peek().let {
@@ -270,7 +270,7 @@ object TptpFofParser : AbstractTptpParser<FolAnnotatedFormula, Formula<*>>() {
         }
     }
 
-    fun parseUnitaryFof(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula<*> =
+    fun parseUnitaryFof(tokenizer: TptpTokenizer, bvs: Set<BoundVariable>): Formula =
             tokenizer.peek().let {
                 if (it.first().isLetter()) {
                     // we are either facing a predicate (or propositional variable) or an inequality

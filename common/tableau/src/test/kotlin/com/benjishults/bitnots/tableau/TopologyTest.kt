@@ -13,7 +13,7 @@ class TopologyTest {
 //
 //            TptpParser.parseFile(path).let { tptp ->
 //                FolTableau(FolTableauNode(
-//                        mutableListOf<SignedFormula<Formula<*>>>(
+//                        mutableListOf<SignedFormula<Formula>>(
 //                                Implies(And(*tptp.inputs.dropLast(1).map {
 //                                    (it as FofAnnotatedFormula).formula
 //                                }.toTypedArray()),

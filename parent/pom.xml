@@ -46,6 +46,11 @@
             <url>https://jcenter.bintray.com/</url>
         </repository>
         <repository>
+            <id>bintray-kotlin-kotlinx</id>
+            <name>bintray</name>
+            <url>https://dl.bintray.com/kotlin/kotlinx/</url>
+        </repository>
+        <repository>
             <id>atlassian-3rd-party</id>
             <name>Atlassian 3rd Party</name>
             <url>https://maven.atlassian.com/3rdparty/</url>
@@ -214,6 +219,11 @@
             <dependency>
                 <groupId>io.ktor</groupId>
                 <artifactId>ktor-utils-jvm</artifactId>
+                <version>${ktor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.ktor</groupId>
+                <artifactId>ktor-jackson</artifactId>
                 <version>${ktor.version}</version>
             </dependency>
             <dependency>
@@ -426,6 +436,15 @@
         </dependencies>
     </dependencyManagement>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-runtime</artifactId>
+            <version>0.14.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
@@ -450,8 +469,10 @@
                     <configuration>
                         <jvmTarget>11</jvmTarget>
                         <args>-Xjsr305=strict</args>
+                        <compilerPlugins>
+                            <plugin>kotlinx-serialization</plugin>
+                        </compilerPlugins>
                     </configuration>
-
                     <executions>
                         <execution>
                             <id>compile</id>
@@ -481,6 +502,11 @@
                         <dependency>
                             <groupId>org.jetbrains.kotlin</groupId>
                             <artifactId>kotlin-maven-allopen</artifactId>
+                            <version>${kotlin.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.jetbrains.kotlin</groupId>
+                            <artifactId>kotlin-maven-serialization</artifactId>
                             <version>${kotlin.version}</version>
                         </dependency>
                     </dependencies>
@@ -532,25 +558,6 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <configuration>
-                        <archive>
-                            <manifest>
-                                <mainClass>${start-class}</mainClass>
-                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            </manifest>
-                        </archive>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <configuration>
-                        <mainClass>${start-class}</mainClass>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

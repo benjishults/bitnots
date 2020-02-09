@@ -1,21 +1,19 @@
 package com.benjishults.bitnots.model.terms
 
-import com.benjishults.bitnots.model.terms.BoundVariable.BVConstructor
-import com.benjishults.bitnots.model.terms.FreeVariable.FVConstructor
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.model.unifier.get
 import com.benjishults.bitnots.util.intern.InternTable
 
-sealed class Variable<C : TermConstructor>(name: C) : Term<C>(name) {
+sealed class Variable(name: TermConstructor) : Term(name) {
 
-    override fun applySub(substitution: Substitution): Term<*> =
+    override fun applySub(substitution: Substitution): Term =
             substitution[this]
 
-    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): Term<*> =
+    override fun applyPair(pair: Pair<Variable, Term>): Term =
             pair[this]
 
-    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
+    override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> =
             if (this in boundVars)
                 setOf()
             else
@@ -27,19 +25,19 @@ sealed class Variable<C : TermConstructor>(name: C) : Term<C>(name) {
 
     override fun equals(other: Any?): Boolean =
             other !== null && other::class === this::class &&
-            cons.name.equals((other as Variable<*>).cons.name)
+            cons.name.equals((other as Variable).cons.name)
 
 }
 
-class BoundVariable private constructor(name: String) : Variable<BVConstructor>(BVConstructor(name)) {
+class BoundVariable private constructor(name: String) : Variable(BVConstructor(name)) {
 
-    override fun containsInternal(variable: Variable<*>, sub: Substitution): Boolean {
+    override fun containsInternal(variable: Variable, sub: Substitution): Boolean {
         TODO()
     }
 
     class BVConstructor(name: String) : TermConstructor(name)
 
-    override fun unifyUncached(other: Term<*>, sub: Substitution): Substitution =
+    override fun unifyUncached(other: Term, sub: Substitution): Substitution =
             if (other === this)
                 sub
             else
@@ -55,12 +53,12 @@ class BoundVariable private constructor(name: String) : Variable<BVConstructor>(
 fun BV(name: String): BoundVariable = BoundVariable.intern(name)
 fun BVU(name: String): BoundVariable = BoundVariable.new(name)
 
-class FreeVariable private constructor(name: String) : Variable<FVConstructor>(FVConstructor(name)) {
+class FreeVariable private constructor(name: String) : Variable(FVConstructor(name)) {
 
     /**
      * @param variable must not be bound by [sub]
      */
-    override fun containsInternal(variable: Variable<*>, sub: Substitution): Boolean =
+    override fun containsInternal(variable: Variable, sub: Substitution): Boolean =
             if (this === variable)
                 true
             else {
@@ -71,7 +69,7 @@ class FreeVariable private constructor(name: String) : Variable<FVConstructor>(F
 
     class FVConstructor(name: String) : TermConstructor(name)
 
-    override fun unifyUncached(other: Term<*>, sub: Substitution): Substitution {
+    override fun unifyUncached(other: Term, sub: Substitution): Substitution {
         if (sub === NotCompatible)
             return sub
         else {

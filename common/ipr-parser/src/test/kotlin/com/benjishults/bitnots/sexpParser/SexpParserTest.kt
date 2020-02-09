@@ -37,7 +37,7 @@ class SexpParserTest {
 
     val zz = FV("z")
 
-    val map = mapOf<String, Formula<*>>("""
+    val map = mapOf<String, Formula>("""
  (forall ((a) (b))      
                  (implies (and (for-some ((x) (y)) (forall ((z))
                                                      (or (= z x) (= z y))))
@@ -85,7 +85,7 @@ class SexpParserTest {
                                     Or(And(p(x3), g(x3)), And(p(x4), c(x4)))))),
             "(implies (p) (q))" to Implies(Prop("p"), Prop("q"))
     )
-    
+
     // TODO test error conditions
 
     @Test

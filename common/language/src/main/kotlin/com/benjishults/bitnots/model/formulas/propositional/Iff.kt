@@ -9,8 +9,9 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 
-data class Iff(val first: Formula<*>, val second: Formula<*>) : FormulaWithSubformulas<PropositionalFormulaConstructor>(PropositionalFormulaConstructor.intern(LogicalOperator.iff.name), first, second) {
-    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution {
+data class Iff(val first: Formula, val second: Formula) :
+        FormulaWithSubformulas(PropositionalFormulaConstructor.intern(LogicalOperator.iff.name), first, second) {
+    override fun unifyUncached(other: Formula, sub: Substitution): Substitution {
         if (other is Iff) {
             Formula.unify(first, other.first, sub).takeIf {
                 it !== NotCompatible
@@ -33,25 +34,25 @@ data class Iff(val first: Formula<*>, val second: Formula<*>) : FormulaWithSubfo
         return NotCompatible
     }
 
-    override fun contains(variable: Variable<*>, sub: Substitution): Boolean =
+    override fun contains(variable: Variable, sub: Substitution): Boolean =
             first.contains(variable, sub) || second.contains(variable, sub)
 
-    override fun applySub(substitution: Substitution): Formula<PropositionalFormulaConstructor> =
+    override fun applySub(substitution: Substitution): Formula =
             Iff(first.applySub(substitution), second.applySub(substitution))
 
-    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): Formula<PropositionalFormulaConstructor> =
+    override fun applyPair(pair: Pair<Variable, Term>): Formula =
             Iff(first.applyPair(pair), second.applyPair(pair))
 
     override fun getFreeVariables(): Set<FreeVariable> = first.getFreeVariables().union(second.getFreeVariables())
 
-    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
+    override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> =
             first.getVariablesUnboundExcept(boundVars).union(second.getVariablesUnboundExcept(boundVars))
 
     override fun equals(other: Any?): Boolean {
         if (other === null) return false
         if (other::class === this::class) {
             return ((other as Iff).first == first && other.second == second) ||
-                    (other.second == first && other.first == second)
+                   (other.second == first && other.first == second)
         }
         return false
     }

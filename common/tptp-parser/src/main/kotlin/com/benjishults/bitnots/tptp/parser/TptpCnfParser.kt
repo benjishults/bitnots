@@ -8,7 +8,7 @@ import com.benjishults.bitnots.model.formulas.util.isLiteral
 import com.benjishults.bitnots.parser.Tokenizer
 import com.benjishults.bitnots.theory.formula.CnfAnnotatedFormula
 
-object TptpCnfParser : AbstractTptpParser<CnfAnnotatedFormula, Formula<*>>() {
+object TptpCnfParser : AbstractTptpParser<CnfAnnotatedFormula, Formula>() {
     override val formulaType = "cnf"
     override val annotatedFormulaFactory = CnfAnnotatedFormula::class.constructors.first()
     private val includeParser = IncludeParser<CnfAnnotatedFormula>()
@@ -35,10 +35,10 @@ object TptpCnfParser : AbstractTptpParser<CnfAnnotatedFormula, Formula<*>>() {
         }
     }
 
-    override fun parseFormula(tokenizer: TptpTokenizer): Formula<*> =
+    override fun parseFormula(tokenizer: TptpTokenizer): Formula =
             parseClause(tokenizer)
 
-    fun parseClause(tokenizer: TptpTokenizer): Formula<*> =
+    fun parseClause(tokenizer: TptpTokenizer): Formula =
             tokenizer.peek().let {
                 if (it == "(") {
                     tokenizer.popToken()
@@ -52,7 +52,7 @@ object TptpCnfParser : AbstractTptpParser<CnfAnnotatedFormula, Formula<*>>() {
                 }
             }
 
-    fun parseDisjunct(tokenizer: TptpTokenizer): Formula<*> {
+    fun parseDisjunct(tokenizer: TptpTokenizer): Formula {
         return generateSequence(parseLiteral(tokenizer)) {
             tokenizer.peek().let {
                 when (it) {
@@ -72,7 +72,7 @@ object TptpCnfParser : AbstractTptpParser<CnfAnnotatedFormula, Formula<*>>() {
         }
     }
 
-    fun parseLiteral(tokenizer: TptpTokenizer): Formula<*> =
+    fun parseLiteral(tokenizer: TptpTokenizer): Formula =
             if (tokenizer.peek() == "~") {
                 tokenizer.popToken()
                 Functor.parse(tokenizer).toFormula(emptySet()).let {

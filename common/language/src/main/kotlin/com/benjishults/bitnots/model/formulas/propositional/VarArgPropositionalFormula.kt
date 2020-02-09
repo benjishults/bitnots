@@ -9,16 +9,16 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 
-abstract class VarArgPropositionalFormula(cons: PropositionalFormulaConstructor, vararg formulas: Formula<*>) :
-        FormulaWithSubformulas<PropositionalFormulaConstructor>(cons, *formulas) {
+abstract class VarArgPropositionalFormula(cons: PropositionalFormulaConstructor, vararg formulas: Formula) :
+        FormulaWithSubformulas(cons, *formulas) {
 
-    override fun contains(variable: Variable<*>, sub: Substitution): Boolean =
+    override fun contains(variable: Variable, sub: Substitution): Boolean =
             formulas.any {
                 it.contains(variable, sub)
             }
 
     // Returns a real substitution if there is a unifiable correspondence between the elements of rest and those of remainingOthers under sub
-    private fun unifyHelper(rest: Iterable<Formula<*>>, remainingOthers: List<Formula<*>>,
+    private fun unifyHelper(rest: Iterable<Formula>, remainingOthers: List<Formula>,
                             sub: Substitution): Substitution =
             rest.firstOrNull()?.let { first ->
                 remainingOthers.forEach { otherForm ->
@@ -34,7 +34,7 @@ abstract class VarArgPropositionalFormula(cons: PropositionalFormulaConstructor,
                 NotCompatible
             } ?: sub
 
-    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution =
+    override fun unifyUncached(other: Formula, sub: Substitution): Substitution =
             if (other::class === this::class) {
                 val otherOne = other as VarArgPropositionalFormula
                 unifyHelper(Iterable(formulas::iterator), otherOne.formulas.asList(), sub)
@@ -45,8 +45,8 @@ abstract class VarArgPropositionalFormula(cons: PropositionalFormulaConstructor,
     override fun getFreeVariables(): Set<FreeVariable> =
             formulas.fold(emptySet<FreeVariable>()) { s, t -> s.union(t.getFreeVariables()) }
 
-    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
-        val value = mutableSetOf<Variable<*>>()
+    override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> {
+        val value = mutableSetOf<Variable>()
         formulas.map { value.addAll(it.getVariablesUnboundExcept(boundVars)) }
         return value.toSet()
     }
@@ -56,7 +56,7 @@ abstract class VarArgPropositionalFormula(cons: PropositionalFormulaConstructor,
         return constructor.call(formulas.map { it.applySub(substitution) }.toTypedArray())
     }
 
-    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): VarArgPropositionalFormula {
+    override fun applyPair(pair: Pair<Variable,  Term>): VarArgPropositionalFormula {
         val constructor = this::class.constructors.first()
         return constructor.call(formulas.map { it.applyPair(pair) }.toTypedArray())
     }

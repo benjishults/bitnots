@@ -2,13 +2,12 @@ package com.benjishults.bitnots.model.unifier
 
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Term
-import com.benjishults.bitnots.model.terms.TermConstructor
 import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.util.collection.pop
 import com.benjishults.bitnots.util.collection.push
 import java.util.*
 
-operator fun Pair<Variable<*>, Term<*>>.get(v: Variable<*>): Term<*> = second.takeIf { v == first } ?: v
+operator fun Pair<Variable, Term>.get(v: Variable): Term = second.takeIf { v == first } ?: v
 
 /**
  * Idempotent substitution
@@ -23,7 +22,7 @@ sealed class Substitution {
     // /**
     //  * The composition of [this] and [other]
     //  */
-    // abstract infix fun o(other: Pair<FreeVariable, Term<*>>): Substitution
+    // abstract infix fun o(other: Pair<FreeVariable,  Term): Substitution
 
     /**
      * The composition of [this] and [other] but only if the two are compatible
@@ -33,9 +32,9 @@ sealed class Substitution {
     /**
      * The composition of [this] and [other] but only if the two are compatible
      */
-    abstract operator fun plus(other: Pair<FreeVariable, Term<*>>): Substitution
+    abstract operator fun plus(other: Pair<FreeVariable, Term>): Substitution
 
-    abstract operator fun <C : TermConstructor> get(v: Variable<C>): Term<*>
+    abstract operator fun get(v: Variable): Term
 
     abstract override fun equals(other: Any?): Boolean
 
@@ -48,13 +47,13 @@ sealed class Substitution {
  */
 object NotCompatible : Substitution() {
 
-    override fun plus(other: Pair<FreeVariable, Term<*>>) = this
+    override fun plus(other: Pair<FreeVariable, Term>) = this
 
-    override fun <C : TermConstructor> get(v: Variable<C>): Term<*> =
+    override fun get(v: Variable): Term =
             error("Attempt made to apply a non-existent substitution.")
 
     // override fun compose(other: Substitution) = this
-    // override fun compose(other: Pair<FreeVariable, Term<*>>) = this
+    // override fun compose(other: Pair<FreeVariable,  Term) = this
 
     override fun plus(other: Substitution) = this
 
@@ -64,12 +63,12 @@ object NotCompatible : Substitution() {
 
 object EmptySub : Substitution() {
 
-    override fun plus(other: Pair<FreeVariable, Term<*>>) = Sub(other)
+    override fun plus(other: Pair<FreeVariable, Term>) = Sub(other)
 
-    override fun <C : TermConstructor> get(v: Variable<C>): Term<*> = v
+    override fun get(v: Variable): Term = v
 
     // override fun compose(other: Substitution) = other
-    // override fun compose(other: Pair<FreeVariable, Term<*>>) = Sub(other)
+    // override fun compose(other: Pair<FreeVariable,  Term) = Sub(other)
 
     override fun plus(other: Substitution) = other
 
@@ -123,9 +122,9 @@ Would we also need to order terms?
 
  */
 
-class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Substitution() {
+class Sub private constructor(private var map: Map<Variable, Term>) : Substitution() {
 
-    constructor(vararg pairs: Pair<Variable<*>, Term<*>>) : this(mapOf(*pairs))
+    constructor(vararg pairs: Pair<Variable, Term>) : this(mapOf(*pairs))
 
     init {
         // require idempotence and any variable/term ordering requirements
@@ -139,14 +138,14 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
                 map.keys.any { term.contains(it, EmptySub) }
             }
 
-    private fun idempotentVersion(): Map<Variable<*>, Term<*>> {
+    private fun idempotentVersion(): Map<Variable, Term >{
         // require(!isTriviallyInfiniteLoop()) {
         //     "Undefined substitution: $this.  Variable occurs in its own replacement."
         // }
         val listOfTerminalVariables = map.keys.toMutableList()
         // TODO needed?
-        val mapVarToSetOfKeysInItsValue = mutableMapOf<Variable<*>, MutableSet<Variable<*>>>()
-        val mapVarToSetOfKeyWhoseValueContainsIt = mutableMapOf<Variable<*>, MutableSet<Variable<*>>>()
+        val mapVarToSetOfKeysInItsValue = mutableMapOf<Variable, MutableSet<Variable>>()
+        val mapVarToSetOfKeyWhoseValueContainsIt = mutableMapOf<Variable, MutableSet<Variable>>()
         map.forEach { (key, value) ->
             map.keys.forEach { innerKey ->
                 if (value.contains(innerKey, EmptySub)) {
@@ -154,15 +153,15 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
                     // value.applySub(this).takeIf { result ->
                     //     result != key
                     // }?.let { newValue ->
-                        listOfTerminalVariables.remove(key)
-                        mapVarToSetOfKeysInItsValue[key]?.add(innerKey)
-                        ?: run {
-                            mapVarToSetOfKeysInItsValue[key] = mutableSetOf(innerKey)
-                        }
-                        mapVarToSetOfKeyWhoseValueContainsIt[innerKey]?.add(key)
-                        ?: run {
-                            mapVarToSetOfKeyWhoseValueContainsIt[innerKey] = mutableSetOf(key)
-                        }
+                    listOfTerminalVariables.remove(key)
+                    mapVarToSetOfKeysInItsValue[key]?.add(innerKey)
+                    ?: run {
+                        mapVarToSetOfKeysInItsValue[key] = mutableSetOf(innerKey)
+                    }
+                    mapVarToSetOfKeyWhoseValueContainsIt[innerKey]?.add(key)
+                    ?: run {
+                        mapVarToSetOfKeyWhoseValueContainsIt[innerKey] = mutableSetOf(key)
+                    }
                     // }
                 }
             }
@@ -201,10 +200,10 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
                 t.contains(v)
             }
 
-    // override fun compose(other: Pair<FreeVariable, Term<*>>): Substitution =
+    // override fun compose(other: Pair<FreeVariable,  Term): Substitution =
     //         this + Sub(other)
 
-    override fun <C : TermConstructor> get(v: Variable<C>): Term<*> =
+    override fun get(v: Variable): Term =
             map[v] ?: v
 
     // TODO think about what compatibility means
@@ -217,7 +216,7 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
                 NotCompatible -> NotCompatible
                 EmptySub      -> this
                 is Sub        -> {
-                    val newMap = mutableMapOf<Variable<*>, Term<*>>()
+                    val newMap = mutableMapOf < Variable, Term>()
                     map.entries.map { (v, term) ->
                         // apply arg to value in receiver
                         term.applySub(other).also {
@@ -253,7 +252,7 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
                             } ?: return NotCompatible
                         }
                     }
-                    val newMap = mutableMapOf<Variable<*>, Term<*>>()
+                    val newMap = mutableMapOf < Variable, Term>()
                     map.entries.map { (v, term) ->
                         // apply arg to value in receiver
                         term.applySub(other).also { result ->
@@ -275,7 +274,7 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
             }
 
 
-    override fun plus(other: Pair<FreeVariable, Term<*>>): Substitution = this.plus(Sub(other))
+    override fun plus(other: Pair<FreeVariable, Term>): Substitution = this.plus(Sub(other))
 
     override fun hashCode()
             : Int =
@@ -298,7 +297,7 @@ class Sub private constructor(private var map: Map<Variable<*>, Term<*>>) : Subs
 
     override fun toString(): String = toString(map)
 
-    private fun toString(map: Map<Variable<*>, Term<*>>) =
+    private fun toString(map: Map<Variable, Term>) =
             buildString {
                 append("{")
                     .append(map.entries.fold(mutableListOf<String>()) { s, t ->

@@ -10,9 +10,9 @@ class FormulaFactory(val helpers: List<FormulaFactoryHelper<*>>) {
      * For each concrete subtype "T" of Formula, there must be subclasses of SignedFormula with names NegativeT and PositiveT.
      * These SignedFormula classes must have a constructor that takes no arguments or one that takes a single Formula argument.
      */
-    // fun parseFormula(formula: CharSequence, types: Array<String> = arrayOf("propositional")): Formula<*> {
+    // fun parseFormula(formula: CharSequence, types: Array<String> = arrayOf("propositional")): Formula {
 
-        // var const: Constructor<out Formula<*>>? = null
+        // var const: Constructor<out Formula>? = null
         // formula.dropWhile {
         //     it.isWhitespace()
         // }.takeWhile {
@@ -25,7 +25,7 @@ class FormulaFactory(val helpers: List<FormulaFactoryHelper<*>>) {
         //         } catch (e: Exception) {
         //             continue
         //         }
-                // for (constructor in clazz.constructors as Array<Constructor<out Formula<*>>>) {
+                // for (constructor in clazz.constructors as Array<Constructor<out Formula>>) {
                 //
                 // }
 //                when (leastParameters) {

@@ -1,14 +1,14 @@
 package com.benjishults.bitnots.model.unifier
 
-//fun Term<*>.linearUnifyMM(other: Term<*>): Substitution = SystemOfMultiEquations(this, other).solve()
+//fun  Term): Substitution = SystemOfMultiEquations(this, other).solve()
 //
 //val BAD: Int = 5
 //
 //class SystemOfMultiEquations {
 //
-//	val setOfMultiEqns: MutableList<MutableSet<Term<*>>> = mutableListOf()
+//	val setOfMultiEqns: MutableList<MutableSet< Term = mutableListOf()
 //
-//	constructor(s: Term<*>, t: Term<*>) {
+//	constructor(s:  Term) {
 //		setOfMultiEqns.add(mutableSetOf(s, t))
 //	}
 //
@@ -51,10 +51,10 @@ package com.benjishults.bitnots.model.unifier
 //		return NotCompatible
 //	}
 //
-//	private fun findEqnW2NonVariables(): Triple<MutableSet<Term<*>>, Term<*>, Term<*>>? {
+//	private fun findEqnW2NonVariables(): Triple<MutableSet< Term? {
 //
 //		setOfMultiEqns.any { m ->
-//			var ls: Term<*>? = null
+//			var ls:  Term? = null
 //			var tset = false
 //			m.any { term ->
 //				if (term !is FreeVariable) {
@@ -74,13 +74,13 @@ package com.benjishults.bitnots.model.unifier
 //	}
 //
 //	companion object inner {
-//		fun disagreementSet(s: Term<*>, t: Term<*>): MutableList<MutableSet<Term<*>>>? {
+//		fun disagreementSet(s:  Term? {
 //			when {
 //				s === t ->
 //					return mutableListOf()
 //				s is FreeVariable || t is FreeVariable -> return mutableListOf(mutableSetOf(s, t))
 //				s is Function && t is Function && s.cons === t.cons ->
-//					return s.arguments.foldIndexed(mutableListOf<MutableSet<Term<*>>>()) { i, dis, si ->
+//					return s.arguments.foldIndexed(mutableListOf<MutableSet< Term
 //						disagreementSet(si, t.arguments[i])?.let { localDis ->
 //							dis.also { it.addAll(localDis) }
 //						} ?: return null
@@ -90,7 +90,7 @@ package com.benjishults.bitnots.model.unifier
 //			}
 //		}
 //
-//		fun toSub(bigM: MutableList<MutableSet<Term<*>>>): Substitution {
+//		fun toSub(bigM: MutableList<MutableSet< Term): Substitution {
 //
 //			return NotCompatible
 //		}

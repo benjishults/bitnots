@@ -3,7 +3,7 @@ package com.benjishults.bitnots.dataAccess.term
 import com.benjishults.bitnots.model.terms.Variable
 import java.sql.Connection
 
-abstract class PersistentVariable<T:Variable<*>>(val variable: T) : PersistentTerm {
+abstract class PersistentVariable<T:Variable>(val variable: T) : PersistentTerm {
 
     protected fun saveHelper(
         connection: Connection,

@@ -19,7 +19,7 @@ import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.Term
 
-data class TptpFormulaWrapper1(val formula: Formula<*>, val type: TptpProduction1)
+data class TptpFormulaWrapper1(val formula: Formula, val type: TptpProduction1)
 
 sealed class TptpProduction1
 

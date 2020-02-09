@@ -1,6 +1,6 @@
 package com.benjishults.bitnots.model.unifier
 
-//fun Term<*>.linearUnify(other: Term<*>): Substitution = SystemOfMultiEquations(this, other).solve()
+//fun  Term): Substitution = SystemOfMultiEquations(this, other).solve()
 
 //val BAD: Int = 5
 
@@ -12,7 +12,7 @@ package com.benjishults.bitnots.model.unifier
 //		private val freeVarsToMultiEqn: MutableMap<FreeVariable, MultiEquation> = mutableMapOf()) {
 //
 //	constructor(
-//			vararg originalTerms: Term<*>) : this(mutableListOf<MultiEquation>()) {
+//			vararg originalTerms:  Term()) {
 //		originalTerms.fold(freeVarsToCountMap) { counts, t ->
 //			counts.also { counts ->
 //				t.getFreeVariablesAndCounts().entries.forEach { (v, count) ->
@@ -22,7 +22,7 @@ package com.benjishults.bitnots.model.unifier
 //				}
 //			}
 //		}.mapTo(U) { (v, c) ->
-//			MultiEquation(mutableSetOf(v), mutableListOf<Term<*>>(), c);
+//			MultiEquation(mutableSetOf(v), mutableListOf< Term(), c);
 //		}.also {
 //			it.add(MultiEquation(mutableSetOf(FreeVariable.new("x")), mutableListOf(*originalTerms), 0))
 //		}
@@ -123,11 +123,11 @@ package com.benjishults.bitnots.model.unifier
 //	}
 //
 //	private data class CommonPartAndFrontier(
-//			val commonPart: Term<*>,
+//			val commonPart:  Term,
 //			val frontier: Set<MultiEquation>)
 //
 //	// DEC algorithm
-//	private fun computeCommonPartAndFrontier(vararg M: Term<*>): CommonPartAndFrontier? {
+//	private fun computeCommonPartAndFrontier(vararg M:  Term): CommonPartAndFrontier? {
 //		val first = M.first()
 //		if (M.any { it is BoundVariable } && M.any { it !== first })
 //			return null
@@ -162,12 +162,12 @@ package com.benjishults.bitnots.model.unifier
 //	// called by (1) original construction of U (2) compactify and (3) during reduce
 //	private inner class MultiEquation(
 //			val S: MutableSet<FreeVariable>,
-//			var M: MutableList<Term<*>>,
+//			var M: MutableList< Term,
 //			var counter: Int) : Comparable<MultiEquation> {
 //
 //		// called to compute frontier
-//		constructor(vararg originalTerms: Term<*>) : this(mutableSetOf<FreeVariable>(), mutableListOf<Term<*>>(), 0) {
-//			originalTerms.fold(S.to(M)) { (s: MutableSet<FreeVariable>, m: MutableList<Term<*>>), t: Term<*> ->
+//		constructor(vararg originalTerms:  Term(), 0) {
+//			originalTerms.fold(S.to(M)) { (s: MutableSet<FreeVariable>, m: MutableList< Term
 //				s.also {
 //					it.addAll(t.getFreeVariables())
 //				}.to(m.also {

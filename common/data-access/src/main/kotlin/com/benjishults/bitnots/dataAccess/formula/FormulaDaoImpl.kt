@@ -8,14 +8,14 @@ import java.sql.Statement
 
 class FormulaDaoImpl(val connectionFactory: () -> Connection) : FormulaDao {
 
-    override fun <T : TermConstructor> insertTerm(term: Term<T>) {
+    override fun <T : TermConstructor> insertTerm(term:  Term) {
         connectionFactory().use { connection ->
             connection.autoCommit = false
             insertTermRecursively(connection, term)
         }
     }
 
-    fun findTermById(id: Long): Term<*> {
+    fun findTermById(id: Long):  Term {
         connectionFactory().use { connection ->
             val consInfo = connection.prepareStatement(
                 """
@@ -78,7 +78,7 @@ where bvf.parent_term_fact = ?
 
         private fun <T : TermConstructor> insertTermRecursively(
             connection: Connection,
-            term: Term<T>,
+            term:  Term,
             termParentId: Long = -1,
             formParentId: Long = -1,
             position: Int = 0

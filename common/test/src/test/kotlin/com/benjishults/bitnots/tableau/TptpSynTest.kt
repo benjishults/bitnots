@@ -99,8 +99,8 @@ class TptpSynTest {
     }
 
     private fun createConjunct(
-            hyps: MutableList<Formula<*>>): Formula<*>? {
-        var hypothesis = null as Formula<*>?
+            hyps: MutableList<Formula>): Formula? {
+        var hypothesis = null as Formula?
         if (hyps.isNotEmpty()) {
             hypothesis = hyps.toTypedArray().let {
                 if (it.size > 1) {
@@ -114,9 +114,9 @@ class TptpSynTest {
     }
 
     private fun classifyFormulas(
-            tptpFile: List<FolAnnotatedFormula>): Pair<MutableList<Formula<*>>, MutableList<Formula<*>>> {
+            tptpFile: List<FolAnnotatedFormula>): Pair<MutableList<Formula>, MutableList<Formula>> {
         return tptpFile.fold(
-                mutableListOf<Formula<*>>() to mutableListOf()) { (hyps, targets), input ->
+                mutableListOf<Formula>() to mutableListOf()) { (hyps, targets), input ->
             input.let { annotated ->
                 when (annotated.formulaRole) {
                     FormulaRole.axiom,

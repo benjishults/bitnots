@@ -7,5 +7,5 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.propositional.Not
 
 class NegativeNot(not: Not) : AlphaFormula<Not>(not, false) {
-	override fun generateChildren(): List<SignedFormula<Formula<*>>> = listOf(formula.argument.createSignedFormula(true))
+	override fun generateChildren(): List<SignedFormula<Formula>> = listOf(formula.argument.createSignedFormula(true))
 }

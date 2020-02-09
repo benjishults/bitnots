@@ -10,7 +10,7 @@ interface ProofTarget
 /**
  * The target of the proof is a single formula.
  */
-class FormulaProofTarget(val targetFormula: Formula<*>): ProofTarget {
+class FormulaProofTarget(val targetFormula: Formula): ProofTarget {
 
 }
 

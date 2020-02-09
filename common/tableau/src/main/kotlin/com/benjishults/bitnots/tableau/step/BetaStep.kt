@@ -12,9 +12,9 @@ class BetaStep<T : Tableau<N>, N : TableauNode<N>>(
     TableauStep<N> {
 
     override fun apply(pip: T): Boolean {
-        var betaMaybeNull: BetaFormula<Formula<*>>? = null
+        var betaMaybeNull: BetaFormula<Formula>? = null
         val node = pip.root.breadthFirst {
-            betaMaybeNull = it.newFormulas.firstOrNull { it is BetaFormula<*> } as BetaFormula<*>?
+            betaMaybeNull = it.newFormulas.firstOrNull { it is BetaFormula } as BetaFormula?
             betaMaybeNull !== null
         }
         return if (node === null)

@@ -1,8 +1,8 @@
 package com.benjishults.bitnots.model.unifier
 
-//fun Term<*>.linearUnify(other: Term<*>) = linearUnify(UFNode(this), UFNode(other))
+//fun  Term) = linearUnify(UFNode(this), UFNode(other))
 //
-//fun linearUnify(s: UFNode<Term<*>>, t: UFNode<Term<*>>): Substitution {
+//fun linearUnify(s: UFNode< Term): Substitution {
 //    val tTerm = t.x
 //    val sTerm = s.x
 //    when {

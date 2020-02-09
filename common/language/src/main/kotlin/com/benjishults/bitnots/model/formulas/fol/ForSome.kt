@@ -6,5 +6,5 @@ import com.benjishults.bitnots.model.formulas.propositional.LogicalOperator
 import com.benjishults.bitnots.model.terms.BoundVariable
 
 
-class ForSome(vararg variables: BoundVariable, formula: Formula<*>) :
+class ForSome(vararg variables: BoundVariable, formula: Formula) :
         VarsBindingFormula(FormulaConstructor.intern(LogicalOperator.`for-some`.name), *variables, formula = formula)

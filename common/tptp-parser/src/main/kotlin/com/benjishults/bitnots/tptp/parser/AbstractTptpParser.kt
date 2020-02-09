@@ -7,7 +7,7 @@ import com.benjishults.bitnots.theory.formula.FormulaRole
 import java.io.BufferedReader
 import kotlin.reflect.KFunction
 
-abstract class AbstractTptpParser<AF: AnnotatedFormula, F : Formula<*>> : Parser<AF, TptpTokenizer, F> {
+abstract class AbstractTptpParser<AF: AnnotatedFormula, F : Formula> : Parser<AF, TptpTokenizer, F> {
 
     abstract val formulaType: String
 

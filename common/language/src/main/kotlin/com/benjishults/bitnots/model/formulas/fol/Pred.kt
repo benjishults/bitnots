@@ -38,10 +38,10 @@ fun PredU(name: String, arity: Int = 1): PredicateConstructor {
  * @param name the FunctionConstructor for the term
  * @param arguments the arguments in the function term
  */
-class Predicate private constructor(override val constructor: PredicateConstructor, var arguments: List<Term<*>>) :
-        Formula<PredicateConstructor> {
+class Predicate private constructor(override val constructor: PredicateConstructor, var arguments: List<Term>) :
+        Formula {
 
-    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
+    override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> {
         TODO()
     }
 
@@ -52,32 +52,32 @@ class Predicate private constructor(override val constructor: PredicateConstruct
         companion object :
                 InternTableWithOther<PredicateConstructor, Int>({ name, arity -> PredicateConstructor(name, arity) })
 
-        operator fun invoke(arguments: List<Term<*>>): Predicate {
+        operator fun invoke(arguments: List<Term>): Predicate {
             check(arguments.size == arity)
             return Predicate(this, arguments)
         }
 
-        operator fun invoke(argument: Term<*>): Predicate {
+        operator fun invoke(argument: Term): Predicate {
             check(1 == arity)
             return Predicate(this, listOf(argument))
         }
 
-        operator fun invoke(arg1: Term<*>, arg2: Term<*>): Predicate {
+        operator fun invoke(arg1: Term, arg2: Term): Predicate {
             check(2 == arity)
             return Predicate(this, listOf(arg1, arg2))
         }
 
-        operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>): Predicate {
+        operator fun invoke(arg1: Term, arg2: Term, arg3: Term): Predicate {
             check(3 == arity)
             return Predicate(this, listOf(arg1, arg2, arg3))
         }
 
-        operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>, arg4: Term<*>): Predicate {
+        operator fun invoke(arg1: Term, arg2: Term, arg3: Term, arg4: Term): Predicate {
             check(4 == arity)
             return Predicate(this, listOf(arg1, arg2, arg3, arg4))
         }
 
-        operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>, arg4: Term<*>, arg5: Term<*>): Predicate {
+        operator fun invoke(arg1: Term, arg2: Term, arg3: Term, arg4: Term, arg5: Term): Predicate {
             check(5 == arity)
             return Predicate(this, listOf(arg1, arg2, arg3, arg4, arg5))
         }
@@ -86,13 +86,13 @@ class Predicate private constructor(override val constructor: PredicateConstruct
     /**
      * @param variable must not be bound by sub
      */
-    override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
+    override fun contains(variable: Variable, sub: Substitution): Boolean {
         return getFreeVariables().any {
             it.contains(variable, sub)
         }
     }
 
-    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution {
+    override fun unifyUncached(other: Formula, sub: Substitution): Substitution {
         if (other is Predicate) {
             if (other.constructor === constructor) {
                 return arguments.foldIndexed(sub) { i, s, t ->
@@ -133,13 +133,13 @@ class Predicate private constructor(override val constructor: PredicateConstruct
                 it.applySub(substitution)
             })
 
-    override fun applyPair(pair: Pair<Variable<*>, Term<*>>) =
+    override fun applyPair(pair: Pair<Variable, Term>) =
             constructor(arguments.map {
                 it.applyPair(pair)
             })
 
-    //    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>) =
-    //            arguments.fold(mutableSetOf<Variable<*>>()) { s, t ->
+    //    override fun getVariablesUnboundExcept(boundVars: List<Variable>) =
+    //            arguments.fold(mutableSetOf<Variable>()) { s, t ->
     //                s.also {
     //                    it.addAll(t.getVariablesUnboundExcept(boundVars))
     //                }

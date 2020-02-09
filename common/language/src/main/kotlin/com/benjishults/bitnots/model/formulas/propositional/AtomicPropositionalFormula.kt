@@ -10,21 +10,21 @@ import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class AtomicPropositionalFormula(
         override val constructor: PropositionalFormulaConstructor
-) : Formula<PropositionalFormulaConstructor> {
+) : Formula {
 
-    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution =
+    override fun unifyUncached(other: Formula, sub: Substitution): Substitution =
             if (this == other)
                 sub
             else
                 NotCompatible
 
-    override fun applySub(substitution: Substitution): Formula<PropositionalFormulaConstructor> = this
-    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): Formula<PropositionalFormulaConstructor> = this
+    override fun applySub(substitution: Substitution): Formula = this
+    override fun applyPair(pair: Pair<Variable, Term>): Formula = this
 
-    override fun contains(variable: Variable<*>, sub: Substitution) = false
+    override fun contains(variable: Variable, sub: Substitution) = false
 
     override fun getFreeVariables(): Set<FreeVariable> = emptySet()
-    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> = emptySet()
+    override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> = emptySet()
 
     override fun equals(other: Any?): Boolean =
             other is AtomicPropositionalFormula && other.constructor === this.constructor

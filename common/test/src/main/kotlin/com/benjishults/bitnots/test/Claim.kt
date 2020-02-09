@@ -27,7 +27,7 @@ val DEFAULT_Q_LIMIT: Int = 6
 
 interface Claim<T : ProofInProgress, in P : Prover<T>> {
     val proofInProgress: T
-    val formula: Formula<*>
+    val formula: Formula
     fun validate(): ProofProgressIndicator
     fun validateWithProver(prover: P): ProofProgressIndicator
 }
@@ -36,7 +36,7 @@ interface Claim<T : ProofInProgress, in P : Prover<T>> {
  * Not thread safe
  */
 abstract class PropositionalClaim(
-        final override val formula: Formula<*>
+        final override val formula: Formula
 ) : Claim<PropositionalTableau, PropositionalFormulaProver> {
 
     init {
@@ -60,7 +60,7 @@ abstract class PropositionalClaim(
  * Not thread safe
  */
 abstract class FolClaim(
-        final override val formula: Formula<*>
+        final override val formula: Formula
 ) : Claim<FolTableau, FolFormulaTableauProver> {
     abstract val qLimit: Int
 
@@ -91,11 +91,11 @@ interface FalseClaim<T : Tableau<*>, in P : TableauProver<T>> : Claim<T, P> {
     }
 }
 
-class FalsePropClaim(formula: Formula<*>) : FalseClaim<PropositionalTableau, PropositionalFormulaProver>,
+class FalsePropClaim(formula: Formula) : FalseClaim<PropositionalTableau, PropositionalFormulaProver>,
                                             PropositionalClaim(formula)
 
 class FalseFolClaim(
-        formula: Formula<*>,
+        formula: Formula,
         override val qLimit: Int = DEFAULT_Q_LIMIT
 ) : FalseClaim<FolTableau, FolFormulaTableauProver>, FolClaim(formula)
 
@@ -124,13 +124,13 @@ interface TrueClaim<T : Tableau<*>, in P : TableauProver<T>> : Claim<T, P> {
 }
 
 class TruePropClaim(
-        formula: Formula<*>,
+        formula: Formula,
         override val maxSteps: Int = DEFAULT_MAX_STEPS,
         override val minSteps: Int = 0
 ) : TrueClaim<PropositionalTableau, PropositionalFormulaProver>, PropositionalClaim(formula)
 
 class TrueFolClaim(
-        formula: Formula<*>,
+        formula: Formula,
         override val qLimit: Int = DEFAULT_Q_LIMIT,
         override val maxSteps: Int = DEFAULT_MAX_STEPS,
         override val minSteps: Int = 0

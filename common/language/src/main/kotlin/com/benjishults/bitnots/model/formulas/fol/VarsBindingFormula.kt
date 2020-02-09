@@ -10,11 +10,11 @@ import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class VarsBindingFormula(
         override val constructor: FormulaConstructor,
-    vararg val variables: BoundVariable,
-    val formula: Formula<*>
-) : Formula<FormulaConstructor> {
+        vararg val variables: BoundVariable,
+        val formula: Formula
+) : Formula {
 
-    override fun contains(variable: Variable<*>, sub: Substitution): Boolean {
+    override fun contains(variable: Variable, sub: Substitution): Boolean {
         TODO()
     }
 
@@ -22,18 +22,18 @@ abstract class VarsBindingFormula(
         require(variables.size > 0)
     }
 
-    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution {
+    override fun unifyUncached(other: Formula, sub: Substitution): Substitution {
         TODO()
     }
 
     override fun getFreeVariables(): Set<FreeVariable> =
-        formula.getFreeVariables()
+            formula.getFreeVariables()
 
-    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> {
+    override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> {
         return formula.getVariablesUnboundExcept(boundVars.plus(variables))
     }
 
-    override fun applySub(substitution: Substitution): Formula<FormulaConstructor> {
+    override fun applySub(substitution: Substitution): Formula {
         return this::class.constructors.first().let { cons ->
             cons.parameters.find { it.name == "formula" }?.let { formulaParam ->
                 cons.parameters.find { it.name == "variables" }?.let { variablesParam ->
@@ -43,7 +43,7 @@ abstract class VarsBindingFormula(
         }
     }
 
-    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): Formula<FormulaConstructor> {
+    override fun applyPair(pair: Pair<Variable, Term>): Formula {
         return this::class.constructors.first().let { cons ->
             cons.parameters.find { it.name == "formula" }?.let { formulaParam ->
                 cons.parameters.find { it.name == "variables" }?.let { variablesParam ->
@@ -54,10 +54,10 @@ abstract class VarsBindingFormula(
     }
 
     override fun toString(): String =
-        "(${constructor.name} ((${variables.joinToString(") (")})) ${formula})"
+            "(${constructor.name} ((${variables.joinToString(") (")})) ${formula})"
 
     override fun hashCode(): Int =
-        variables.contentHashCode() + this::class.hashCode()
+            variables.contentHashCode() + this::class.hashCode()
 
     override fun equals(other: Any?): Boolean {
         // FIXME make this smarter

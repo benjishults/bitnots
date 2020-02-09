@@ -48,8 +48,10 @@ fun ConstU(name: String) =
  * @param name the FunctionConstructor for the term
  * @param arguments the arguments in the function term
  */
-class Function private constructor(name: FunctionConstructor, var arguments: List<Term<*>>) :
-        Term<FunctionConstructor>(name) {
+class Function private constructor(
+        name: FunctionConstructor,
+        var arguments: List<Term>
+) : Term(name) {
 
     private val freeVars by lazy { mutableSetOf<FreeVariable>() }
     private var dirtyFreeVars = true
@@ -64,43 +66,43 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
                     FunctionConstructor(name, arity)
                 })
 
-        operator fun invoke(arguments: List<Term<*>>): Function {
+        override operator fun invoke(arguments: List<Term>): Function {
             check(arguments.size == arity)
             return Function(this, arguments)
         }
 
-        operator fun invoke(argument: Term<*>): Function {
+        override operator fun invoke(argument: Term): Function {
             check(1 == arity)
             return Function(this, listOf(argument))
         }
 
-        operator fun invoke(arg1: Term<*>, arg2: Term<*>): Function {
+        override operator fun invoke(arg1: Term, arg2: Term): Function {
             check(2 == arity)
             return Function(this, listOf(arg1, arg2))
         }
 
-        operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>): Function {
+        override operator fun invoke(arg1: Term, arg2: Term, arg3: Term): Function {
             check(3 == arity)
             return Function(this, listOf(arg1, arg2, arg3))
         }
 
-        operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>, arg4: Term<*>): Function {
+        override operator fun invoke(arg1: Term, arg2: Term, arg3: Term, arg4: Term): Function {
             check(4 == arity)
             return Function(this, listOf(arg1, arg2, arg3, arg4))
         }
 
-        operator fun invoke(arg1: Term<*>, arg2: Term<*>, arg3: Term<*>, arg4: Term<*>, arg5: Term<*>): Function {
+        override operator fun invoke(arg1: Term, arg2: Term, arg3: Term, arg4: Term, arg5: Term): Function {
             check(5 == arity)
             return Function(this, listOf(arg1, arg2, arg3, arg4, arg5))
         }
     }
 
-    override fun containsInternal(variable: Variable<*>, sub: Substitution): Boolean =
+    override fun containsInternal(variable: Variable, sub: Substitution): Boolean =
             getFreeVariables().any {
                 it.containsInternal(variable, sub)
             }
 
-    override fun unifyUncached(other: Term<*>, sub: Substitution): Substitution =
+    override fun unifyUncached(other: Term, sub: Substitution): Substitution =
             if (sub === NotCompatible)
                 sub
             else if (other is Function) {
@@ -145,13 +147,13 @@ class Function private constructor(name: FunctionConstructor, var arguments: Lis
                 it.applySub(substitution)
             })
 
-    override fun applyPair(pair: Pair<Variable<*>, Term<*>>) =
+    override fun applyPair(pair: Pair<Variable, Term>) =
             cons(arguments.map {
                 it.applyPair(pair)
             })
 
-    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>) =
-            arguments.fold(mutableSetOf<Variable<*>>()) { s, t ->
+    override fun getVariablesUnboundExcept(boundVars: List<Variable>) =
+            arguments.fold(mutableSetOf<Variable>()) { s, t ->
                 s.also {
                     it.addAll(t.getVariablesUnboundExcept(boundVars))
                 }

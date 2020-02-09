@@ -18,7 +18,7 @@ object PropositionalInitializationStrategy {
     private fun <T : TableauNode<*>> applyAllAlphas(node: T) {
         with(node) {
             while (true) {
-                val toAdd: MutableList<SignedFormula<Formula<*>>> = mutableListOf()
+                val toAdd: MutableList<SignedFormula<Formula>> = mutableListOf()
                 newFormulas.iterator().let {
                     while (it.hasNext()) {
                         val current = it.next()
@@ -42,7 +42,7 @@ object PropositionalInitializationStrategy {
                 while (iter.hasNext()) {
                     iter.next().takeIf {
                         // TODO might want to allow anything here... make this configurable?
-                        it is SimpleSignedFormula<*>
+                        it is SimpleSignedFormula
                     }.let {
                         if (it in simpleFormulasAbove)
                             iter.remove()

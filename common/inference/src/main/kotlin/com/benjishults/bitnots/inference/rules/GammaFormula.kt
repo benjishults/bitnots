@@ -14,7 +14,7 @@ abstract class GammaFormula<F : VarsBindingFormula>(formula: F, sign: Boolean) :
 
     var numberOfApplications = 0
 
-    override fun generateChildren(): List<SignedFormula<Formula<*>>> {
+    override fun generateChildren(): List<SignedFormula<Formula>> {
         val boundToFree = formula.variables.fold(EmptySub) { s: Substitution, t ->
             s + Sub(t.to(
                     if (FreeVariable.exists(t.cons.name))

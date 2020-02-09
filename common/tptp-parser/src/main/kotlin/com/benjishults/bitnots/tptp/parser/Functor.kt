@@ -11,7 +11,7 @@ import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.Term
 
 data class Functor(val cons: String, val args: List<Functor>) {
-    fun toFormula(bvs: Set<BoundVariable>): Formula<*> =
+    fun toFormula(bvs: Set<BoundVariable>): Formula =
             if (args.isEmpty())
                 Prop(cons)/*, Atomic*/
             else
@@ -20,7 +20,7 @@ data class Functor(val cons: String, val args: List<Functor>) {
                 }
 
 
-    fun toTerm(bvs: Set<BoundVariable>): Term<*> =
+    fun toTerm(bvs: Set<BoundVariable>):  Term =
             if (args.isEmpty()) {
                 if (cons.first().isUpperCase()) {
                     if (cons in bvs.map { it.cons.name }) {

@@ -2,11 +2,13 @@ package com.benjishults.bitnots.theory.formula
 
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.util.isCnf
+import kotlinx.serialization.Serializable
 
+@Serializable
 open class AnnotatedFormula(
         val name: String,
         val formulaRole: FormulaRole,
-        open val formula: Formula<*>
+        open val formula: Formula
 ) {
     override fun toString(): String {
         return "AnnotatedFormula(name='$name', formulaRole=$formulaRole)"
@@ -16,7 +18,7 @@ open class AnnotatedFormula(
 class CnfAnnotatedFormula(
         name: String,
         formulaRole: FormulaRole,
-        override val formula: Formula<*>
+        override val formula: Formula
 ) : AnnotatedFormula(name, formulaRole, formula) {
 
     init {
@@ -50,7 +52,7 @@ class CnfAnnotatedFormula(
 class FolAnnotatedFormula(
         name: String,
         formulaRole: FormulaRole,
-        override val formula: Formula<*>
+        override val formula: Formula
 ) : AnnotatedFormula(name, formulaRole, formula) {
 
 

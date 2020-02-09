@@ -9,3 +9,4 @@ bin
 config/*.properties
 common/test/src/test/resources/latest/*
 common/test/src/test/resources/accepted/*
+**/dependency-reduced-pom.xml

@@ -10,13 +10,14 @@ import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 
 data class Implies(
-        val antecedent: Formula<*>,
-        val consequent: Formula<*>
-) : FormulaWithSubformulas<PropositionalFormulaConstructor>(PropositionalFormulaConstructor.intern(LogicalOperator.implies.name), antecedent, consequent) {
-    override fun contains(variable: Variable<*>, sub: Substitution) =
+        val antecedent: Formula,
+        val consequent: Formula
+) : FormulaWithSubformulas(PropositionalFormulaConstructor.intern(LogicalOperator.implies.name), antecedent,
+                           consequent) {
+    override fun contains(variable: Variable, sub: Substitution) =
             antecedent.contains(variable, sub) || consequent.contains(variable, sub)
 
-    override fun unifyUncached(other: Formula<*>, sub: Substitution): Substitution {
+    override fun unifyUncached(other: Formula, sub: Substitution): Substitution {
         if (other is Implies) {
             Formula.unify(antecedent, other.antecedent, sub).takeIf {
                 it !== NotCompatible
@@ -34,13 +35,13 @@ data class Implies(
     override fun getFreeVariables(): Set<FreeVariable> =
             antecedent.getFreeVariables().union(consequent.getFreeVariables())
 
-    override fun getVariablesUnboundExcept(boundVars: List<Variable<*>>): Set<Variable<*>> =
+    override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> =
             antecedent.getVariablesUnboundExcept(boundVars).union(consequent.getVariablesUnboundExcept(boundVars))
 
     override fun applySub(substitution: Substitution): Implies =
             Implies(antecedent.applySub(substitution), consequent.applySub(substitution))
 
-    override fun applyPair(pair: Pair<Variable<*>, Term<*>>): Implies =
+    override fun applyPair(pair: Pair<Variable, Term>): Implies =
             Implies(antecedent.applyPair(pair), consequent.applyPair(pair))
 
     override fun toString() = "(${constructor.name} ${antecedent} ${consequent})"

@@ -9,7 +9,7 @@ import java.nio.file.Path
 /**
  * Implementations MUST override one of the parseFormula methods otherwise a stack overflow may occur.
  */
-interface Parser<out AF : AnnotatedFormula, T : Tokenizer, out F : Formula<*>> {
+interface Parser<out AF : AnnotatedFormula, T : Tokenizer, out F : Formula> {
 
     val tokenizerFactory: (BufferedReader, String) -> T
 

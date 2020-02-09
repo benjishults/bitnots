@@ -9,7 +9,7 @@ class PlaistedTest {
 //            val path = TptpFileFetcher.findProblemFile(TptpDomain.PLA, TptpFormulaForm.FOF, 34, 1)
 //
 //            TptpParser.parseFile(path).let { tptp ->
-//                FolTableau(FolTableauNode(ArrayList<SignedFormula<Formula<*>>>().also {
+//                FolTableau(FolTableauNode(ArrayList<SignedFormula<Formula>>().also {
 //                    it.add((tptp.inputs.first() as FofAnnotatedFormula).formula.createSignedFormula())
 //                }, null)).also { tableau ->
 //                    while (true) {

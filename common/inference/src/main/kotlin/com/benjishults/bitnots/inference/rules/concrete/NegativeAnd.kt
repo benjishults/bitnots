@@ -8,5 +8,5 @@ import com.benjishults.bitnots.model.formulas.propositional.And
 
 class NegativeAnd(and: And) :
         BetaFormula<And>(and, false) {
-    override fun generateChildren(): List<SignedFormula<Formula<*>>> = formula.formulas.map { it.createSignedFormula(false) }
+    override fun generateChildren(): List<SignedFormula<Formula>> = formula.formulas.map { it.createSignedFormula(false) }
 }

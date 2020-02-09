@@ -16,7 +16,7 @@ class DeltaStep<T : Tableau<N>, N : TableauNode<N>>(
             with(pip) {
                 var deltaMaybeNull: DeltaFormula<out VarsBindingFormula>? = null
                 val node = root.breadthFirst { node ->
-                    deltaMaybeNull = node.newFormulas.firstOrNull { it is DeltaFormula<*> } as DeltaFormula<*>?
+                    deltaMaybeNull = node.newFormulas.firstOrNull { it is DeltaFormula } as DeltaFormula<*>?
                     deltaMaybeNull !== null
                 }
                 if (node === null)
