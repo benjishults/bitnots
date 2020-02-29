@@ -5,6 +5,7 @@ import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import org.junit.Assert
+import org.junit.Ignore
 import org.junit.Test
 import java.nio.file.FileSystems
 
@@ -83,6 +84,7 @@ class ParserTest {
     }
 
     @Test
+    @Ignore
     fun fofParserTest5() {
         try { // SYN000+1.p with the two offending sections commented out
             val path = TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 0, 1)
@@ -97,6 +99,7 @@ class ParserTest {
     }
 
     @Test
+    @Ignore
     fun fofParserTest6() {
         try { // SYN000+2.p with the two offending sections commented out
             val path = TptpFileFetcher.findProblemFile(TptpDomain.SYN, TptpFormulaForm.FOF, 0, 2)

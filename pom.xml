@@ -26,6 +26,7 @@
         <module>parent</module>
         <module>common</module>
         <module>services</module>
+        <module>apps</module>
     </modules>
 
 </project>

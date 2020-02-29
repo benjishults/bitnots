@@ -13,9 +13,9 @@ class ProblemBuilderTest {
     fun problemBuilderTest() {
         try { // TOP020+1.p hausdorff problem
             val path = TptpFileFetcher.findProblemFile(TptpDomain.TOP, TptpFormulaForm.FOF, 20, 1)
-            TptpFofParser.parseFile(path).let {
-                Assert.assertEquals(9, it.size)
-                Assert.assertTrue(it.any { it.formulaRole == FormulaRole.conjecture })
+            TptpFofParser.parseFile(path).let {formulas->
+                Assert.assertEquals(9, formulas.size)
+                Assert.assertTrue(formulas.any { it.formulaRole == FormulaRole.conjecture })
             }
         } catch (e: Exception) {
             e.printStackTrace()

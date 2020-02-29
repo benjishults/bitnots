@@ -1,0 +1,20 @@
+ui:
+  root:
+    # position of the frame
+    framePosX: 200
+    # position of the frame
+    framePosY: 400
+    # width of the application pane
+    appWidth: 680
+    # height of the application pane
+    appHeight: 420
+
+resources:
+  local:
+    baseInputFolder: /home/benji/repos/benjishults/bitnots/resources/input
+    iprProblemInputFolder: /home/benji/repos/benjishults/bitnots/resources/input
+    tptpProblemInputFolder: /usr/local/share/tptp
+    bitnotsProblemInputFolder: /home/benji/repos/benjishults/bitnots/resources/input
+    iprTheoryInputFolder: /home/benji/repos/benjishults/bitnots/resources/input
+    tptpTheoryInputFolder: /usr/local/share/tptp
+    bitnotsTheoryInputFolder: /home/benji/repos/benjishults/bitnots/resources/input

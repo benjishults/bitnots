@@ -141,6 +141,16 @@
             </dependency>
             <dependency>
                 <groupId>com.benjishults.bitnots</groupId>
+                <artifactId>proof-service-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.benjishults.bitnots</groupId>
+                <artifactId>problem-service-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.benjishults.bitnots</groupId>
                 <artifactId>parser</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -562,6 +572,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.2.1</version>
                     <configuration>
                         <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
                         <createDependencyReducedPom>true</createDependencyReducedPom>

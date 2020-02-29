@@ -1,0 +1,82 @@
+package com.benjishults.bitnots.regression.app
+
+import javafx.application.Application
+import javafx.scene.layout.Region
+import javafx.stage.Stage
+import java.nio.file.Files
+import java.nio.file.NoSuchFileException
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.*
+
+class FxApplication : Application() {
+
+    private lateinit var primaryStage: Stage
+    private lateinit var uiSettingsFile: Path
+    private lateinit var uiProperties: Properties
+
+    init {
+        loadUiConfiguration()
+    }
+
+    override fun start(primaryStage: Stage) {
+        this.primaryStage = primaryStage
+        primaryStage.title = "Bitnots Tester"
+        applyCustomProperties(primaryStage)
+        primaryStage.show()
+    }
+
+    private fun loadUiConfiguration() {
+        try {
+            val folder = Paths.get(System.getProperty("user.home"), ".bitnots")
+            Files.createDirectories(folder)
+            uiSettingsFile = folder.resolve("ui-settings.properties")
+            // Configurations().fileBased(YAMLConfiguration::class.java, uiSettingsFile.toFile()) // throws ConfigurationException
+        } catch (e: NoSuchFileException) {
+            if (Files.notExists(uiSettingsFile)) {
+                Files.copy(
+                        this.javaClass.getResourceAsStream("/ui-settings.properties-sample"),
+                        uiSettingsFile)
+            }
+        }
+        loadUserConfig()
+    }
+
+    private fun loadUserConfig() {
+        Files.newInputStream(uiSettingsFile).use { stream ->
+            Properties().let { properties ->
+                properties.load(stream)
+                uiProperties = properties
+            }
+        }
+    }
+
+    private fun applyCustomProperties(primaryStage: Stage) {
+        primaryStage.x = uiProperties.getProperty("ui.framePosX", Region.USE_COMPUTED_SIZE.toString()).toDouble()
+        primaryStage.y = uiProperties.getProperty("ui.framePosY", Region.USE_COMPUTED_SIZE.toString()).toDouble()
+        val width = uiProperties.getProperty("ui.appWidth", Region.USE_COMPUTED_SIZE.toString()).toDouble()
+        val height = uiProperties.getProperty("ui.appHeight", Region.USE_COMPUTED_SIZE.toString()).toDouble()
+        primaryStage.scene = RegressionMainPane(
+                uiProperties,
+                width,
+                height)
+    }
+
+    /**
+     * Stop the service thread first.
+     */
+    override fun stop() {
+        writeUiProperties()
+    }
+
+    private fun writeUiProperties() {
+        uiProperties.put("ui.framePosY", primaryStage.y.toString())
+        uiProperties.put("ui.framePosX", primaryStage.x.toString())
+        uiProperties.put("ui.appHeight", primaryStage.scene.height.toString())
+        uiProperties.put("ui.appWidth", primaryStage.scene.width.toString())
+        Files.newOutputStream(uiSettingsFile).use {
+            uiProperties.store(it, null)
+        }
+    }
+
+}

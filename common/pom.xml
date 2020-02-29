@@ -27,6 +27,8 @@
         <module>bitnots-parser</module>
         <module>ipr-parser</module>
         <module>tptp-parser</module>
+        <module>problem-service-client</module>
+        <module>proof-service-client</module>
 <!--        <module>config</module>-->
 <!--        <module>data-access</module>-->
         <module>test</module>

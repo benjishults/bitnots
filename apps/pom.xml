@@ -9,15 +9,14 @@
         <relativePath>../parent</relativePath>
     </parent>
 
-    <artifactId>services</artifactId>
+    <artifactId>apps</artifactId>
 
     <packaging>pom</packaging>
 
-    <name>BITNOTS :: Services</name>
+    <name>BITNOTS :: Applications</name>
 
     <modules>
-        <module>proof-service</module>
-        <module>problem-service</module>
+        <module>regression</module>
     </modules>
 
 </project>

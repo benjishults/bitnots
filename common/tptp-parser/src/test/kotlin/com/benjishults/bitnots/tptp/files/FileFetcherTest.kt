@@ -7,7 +7,6 @@ import org.junit.Test
 class FileFetcherTest {
 
     @Test
-//    @Ignore // ignoring because the TPTP library may not be installed everywhere.
     fun testFileFetcher() {
         var path = TptpFileFetcher.findAxiomsFile(TptpDomain.ANA, TptpFormulaForm.CNF)
         println(path.fileName)

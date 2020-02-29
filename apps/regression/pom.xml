@@ -4,24 +4,20 @@
 
     <parent>
         <groupId>com.benjishults.bitnots</groupId>
-        <artifactId>services</artifactId>
+        <artifactId>apps</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>proof-service</artifactId>
+    <artifactId>regression</artifactId>
 
-    <name>BITNOTS :: Services :: Proof Service</name>
+    <name>BITNOTS :: Services :: Regression</name>
 
     <properties>
-        <start-class>com.benjishults.bitnots.proofService.ProofServiceApplicationKt</start-class>
+        <start-class>com.benjishults.bitnots.regression.RegressionApplicationKt</start-class>
     </properties>
 
     <dependencies>
 
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>util</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>theory</artifactId>
@@ -32,11 +28,12 @@
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>language</artifactId>
+            <artifactId>jfx-utils</artifactId>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>proof-service-client</artifactId>
+            <artifactId>language</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
@@ -60,75 +57,37 @@
             <artifactId>kotlin-reflect</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-serialization-runtime</artifactId>
-        </dependency>
 
         <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-server-core</artifactId>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <classifier>linux</classifier>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-server-netty</artifactId>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <classifier>linux</classifier>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-serialization</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-utils-jvm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-jackson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-http</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-support</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-main</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core-engine</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-jetty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-netty-http</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-api</artifactId>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <classifier>linux</classifier>
+            <version>11.0.2</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.3</version>
+                <configuration>
+                    <mainClass>${start-class}</mainClass>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -136,10 +95,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -151,7 +106,7 @@
                         </goals>
                         <configuration>
                             <!-- <ignoreNonCompile>true</ignoreNonCompile> -->
-                            <failOnWarning>false</failOnWarning>
+                            <failOnWarning>true</failOnWarning>
                             <ignoreNonCompile>true</ignoreNonCompile>
                             <usedDependencies>
 

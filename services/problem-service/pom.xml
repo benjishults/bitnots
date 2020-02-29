@@ -8,12 +8,12 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>proof-service</artifactId>
+    <artifactId>problem-service</artifactId>
 
-    <name>BITNOTS :: Services :: Proof Service</name>
+    <name>BITNOTS :: Services :: Problem Service</name>
 
     <properties>
-        <start-class>com.benjishults.bitnots.proofService.ProofServiceApplicationKt</start-class>
+        <start-class>com.benjishults.bitnots.problemServer.ProblemServiceApplicationKt</start-class>
     </properties>
 
     <dependencies>
