@@ -10,7 +10,7 @@
 
     <artifactId>regression</artifactId>
 
-    <name>BITNOTS :: Services :: Regression</name>
+    <name>BITNOTS :: Applications :: Regression</name>
 
     <properties>
         <start-class>com.benjishults.bitnots.regression.RegressionApplicationKt</start-class>
