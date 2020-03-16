@@ -3,7 +3,7 @@ package com.benjishults.bitnots.tableau
 class PlaistedTest {
 
 //    @Test
-//    @Ignore
+//    @Disable
 //    fun testFofPlaisted() {
 //        try {
 //            val path = TptpFileFetcher.findProblemFile(TptpDomain.PLA, TptpFormulaForm.FOF, 34, 1)
@@ -16,7 +16,7 @@ class PlaistedTest {
 //                        if (tableau.isClosed())
 //                            break
 //                        if (!tableau.step())
-//                            Assert.fail("Failed to prove it with unlimited steps.")
+//                            Assertions.fail("Failed to prove it with unlimited steps.")
 //                    }
 //                }
 //            }

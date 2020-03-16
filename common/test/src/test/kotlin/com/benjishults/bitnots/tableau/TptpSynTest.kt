@@ -17,9 +17,11 @@ import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
 import com.benjishults.bitnots.tptp.parser.TptpFofParser
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
 
+@Tag("localTptp")
 class TptpSynTest {
 
     // private val testResourcesFolder: Path = Paths.get(System.getProperty("user.dir"), "src", "test", "resources")
@@ -84,7 +86,7 @@ class TptpSynTest {
                             FolStepStrategy()
                     ).let { prover ->
                         clearInternTables()
-                        Assert.assertTrue(
+                        Assertions.assertTrue(
                                 limitedTimeProve(
                                         prover,
                                         hypothesis?.let {

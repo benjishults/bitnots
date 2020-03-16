@@ -11,9 +11,9 @@ import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.parser.TptpFile
 import com.benjishults.bitnots.tptp.parser.TptpFofParser
-import org.junit.Ignore
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Disable
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
@@ -27,7 +27,7 @@ open class IngestTest {
     lateinit var data: DataManagerConfig
 
     @Test
-    @Ignore
+    @Disable
     fun ingestTest() {
         TptpFileFetcher.findAll(TptpDomain.SYN, TptpFormulaForm.FOF).sortedWith(object : Comparator<Path> {
             override fun compare(o1: Path?, o2: Path?): Int =
@@ -44,7 +44,7 @@ open class IngestTest {
     }
 
     @Test
-    @Ignore
+    @Disable
     fun ingestProblemsTest() {
         TptpFileFetcher.findAll(TptpDomain.SYN, TptpFormulaForm.FOF).sortedWith(object : Comparator<Path> {
             override fun compare(o1: Path?, o2: Path?): Int =

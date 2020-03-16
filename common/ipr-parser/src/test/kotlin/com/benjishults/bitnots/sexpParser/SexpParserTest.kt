@@ -13,8 +13,8 @@ import com.benjishults.bitnots.model.formulas.propositional.Or
 import com.benjishults.bitnots.model.terms.BV
 import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class SexpParserTest {
 
@@ -91,7 +91,7 @@ class SexpParserTest {
     @Test
     fun formulaParserTest() {
         map.forEach { string, formula ->
-            Assert.assertEquals(
+            Assertions.assertEquals(
                     SexpParser.parseFormula(
                             SexpTokenizer(string.reader().buffered(), "test"),
                             emptySet()).toString(),

@@ -19,7 +19,7 @@ import com.benjishults.bitnots.test.FalseFolClaim
 import com.benjishults.bitnots.test.FalsePropClaim
 import com.benjishults.bitnots.test.TrueFolClaim
 import com.benjishults.bitnots.test.TruePropClaim
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class TableauStepCountTest {
 

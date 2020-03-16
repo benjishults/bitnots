@@ -1,5 +1,6 @@
-# bitnots
-Theorem Prover
+# bitnots Theorem Prover
+
+[![](https://jitpack.io/v/benjishults/bitnots.svg)](https://jitpack.io/#benjishults/bitnots)
 
 Currently, in order for some tests to pass, you must have the [TPTP](http://www.cs.miami.edu/~tptp/) library installed
 and you must pass in 

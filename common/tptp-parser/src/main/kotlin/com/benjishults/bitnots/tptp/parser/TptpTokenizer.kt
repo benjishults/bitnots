@@ -8,16 +8,17 @@ import java.io.BufferedReader
  * @param predicates a map from predicate names to arity.  Propositional variables have arity 0.
  * @param functions a map from function names to arity.  Constants have arity 0.
  */
-class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : Tokenizer {
+open class TptpTokenizer(private val reader: BufferedReader, private val fileName: String) : Tokenizer {
 
     companion object {
-        private val keywords = arrayOf("fof", "cnf", "thf", "tff", "include")
+        val keywords = arrayOf("fof", "cnf", "thf", "tff", "include")
         val punctuation = listOf('(', ')', ',', '.', '[', ']', ':')
 
-        private val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<~>", "~|", "~&", "*", "+", "=", "!=")
+        val operators = arrayOf("!", "?", "~", "&", "|", "<=>", "=>", "<=", "<~>", "~|", "~&", "*", "+", "=", "!=")
+
         //        private val singleCharOperators = arrayOf('!', '?', '~', '&', '|', '*', '+')
-        private val operatorStartChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+')
-//        private val operatorChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+', '>', '-')
+        val operatorStartChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+')
+        //        private val operatorChars = arrayOf('!', '?', '~', '&', '|', '<', '=', '*', '+', '>', '-')
 
         //        private val predicates = arrayOf("!=", "\$true", "\$false")
         fun ensure(expected: String, actual: String, message: String = "Expected '$expected' but found '$actual'.") =
@@ -26,16 +27,18 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : 
                 else null
     }
 
-    private var lineNo: Int = 0
+    protected var lineNo: Int = 0
 
     // this will be the value of the last call to popChar()
-    private var lastChar: Int = -1
+    protected var previousChar: Int = -1
+
     // after the first call to popChar(), this will always be the value that will next be returned by popChar().
-    private var peekChar: Int = -1
-    private var line: BufferedReader? = null
-    private var atStartOfLine = true
-    private var backup: String? = null
-    private var lastToken: String? = null
+    protected var peekChar: Int = -1
+    protected var line: String? = null
+    protected var indexInLine = -1
+    protected var atStartOfLine = true
+    protected var backup: String? = null
+    protected var lastToken: String? = null
 
     init {
         nextLine()
@@ -45,10 +48,10 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : 
     /**
      * After a call here, peekChar will return the first character of the next line.
      */
-    private fun nextLine() {
-        line?.close()
-        line = reader.readLine()?.reader()?.buffered()
+    protected fun nextLine() {
+        line = reader.readLine()
         lineNo++
+        indexInLine = 0
         // this will clear out what would have been the next char and prepares us for the new line
         popChar()
         atStartOfLine = true
@@ -58,53 +61,47 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : 
      * moves the cursor to the next character in the stream.  This will skip newlines.
      * The first call to this will erroneously return -1 so we get that out of the way in initialization.
      */
-    private fun popChar(): Int {
-        lastChar = peekChar
-        peekChar = line?.let { line ->
-            line.read().takeIf {
-                it != -1
-            }?.also {
+    protected fun popChar(): Int {
+        previousChar = peekChar
+        line?.let { nonNullLine ->
+            if (nonNullLine.length > indexInLine) {
                 atStartOfLine = false
-            } ?: run {
+                peekChar = nonNullLine[indexInLine++].toInt()
+            } else {
                 atStartOfLine = true
-                generateSequence {
-                    line.close()
-                    this.line = reader.readLine()?.reader()?.buffered()
-                    lineNo++
-                    this.line.let { line ->
-                        if (line === null) {
-                            peekChar = -1
-                            null
-                        } else {
-                            line.read().let {
-                                if (it == -1) {
-                                    -1
-                                } else {
-                                    peekChar = it
-                                    null
-                                }
-                            }
+                indexInLine = 0
+                do {
+                    this.line = reader.readLine()
+                    this.line?.let {nextLine ->
+                        lineNo++
+                        if (nextLine.isNotEmpty()) {
+                            peekChar = nextLine[indexInLine++].toInt()
+                            return previousChar
                         }
+                    } ?: run {
+                        peekChar = -1
+                        null
                     }
-                }.forEach {}
-                peekChar
-            } // can't be null
-        } ?: -1
-        return lastChar
+                } while (true)
+            }
+        } ?: run {
+            peekChar = -1
+        }
+        return previousChar
     }
 
     // This will move the cursor (if necessary) so that peekChar is a non-whitespace.  Only works after the first call to popChar().
-    private tailrec fun skipWhitespace() {
-        if (peekChar == -1)
-            return
-        else if (atStartOfLine && peekChar.toChar() == '%') {
-            nextLine()
-            return skipWhitespace()
-        } else if (!peekChar.toChar().isWhitespace())
-            return
-        else {
-            popChar()
-            return skipWhitespace()
+    protected open fun skipWhitespace() {
+        while (peekChar != -1) {
+            if (atStartOfLine && peekChar.toChar() == '%') {
+                nextLine()
+                // return skipWhitespace()
+            } else if (!peekChar.toChar().isWhitespace())
+                return
+            else {
+                popChar()
+                // return skipWhitespace()
+            }
         }
     }
 
@@ -115,9 +112,9 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : 
 
     fun finishMessage(begin: String) = begin + " at line $lineNo of $fileName."
 
-    private fun readOperator(): String = buildOperator(popChar().toChar().toString())
+    protected fun readOperator(): String = buildOperator(popChar().toChar().toString())
 
-    tailrec private fun buildOperator(operator: String): String {
+    tailrec protected fun buildOperator(operator: String): String {
         val nextChar = popChar()
         if (nextChar != -1) {
             val longerOperator = operator + nextChar.toChar()
@@ -137,8 +134,9 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : 
     /**
      * allows to backup up to a single token
      */
-    private fun backup(): TptpTokenizer = this.also {
+    protected fun backup(): TptpTokenizer = this.also {
         check(backup === null && lastToken !== null) { finishMessage("backup improperly requested") }
+        // indexInLine--
         backup = lastToken
     }
 
@@ -154,9 +152,9 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : 
                     in operatorStartChars -> {
                         readOperator()
                     }
-                    '\'' -> {
+                    '\''                  -> {
                         // return value should not contain the outer single quotes
-//                        TODO("one or more of ([\\40-\\46\\50-\\133\\135-\\176]|[\\\\]['\\\\]) followed by '")
+                        //                        TODO("one or more of ([\\40-\\46\\50-\\133\\135-\\176]|[\\\\]['\\\\]) followed by '")
                         popChar()
                         buildString {
                             append(readAlphaNumeric())
@@ -168,33 +166,34 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : 
                                 popChar()
                         }
                     }
-                    '"' -> {
+                    '"'                   -> {
                         // distinct_object
                         // return value should contain the outer double quotes
-                        TODO(finishMessage("zero or more of ([\\40-\\41\\43-\\133\\135-\\176]|[\\\\][\"\\\\]) followed by \""))
+                        TODO(finishMessage(
+                                "zero or more of ([\\40-\\41\\43-\\133\\135-\\176]|[\\\\][\"\\\\]) followed by \""))
                     }
-                    '$' -> {
-//                        TODO(finishMessage("check for double dollar word or lower word"))
+                    '$'                   -> {
+                        //                        TODO(finishMessage("check for double dollar word or lower word"))
                         popChar()
                         it + readAlphaNumeric()
                     }
-                    in 'a'..'z' -> {
+                    in 'a'..'z'           -> {
                         readAlphaNumeric()
                     }
-                    in 'A'..'Z' -> {
+                    in 'A'..'Z'           -> {
                         readAlphaNumeric()
                     }
-                    in punctuation -> {
+                    in punctuation        -> {
                         popChar()
                         it.toString()
                     }
-                    in '0'..'9' -> {
+                    in '0'..'9'           -> {
                         readNumber()
                     }
-                    '-' -> {
+                    '-'                   -> {
                         readNumber()
                     }
-                    else -> {
+                    else                  -> {
                         error(finishMessage("I was not prepared for '$it'"))
                     }
                 }
@@ -217,8 +216,8 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : 
         while (openParens > 0) {
             try {
                 when (popToken()) {
-                    ")" -> openParens--
-                    "(" -> openParens++
+                    ")"  -> openParens--
+                    "("  -> openParens++
                     else -> {
                     }
                 }
@@ -238,22 +237,22 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : 
         return generateSequence {
             popToken().let { token ->
                 when (token) {
-                    ")" -> {
+                    ")"  -> {
                         openParens--
                         token.takeIf {
                             openParens != 0
                         }
                     }
-                    "(" -> {
+                    "("  -> {
                         openParens++
                         token
                     }
-                    "," -> token
+                    ","  -> token
                     else -> {
-//                        if (token.first().isLetter() || token.first().isDigit())
+                        //                        if (token.first().isLetter() || token.first().isDigit())
                         token
-//                        else
-//                            error(finishMessage("Unexpected token encountered: '$token'"))
+                        //                        else
+                        //                            error(finishMessage("Unexpected token encountered: '$token'"))
                     }
                 }
             }
@@ -272,10 +271,10 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : 
         while (openParens != 0) {
             val token = popToken()
             when (token) {
-                ")" -> {
+                ")"  -> {
                     --openParens
                 }
-                "(" -> {
+                "("  -> {
                     openParens++
                 }
                 else -> {
@@ -284,58 +283,34 @@ class TptpTokenizer(private val reader: BufferedReader, val fileName: String) : 
         }
     }
 
-    private fun readAlphaNumeric(): String =
+    protected fun readAlphaNumeric(): String =
             buildString {
-                while (peekChar.let {
-                    if (it == -1) {
-                        false
-                    } else
-                        it.toChar().let {
-                            when (it) {
-                                in 'a'..'z' -> {
-                                    append(popChar().toChar())
-                                    true
-                                }
-                                in 'A'..'Z' -> {
-                                    append(popChar().toChar())
-                                    true
-                                }
-                                '_' -> {
-                                    append(popChar().toChar())
-                                    true
-                                }
-                                in '0'..'9' -> {
-                                    append(popChar().toChar())
-                                    true
-                                }
-                                else -> {
-                                    false
-                                }
-                            }
+                loop@ while (peekChar != -1) {
+                    when (peekChar.toChar()) {
+                        in 'a'..'z' -> {
+                            append(popChar().toChar())
                         }
-                }) {
+                        in 'A'..'Z' -> {
+                            append(popChar().toChar())
+                        }
+                        '_'         -> {
+                            append(popChar().toChar())
+                        }
+                        in '0'..'9' -> {
+                            append(popChar().toChar())
+                        }
+                        else        -> {
+                            break@loop
+                        }
+                    }
                 }
             }
 
-    private fun readNumber(): String =
+    protected fun readNumber(): String =
             buildString {
                 append(popChar().toChar())
-                while (peekChar.let {
-                    if (it == -1) {
-                        false
-                    } else
-                        it.toChar().let {
-                            when (it) {
-                                in '0'..'9' -> {
-                                    append(popChar().toChar())
-                                    true
-                                }
-                                else -> {
-                                    false
-                                }
-                            }
-                        }
-                }) {
+                while (peekChar in '0'.toInt()..'9'.toInt()) {
+                    append(popChar().toChar())
                 }
             }
 

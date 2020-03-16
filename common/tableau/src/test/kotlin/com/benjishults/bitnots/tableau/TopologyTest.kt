@@ -1,12 +1,12 @@
 package com.benjishults.bitnots.tableau
 
-import org.junit.Ignore
-import org.junit.Test
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 
 class TopologyTest {
 
     @Test
-    @Ignore
+    @Disabled
     fun testFofGroups() {
 //        try {
 //            val path = TptpFileFetcher.findProblemFile(TptpDomain.TOP, TptpFormulaForm.FOF, 22, 1)
@@ -22,7 +22,7 @@ class TopologyTest {
 //                        if (tableau.isClosed())
 //                            break
 //                        if (!tableau.step())
-//                            Assert.fail("Failed to prove it with unlimited steps.")
+//                            Assertions.fail("Failed to prove it with unlimited steps.")
 //                    }
 //                }
 //            }

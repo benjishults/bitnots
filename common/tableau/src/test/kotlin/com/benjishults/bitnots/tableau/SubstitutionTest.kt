@@ -12,9 +12,9 @@ import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Sub
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class SubstitutionTest {
 
@@ -45,7 +45,7 @@ class SubstitutionTest {
     val P = Pred("P", 2)
     val Q = Pred("Q", 2)
 
-    @Before
+    @BeforeEach
     fun clearTables() {
         FunctionConstructor.clear()
         FreeVariable.clear()
@@ -54,7 +54,7 @@ class SubstitutionTest {
     @Test
     fun formulaUnificationTest() {
         val sub = Formula.unify(And(P(x, b), Q(y, a)), And(Q(b, a), P(a, b)), EmptySub)
-        Assert.assertEquals(sub, Sub(x to a, y to b))
+        Assertions.assertEquals(sub, Sub(x to a, y to b))
     }
 
     @Test
@@ -63,7 +63,7 @@ class SubstitutionTest {
         var s1 = Sub(
                 x to f(y),
                 y to z)
-        Assert.assertEquals(Sub(x to f(z), y to z), s1)
+        Assertions.assertEquals(Sub(x to f(z), y to z), s1)
         // not idempotent
         // vars occur in keys of s1
         var s2 = Sub(
@@ -71,11 +71,11 @@ class SubstitutionTest {
                 y to b,
                 z to y)
         // if I allowed non-idempotence or unsafe compositions, I would get the following:
-        Assert.assertEquals(Sub(x to a, y to b, z to b), s2)
+        Assertions.assertEquals(Sub(x to a, y to b, z to b), s2)
         var s3: Sub = Sub(
                 x to f(b),
                 z to y)
-        Assert.assertEquals(NotCompatible, s1 + s2)
+        Assertions.assertEquals(NotCompatible, s1 + s2)
 
         // not idempotent
         s1 = Sub(
@@ -92,7 +92,7 @@ class SubstitutionTest {
                 x to f(a),
                 y to g(b, a),
                 z to w)
-        Assert.assertEquals(NotCompatible, s1 + s2)
+        Assertions.assertEquals(NotCompatible, s1 + s2)
 
         // not idempotent
         s1 = Sub(
@@ -109,12 +109,12 @@ class SubstitutionTest {
                 x to f(a),
                 y to q(b, a),
                 z to w)
-        Assert.assertEquals(NotCompatible, s1 + s2)
+        Assertions.assertEquals(NotCompatible, s1 + s2)
     }
 
     @Test
     fun idempotenceTest() {
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 Sub(
                         x to f(a),
                         y to g(b, f(a)),
@@ -135,7 +135,7 @@ class SubstitutionTest {
                         x4 to x3,
                         x5 to x4
                 ))
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 Sub(
                         x to a,
                         y to f(a),
@@ -158,9 +158,11 @@ class SubstitutionTest {
                 ))
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun cycleTest() {
-        Sub(x to y, y to x)
+        Assertions.assertThrows(IllegalArgumentException::class.java) {
+            Sub(x to y, y to x)
+        }
     }
 
     @Test
@@ -176,22 +178,22 @@ class SubstitutionTest {
                 x to f(a),
                 u to g(y))
 
-        Assert.assertEquals(t1.applySub(sigma), t2.applySub(sigma))
-        Assert.assertEquals(mgu, sigma)
+        Assertions.assertEquals(t1.applySub(sigma), t2.applySub(sigma))
+        Assertions.assertEquals(mgu, sigma)
 
         val h = Fn("h", 2)
         t1 = h(x3, h(x2, x2))
         t2 = h(h(h(x1, x1), x2), x3)
 
         sigma = Term.unify(t1, t2, EmptySub)
-        Assert.assertEquals(t1.applySub(sigma).toString(), t2.applySub(sigma).toString())
+        Assertions.assertEquals(t1.applySub(sigma).toString(), t2.applySub(sigma).toString())
 
         val f = Fn("f", 4)
         t1 = f(x1, this.g(x2, x3), x2, b)
         t2 = f(this.g(h(a, x5), x2), x1, h(a, x4), x4)
 
         sigma = Term.unify(t1, t2, EmptySub)
-        Assert.assertEquals(t1.applySub(sigma), t2.applySub(sigma))
+        Assertions.assertEquals(t1.applySub(sigma), t2.applySub(sigma))
     }
 
 }

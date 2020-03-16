@@ -4,9 +4,11 @@ import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
 
+@Tag("localTptp")
 class ProblemBuilderTest {
 
     @Test
@@ -14,8 +16,8 @@ class ProblemBuilderTest {
         try { // TOP020+1.p hausdorff problem
             val path = TptpFileFetcher.findProblemFile(TptpDomain.TOP, TptpFormulaForm.FOF, 20, 1)
             TptpFofParser.parseFile(path).let {formulas->
-                Assert.assertEquals(9, formulas.size)
-                Assert.assertTrue(formulas.any { it.formulaRole == FormulaRole.conjecture })
+                Assertions.assertEquals(9, formulas.size)
+                Assertions.assertTrue(formulas.any { it.formulaRole == FormulaRole.conjecture })
             }
         } catch (e: Exception) {
             e.printStackTrace()
