@@ -4,7 +4,6 @@ import javafx.application.Application
 import javafx.scene.layout.Region
 import javafx.stage.Stage
 import java.nio.file.Files
-import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
@@ -27,18 +26,15 @@ class FxApplication : Application() {
     }
 
     private fun loadUiConfiguration() {
-        try {
-            val folder = Paths.get(System.getProperty("user.home"), ".bitnots")
-            Files.createDirectories(folder)
-            uiSettingsFile = folder.resolve("ui-settings.properties")
-            // Configurations().fileBased(YAMLConfiguration::class.java, uiSettingsFile.toFile()) // throws ConfigurationException
-        } catch (e: NoSuchFileException) {
-            if (Files.notExists(uiSettingsFile)) {
-                Files.copy(
-                        this.javaClass.getResourceAsStream("/ui-settings.properties-sample"),
-                        uiSettingsFile)
-            }
+        val folder = Paths.get(System.getProperty("user.home"), ".bitnots")
+        Files.createDirectories(folder)
+        uiSettingsFile = folder.resolve("ui-settings.properties")
+        if (Files.notExists(uiSettingsFile)) {
+            Files.copy(
+                    this.javaClass.getResourceAsStream("/ui-settings.properties-sample"),
+                    uiSettingsFile)
         }
+        // Configurations().fileBased(YAMLConfiguration::class.java, uiSettingsFile.toFile()) // throws ConfigurationException
         loadUserConfig()
     }
 
