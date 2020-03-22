@@ -40,13 +40,12 @@ class RegressionMainPane(
     private val inputFormat = SimpleStringProperty(inputFormats.first())
     private val textArea = TextArea()
     private lateinit var proofContext: Problem
-    private val mainMenu: MenuBar = MenuBar()
 
     init {
         stylesheets.add("css/ui.css")
 
-        val problemSetMenu = Menu("Problem Set")
-        val editMenuItem = MenuItem("Edit...")
+        val problemSetMenu = Menu("Problem Sets")
+        val editMenuItem = MenuItem("Edit Problem Set Collection")
         editMenuItem.onAction = EventHandler<ActionEvent> {
             EditProblemSetsPopup(window).show()
         }

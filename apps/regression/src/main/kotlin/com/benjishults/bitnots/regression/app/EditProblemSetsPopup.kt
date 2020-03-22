@@ -13,6 +13,7 @@ import javafx.scene.control.SplitPane
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import javafx.stage.Modality
 import javafx.stage.Stage
@@ -23,12 +24,6 @@ import javafx.util.Callback
 
 class EditProblemSetsPopup(owner: Window, vararg items: ProblemSet) : Stage() {
 
-    val stackPane: CloseableStackPane = object : CloseableStackPane() {
-        override val onClose: () -> Unit = {
-            this@EditProblemSetsPopup.onCloseRequest.handle(null)
-        }
-
-    }
     private val tableView = TableView<ProblemSet>()
 
     init {
@@ -39,14 +34,15 @@ class EditProblemSetsPopup(owner: Window, vararg items: ProblemSet) : Stage() {
         title = "Edit Problem Sets"
 
         scene = Scene(SplitPane().also { splitPane ->
+            val rightPane = Pane()
             splitPane.styleClass.add("ux")
             splitPane.items.addAll(
                     VBox(
                             HBox(
                                     Button("New").also { newButton ->
                                         newButton.onAction = EventHandler {
-                                            stackPane.children.add(
-                                                    NewProblemSetPane(tableView.items, stackPane))
+                                            rightPane.children.add(
+                                                    NewProblemSetPane(tableView.items, rightPane))
                                         }
                                     },
                                     Button("Delete").also { delButton ->
@@ -65,7 +61,7 @@ class EditProblemSetsPopup(owner: Window, vararg items: ProblemSet) : Stage() {
                                         }
                                     }),
                             ScrollPane(tableView)),
-                    stackPane)
+                    rightPane)
             return@also
         })
         scene.stylesheets.add("css/ui.css")

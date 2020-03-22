@@ -21,7 +21,7 @@ class FxApplication : Application() {
     override fun start(primaryStage: Stage) {
         this.primaryStage = primaryStage
         primaryStage.title = "Bitnots Tester"
-        applyCustomProperties(primaryStage)
+        populateScene(primaryStage)
         primaryStage.show()
     }
 
@@ -47,7 +47,7 @@ class FxApplication : Application() {
         }
     }
 
-    private fun applyCustomProperties(primaryStage: Stage) {
+    private fun populateScene(primaryStage: Stage) {
         primaryStage.x = uiProperties.getProperty("ui.framePosX", Region.USE_COMPUTED_SIZE.toString()).toDouble()
         primaryStage.y = uiProperties.getProperty("ui.framePosY", Region.USE_COMPUTED_SIZE.toString()).toDouble()
         val width = uiProperties.getProperty("ui.appWidth", Region.USE_COMPUTED_SIZE.toString()).toDouble()

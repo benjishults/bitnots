@@ -1,0 +1,95 @@
+@startuml
+
+!unquoted function SALT($x)
+"{{
+salt
+%invoke_void_func("_"+$x)
+}}" as $x
+note top: $x
+!endfunction
+
+!function _empty()
+{+
+{* File | Help
+ File | New | Open | Recent > | Save }
+"No problem set selected"
+{S
+{#
+File Name | Source | Domain | From | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
+. | . | . | . | . | . | . | .
+. | . | . | . | . | . | . | .
+. | . | . | . | . | . | . | .
+}
+}
+{ [ Run ] | [ See History ] | [ <&lock-locked> Unlock Options ] | [ Delete File From Problem Set ] }
+}
+!endfunction
+
+!function _new()
+{+
+source | ^tptp^ | domains | "AGT, SYN     " | form | ^ FOF ^ | name problem set: | "My name for problem set" | [ Fetch ]
+}
+!endfunction
+
+!function _new_fetch()
+{+
+{* File | Help }
+"My name for problem set"
+{S
+{#
+File Name | Source | Domain | From | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
+multi-selectable | TPTP | SYN | FOF | 6 | 30 | 5 | .
+list of problem files | TPTP | SYN | FOF | 6 | 30 | 5 | .
+}
+}
+{ [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] | [ Delete Problem Set Permanently ] }
+}
+!endfunction
+
+!function _unlock()
+{+
+{* File | Help }
+"My name for problem set"
+{S
+{#
+File Name | Source | Domain | From | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
+multi-selectable | TPTP | SYN | FOF | 3 | . | 2.5 | .
+list of problem files | TPTP | SYN | FOF | 6 | 30 | 3 | .
+}
+}
+{ [ <&lock-unlocked> Save and Lock ] | [ Delete Problem From Problem Set ] | [ Undo ] | [ Reset ] }
+}
+!endfunction
+
+!function _lock_warning()
+{+
+Warning: A problem set with this name already exists.
+If you over-write that files, you will lose your record of
+previous run-times and configurations.
+{ [ Over-write files ] | [ Go back and rename ] }
+}
+!endfunction
+
+!function _run()
+{+
+{* File | Help }
+"My name for problem set"
+{S
+{#
+File Name | Source | Domain | From | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
+multi-selectable | TPTP | SYN | FOF | 3 | . | 2.5 | 98
+list of problem files | TPTP | SYN | FOF | 6 | 30 | 3 | timeout
+}
+}
+{ [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] | [ Delete Problem Set Permanently ] }
+}
+!endfunction
+
+(*) -> SALT(empty) : first run
+--> SALT(new)
+new --> SALT(new_fetch) : require and new name
+new_fetch --> SALT(unlock)
+unlock --> SALT(lock_warning)
+lock_warning --> SALT(run)
+
+@enduml
