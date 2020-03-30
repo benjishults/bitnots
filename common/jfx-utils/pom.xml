@@ -34,21 +34,18 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>11.0.2</version>
             <classifier>linux</classifier>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>11.0.2</version>
             <classifier>linux</classifier>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>11.0.2</version>
             <classifier>linux</classifier>
             <scope>provided</scope>
         </dependency>

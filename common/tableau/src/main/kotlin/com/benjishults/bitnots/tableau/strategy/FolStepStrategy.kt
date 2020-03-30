@@ -9,7 +9,7 @@ import com.benjishults.bitnots.tableau.step.DeltaStep
 import com.benjishults.bitnots.tableau.step.GammaStep
 
 open class FolStepStrategy(
-        val qLimit: Int = 3
+        val qLimit: Long = 3
 ) : StepStrategy<FolTableau> {
 
     private val nodeFactory = { formula: SignedFormula<*>, tableauNode: FolTableauNode ->

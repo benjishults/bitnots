@@ -15,7 +15,7 @@ note top: $x
 "No problem set selected"
 {S
 {#
-File Name | Source | Domain | From | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
+File Name | Source | Domain | Form | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
 . | . | . | . | . | . | . | .
 . | . | . | . | . | . | . | .
 . | . | . | . | . | . | . | .
@@ -37,7 +37,7 @@ source | ^tptp^ | domains | "AGT, SYN     " | form | ^ FOF ^ | name problem set:
 "My name for problem set"
 {S
 {#
-File Name | Source | Domain | From | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
+File Name | Source | Domain | Form | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
 multi-selectable | TPTP | SYN | FOF | 6 | 30 | 5 | .
 list of problem files | TPTP | SYN | FOF | 6 | 30 | 5 | .
 }
@@ -52,7 +52,7 @@ list of problem files | TPTP | SYN | FOF | 6 | 30 | 5 | .
 "My name for problem set"
 {S
 {#
-File Name | Source | Domain | From | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
+File Name | Source | Domain | Form | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
 multi-selectable | TPTP | SYN | FOF | 3 | . | 2.5 | .
 list of problem files | TPTP | SYN | FOF | 6 | 30 | 3 | .
 }
@@ -76,7 +76,7 @@ previous run-times and configurations.
 "My name for problem set"
 {S
 {#
-File Name | Source | Domain | From | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
+File Name | Source | Domain | Form | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
 multi-selectable | TPTP | SYN | FOF | 3 | . | 2.5 | 98
 list of problem files | TPTP | SYN | FOF | 6 | 30 | 3 | timeout
 }

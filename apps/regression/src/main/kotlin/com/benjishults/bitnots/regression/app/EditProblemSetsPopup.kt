@@ -1,86 +1,69 @@
 package com.benjishults.bitnots.regression.app
 
-import com.benjishults.bitnots.jfx.CloseableStackPane
-import com.benjishults.bitnots.parser.ProblemSet
-import javafx.beans.property.SimpleStringProperty
-import javafx.event.EventHandler
-import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.ChoiceDialog
-import javafx.scene.control.ScrollPane
-import javafx.scene.control.SelectionMode
-import javafx.scene.control.SplitPane
-import javafx.scene.control.TableColumn
-import javafx.scene.control.TableView
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Pane
-import javafx.scene.layout.VBox
-import javafx.stage.Modality
+// import com.benjishults.bitnots.parser.ProblemSet
 import javafx.stage.Stage
-import javafx.stage.StageStyle
 import javafx.stage.Window
-import javafx.util.Callback
 
 
-class EditProblemSetsPopup(owner: Window, vararg items: ProblemSet) : Stage() {
+class EditProblemSetsPopup(owner: Window) : Stage() { // }, vararg items: ProblemSet) : Stage() {
 
-    private val tableView = TableView<ProblemSet>()
-
-    init {
-
-        initOwner(owner)
-        initModality(Modality.APPLICATION_MODAL)
-        initStyle(StageStyle.DECORATED)
-        title = "Edit Problem Sets"
-
-        scene = Scene(SplitPane().also { splitPane ->
-            val rightPane = Pane()
-            splitPane.styleClass.add("ux")
-            splitPane.items.addAll(
-                    VBox(
-                            HBox(
-                                    Button("New").also { newButton ->
-                                        newButton.onAction = EventHandler {
-                                            rightPane.children.add(
-                                                    NewProblemSetPane(tableView.items, rightPane))
-                                        }
-                                    },
-                                    Button("Delete").also { delButton ->
-                                        delButton.onAction = EventHandler {
-                                            ChoiceDialog<String>().also { choiceDialog ->
-                                                choiceDialog.items.addAll("Delete", "Cancel")
-                                                choiceDialog.showAndWait().ifPresent { choice ->
-                                                    choice.takeIf {
-                                                        it == "Delete"
-                                                    }.also {
-                                                        tableView.items.removeAt(
-                                                                tableView.selectionModel.selectedIndex)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }),
-                            ScrollPane(tableView)),
-                    rightPane)
-            return@also
-        })
-        scene.stylesheets.add("css/ui.css")
-
-        tableView.selectionModel.selectionMode = SelectionMode.SINGLE
-        tableView.items.addAll(*items)
-        tableView.sortOrder
-        tableView.columns.addAll(
-                TableColumn<ProblemSet, String>("Name").also {
-                    it.cellValueFactory = Callback { param ->
-                        SimpleStringProperty(param.value.name)
-                    }
-                },
-                TableColumn<ProblemSet, String>("Type").also {
-                    it.cellValueFactory = Callback { param ->
-                        SimpleStringProperty(param.value.type.toString())
-                    }
-                })
-
-    }
+    // private val tableView = TableView<ProblemSet>()
+    //
+    // init {
+    //
+    //     initOwner(owner)
+    //     initModality(Modality.APPLICATION_MODAL)
+    //     initStyle(StageStyle.DECORATED)
+    //     title = "Edit Problem Sets"
+    //
+    //     scene = Scene(SplitPane().also { splitPane ->
+    //         val rightPane = Pane()
+    //         splitPane.styleClass.add("ux")
+    //         splitPane.items.addAll(
+    //                 VBox(
+    //                         HBox(
+    //                                 Button("New").also { newButton ->
+    //                                     newButton.onAction = EventHandler {
+    //                                         // rightPane.children.add(
+    //                                                 // NewProblemSetDialog(tableView.items, rightPane))
+    //                                     }
+    //                                 },
+    //                                 Button("Delete").also { delButton ->
+    //                                     delButton.onAction = EventHandler {
+    //                                         ChoiceDialog<String>().also { choiceDialog ->
+    //                                             choiceDialog.items.addAll("Delete", "Cancel")
+    //                                             choiceDialog.showAndWait().ifPresent { choice ->
+    //                                                 choice.takeIf {
+    //                                                     it == "Delete"
+    //                                                 }.also {
+    //                                                     tableView.items.removeAt(
+    //                                                             tableView.selectionModel.selectedIndex)
+    //                                                 }
+    //                                             }
+    //                                         }
+    //                                     }
+    //                                 }),
+    //                         ScrollPane(tableView)),
+    //                 rightPane)
+    //         return@also
+    //     })
+    //     scene.stylesheets.add("css/ui.css")
+    //
+    //     tableView.selectionModel.selectionMode = SelectionMode.SINGLE
+    //     tableView.items.addAll(*items)
+    //     tableView.sortOrder
+    //     tableView.columns.addAll(
+    //             TableColumn<ProblemSet, String>("Name").also {
+    //                 it.cellValueFactory = Callback { param ->
+    //                     SimpleStringProperty(param.value.name)
+    //                 }
+    //             },
+    //             TableColumn<ProblemSet, String>("Type").also {
+    //                 it.cellValueFactory = Callback { param ->
+    //                     SimpleStringProperty(param.value.type.toString())
+    //                 }
+    //             })
+    //
+    // }
 
 }

@@ -8,7 +8,7 @@ import java.util.*
 import kotlin.Comparator
 
 class GammaStep<T : Tableau<N>, N : TableauNode<N>>(
-        private val qLimit: Int,
+        private val qLimit: Long,
         override val nodeFactory: (SignedFormula<*>, N) -> N
 ) : Step<T>,
     TableauStep<N> {
@@ -27,7 +27,7 @@ class GammaStep<T : Tableau<N>, N : TableauNode<N>>(
             }.map {
                 it to node
             }) // stop if we get to one that is ready to go
-            && gammas.first().first.numberOfApplications == 0
+            && gammas.first().first.numberOfApplications == 0L
         }
         return gammas.firstOrNull()?.let { (gamma, node) ->
             gamma.numberOfApplications++

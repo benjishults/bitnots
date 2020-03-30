@@ -97,7 +97,7 @@ object Regression {
                             val size = record.get("size").toInt(10)
                             val acceptedMillis = record.get("millis").toDouble()
                             // val acceptedTimeOut = record.get("timeoutMillis").toInt(10)
-                            val acceptedQLimit = record.get("q-limit").toInt(10)
+                            val acceptedQLimit = record.get("q-limit").toLong(10)
                             val descriptor = TptpProblemFileDescriptor(domain, form, number, version, size)
                             classifyFormulas(
                                     TptpFofParser.parseFile(
@@ -174,7 +174,7 @@ object PushLimits {
                                     val size = record.get("size").toInt(10)
                                     // val acceptedMillis = record.get("millis").toDouble()
                                     // val acceptedTimeOut = record.get("timeoutMillis").toInt(10)
-                                    val acceptedQLimit = record.get("q-limit").toInt(10)
+                                    val acceptedQLimit = record.get("q-limit").toLong(10)
                                     val descriptor = TptpProblemFileDescriptor(domain, form, number, version, size)
                                     // TODO catch exception here
                                     classifyFormulas(
@@ -214,7 +214,7 @@ fun createResults(
         fileName: String,
         domains: List<TptpDomain>,
         forms: List<TptpFormulaForm>,
-        qLimit: Int,
+        qLimit: Long,
         vararg excludes: TptpProblemFileDescriptor
 ) {
 
@@ -331,7 +331,7 @@ object CsvHelper {
             descriptor: TptpProblemFileDescriptor,
             timer: Timer,
             timeOut: Long,
-            qLimit: Int) {
+            qLimit: Long) {
         o.write(
                 "${descriptor.domain
                 },${descriptor.number

@@ -8,6 +8,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 fun padToThreeDigits(version: Int) =
@@ -23,21 +24,55 @@ object TptpFileFetcher {
             TptpProperties.getBaseFolderName(),
             "Problems", domain.toString())
 
-    fun findAll(domain: TptpDomain, form: TptpFormulaForm): List<Path> {
-        val pattern = Pattern.compile("${domain}[0-9]{3}${form.form.takeIf {
-            it != '+'
-        }?.toString() ?: "\\+"}[1-9][0-9]*(?:\\.[0-9]{3})?\\.p")
+    fun findAllPaths(
+            domain: TptpDomain,
+            form: TptpFormulaForm
+    ): List<Path> {
+        val pattern = problemPattern(domain, form)
         return Files.newDirectoryStream(findProblemFolder(domain)).filter {
             pattern.matcher(it.fileName.toString()).matches()
         }.toList()
+    }
+
+    fun findAllDescriptors(
+            domain: TptpDomain,
+            form: TptpFormulaForm
+    ): List<TptpProblemFileDescriptor> {
+        val pattern = problemPattern(domain, form)
+        return Files.newDirectoryStream(findProblemFolder(domain))
+            .map { path ->
+                pattern.matcher(path.fileName.toString())
+            }
+            .filter(Matcher::matches)
+            .map { matcher ->
+                TptpProblemFileDescriptor(
+                        domain,
+                        form,
+                        matcher.group("number").toInt(10),
+                        matcher.group("version").toInt(10),
+                        matcher.group("size")?.toInt(10) ?: -1)
+            }
+            .toList()
+    }
+
+    private fun problemPattern(
+            domain: TptpDomain,
+            form: TptpFormulaForm
+    ): Pattern {
+        return Pattern.compile("${domain}(?<number>[0-9]{3})${form.form.takeIf {
+            it != '+'
+        }?.toString() ?: "\\+"}(?<version>[1-9][0-9]*)(?:\\.(?<size>[0-9]{3}?))\\.p")
     }
 
     fun findProblemFile(descriptor: TptpProblemFileDescriptor): Path {
         return findProblemFolder(descriptor.domain).resolve(descriptor.toFileName())
     }
 
-    fun problemFileFilter(domains: List<TptpDomain>, forms: List<TptpFormulaForm>,
-                          vararg excludes: TptpProblemFileDescriptor): List<TptpProblemFileDescriptor> {
+    fun problemFileFilter(
+            domains: List<TptpDomain>,
+            forms: List<TptpFormulaForm>,
+            vararg excludes: TptpProblemFileDescriptor
+    ): List<TptpProblemFileDescriptor> {
         val base = FILE_SYSTEM.getPath(
                 TptpProperties.getBaseFolderName(),
                 "Problems")

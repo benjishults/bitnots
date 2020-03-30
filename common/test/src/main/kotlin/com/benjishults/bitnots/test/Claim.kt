@@ -22,8 +22,8 @@ import com.benjishults.bitnots.tableauProver.FolFormulaTableauProver
 import com.benjishults.bitnots.tableauProver.PropositionalFormulaProver
 import com.benjishults.bitnots.tableauProver.TableauProver
 
-val DEFAULT_MAX_STEPS: Int = 30
-val DEFAULT_Q_LIMIT: Int = 6
+val DEFAULT_MAX_STEPS: Long = 30L
+val DEFAULT_Q_LIMIT: Long = 6L
 
 interface Claim<T : ProofInProgress, in P : Prover<T>> {
     val proofInProgress: T
@@ -62,7 +62,7 @@ abstract class PropositionalClaim(
 abstract class FolClaim(
         final override val formula: Formula
 ) : Claim<FolTableau, FolFormulaTableauProver> {
-    abstract val qLimit: Int
+    abstract val qLimit: Long
 
     override val proofInProgress: FolTableau = FolTableau(
             PropositionalInitializationStrategy.init(
@@ -96,12 +96,12 @@ class FalsePropClaim(formula: Formula) : FalseClaim<PropositionalTableau, Propos
 
 class FalseFolClaim(
         formula: Formula,
-        override val qLimit: Int = DEFAULT_Q_LIMIT
+        override val qLimit: Long = DEFAULT_Q_LIMIT
 ) : FalseClaim<FolTableau, FolFormulaTableauProver>, FolClaim(formula)
 
 interface TrueClaim<T : Tableau<*>, in P : TableauProver<T>> : Claim<T, P> {
-    val maxSteps: Int
-    val minSteps: Int
+    val maxSteps: Long
+    val minSteps: Long
     override fun validateWithProver(prover: P): TableauProofProgressIndicator {
 
         for (step in maxSteps downTo 1) {
@@ -125,13 +125,13 @@ interface TrueClaim<T : Tableau<*>, in P : TableauProver<T>> : Claim<T, P> {
 
 class TruePropClaim(
         formula: Formula,
-        override val maxSteps: Int = DEFAULT_MAX_STEPS,
-        override val minSteps: Int = 0
+        override val maxSteps: Long = DEFAULT_MAX_STEPS,
+        override val minSteps: Long = 0L
 ) : TrueClaim<PropositionalTableau, PropositionalFormulaProver>, PropositionalClaim(formula)
 
 class TrueFolClaim(
         formula: Formula,
-        override val qLimit: Int = DEFAULT_Q_LIMIT,
-        override val maxSteps: Int = DEFAULT_MAX_STEPS,
-        override val minSteps: Int = 0
+        override val qLimit: Long = DEFAULT_Q_LIMIT,
+        override val maxSteps: Long = DEFAULT_MAX_STEPS,
+        override val minSteps: Long = 0L
 ) : TrueClaim<FolTableau, FolFormulaTableauProver>, FolClaim(formula)

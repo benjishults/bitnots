@@ -42,12 +42,14 @@
     </profiles>
 
     <properties>
+        <start-class>define this per application</start-class>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.version>1.3.61</kotlin.version>
         <java.version>11</java.version>
+        <openjfx.version>14</openjfx.version>
         <reactor.version>3.1.0.RELEASE</reactor.version>
         <dokka.version>0.9.15</dokka.version>
         <jackson.version>2.10.1</jackson.version>
@@ -199,16 +201,6 @@
             </dependency>
             <dependency>
                 <groupId>com.benjishults.bitnots</groupId>
-                <artifactId>config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <!--            <dependency>-->
-            <!--                <groupId>com.benjishults.bitnots</groupId>-->
-            <!--                <artifactId>data-access</artifactId>-->
-            <!--                <version>${project.version}</version>-->
-            <!--            </dependency>-->
-            <dependency>
-                <groupId>com.benjishults.bitnots</groupId>
                 <artifactId>ipr-parser</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -247,6 +239,31 @@
                 <groupId>javax.annotation</groupId>
                 <artifactId>javax.annotation-api</artifactId>
                 <version>1.3.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>linux</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>linux</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-base</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>linux</classifier>
+            </dependency>
+
+            <dependency>
+                <groupId>org.controlsfx</groupId>
+                <artifactId>controlsfx</artifactId>
+                <version>11.0.1</version>
             </dependency>
 
             <dependency>
@@ -600,30 +617,42 @@
                         <groups>${included.tags}</groups>
                     </configuration>
                 </plugin>
-                <!--                <plugin>
-                                    <groupId>org.apache.maven.plugins</groupId>
-                                    <artifactId>maven-failsafe-plugin</artifactId>
-                                    <version>2.22.2</version>
-                                    <executions>
-                                        <execution>
-                                            <goals>
-                                                <goal>integration-test</goal>
-                                                <goal>verify</goal>
-                                            </goals>
-                                        </execution>
-                                    </executions>
-                                    <configuration>
-                                        <skipTests>${skip.integration.tests}</skipTests>
-                                        <systemPropertyVariables>
-                                            <config>${project.basedir}/../../config</config>
-                                        </systemPropertyVariables>
-                                        <testSourceDirectory>src/localTptp/kotlin</testSourceDirectory>
-                                        <groups>localTptp</groups>
-                                        <includes>
-                                            <include>**/*</include>
-                                        </includes>
-                                    </configuration>
-                                </plugin>-->
+                <plugin>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-maven-plugin</artifactId>
+                    <version>0.0.4</version>
+                    <executions>
+                        <execution>
+                            <!-- Default configuration for running -->
+                            <id>default-cli</id>
+                            <configuration>
+                                <options>
+                                    <option>--add-opens</option>
+                                    <option>javafx.controls/javafx.scene.control.skin=ALL-UNNAMED</option>
+                                    <option>--add-opens</option>
+                                    <option>javafx.base/com.sun.javafx.event=ALL-UNNAMED</option>
+                                    <option>-Dconfig=${project.basedir}/../../config</option>
+                                </options>
+                                <mainClass>${start-class}</mainClass>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <!-- Configuration for debugging -->
+                            <id>debug</id>
+                            <configuration>
+                                <mainClass>${start-class}</mainClass>
+                                <options>
+                                    <option>--add-opens</option>
+                                    <option>javafx.controls/javafx.scene.control.skin=ALL-UNNAMED</option>
+                                    <option>--add-opens</option>
+                                    <option>javafx.base/com.sun.javafx.event=ALL-UNNAMED</option>
+                                    <option>-Dconfig=${project.basedir}/../../config</option>
+                                    <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005</option>
+                                </options>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>

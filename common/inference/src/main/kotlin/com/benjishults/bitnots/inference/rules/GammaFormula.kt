@@ -12,7 +12,7 @@ import com.benjishults.bitnots.model.unifier.Substitution
 
 abstract class GammaFormula<F : VarsBindingFormula>(formula: F, sign: Boolean) : SignedFormula<F>(formula, sign) {
 
-    var numberOfApplications = 0
+    var numberOfApplications = 0L
 
     override fun generateChildren(): List<SignedFormula<Formula>> {
         val boundToFree = formula.variables.fold(EmptySub) { s: Substitution, t ->
