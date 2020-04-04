@@ -2,16 +2,22 @@ package com.benjishults.bitnots.tableau
 
 import com.benjishults.bitnots.inference.createSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.util.StepCounter
+import com.benjishults.bitnots.util.StepCounterImpl
 import com.benjishults.bitnots.tableau.strategy.PropositionalInitializationStrategy
 
 open class PropositionalTableau(
-        override val root: PropositionalTableauNode
-) : Tableau<PropositionalTableauNode> {
+    override val root: PropositionalTableauNode
+) : Tableau<PropositionalTableauNode>(),
+    StepCounter by StepCounterImpl() {
 
     constructor(formula: Formula) : this(
-            PropositionalInitializationStrategy.init(
-                    PropositionalTableauNode(
-                            mutableListOf(formula.createSignedFormula()))))
+        PropositionalInitializationStrategy.init(
+            PropositionalTableauNode(
+                mutableListOf(formula.createSignedFormula())
+            )
+        )
+    )
 
     // TODO how different is this to FolTableau?
     override fun toString(): String {

@@ -14,7 +14,7 @@ open class InternTableWithOther<C, O>(val makeNew: (String, O) -> C) {
     fun intern(name: String, other: O): C {
         table.get(name)?.let {
             if (it.first != other) {
-                return new(name, other)
+                return newSimilar(name, other)
             }
             return it.second
         } ?: return makeNew(name, other).also {
@@ -22,18 +22,18 @@ open class InternTableWithOther<C, O>(val makeNew: (String, O) -> C) {
         }
     }
 
-    tailrec fun new(baseName: String, other: O): C {
+    tailrec fun newSimilar(baseName: String, other: O): C {
         if (table.get(baseName) !== null) {
             val index = baseName.lastIndexOf('-')
             if (index >= 0) {
                 val trailingInt = baseName.substring(index + 1).toIntOrNull()
                 if (trailingInt === null) {
-                    return new(baseName + "-0", other)
+                    return newSimilar(baseName + "-0", other)
                 } else {
-                    return new("${baseName.substring(0, index)}-${trailingInt + 1}", other)
+                    return newSimilar("${baseName.substring(0, index)}-${trailingInt + 1}", other)
                 }
             } else {
-                return new(baseName + "-0", other)
+                return newSimilar(baseName + "-0", other)
             }
         } else
             return intern(baseName, other)

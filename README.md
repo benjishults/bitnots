@@ -5,7 +5,7 @@
 ## Build
 
 ```bash
-mvn install
+mvn clean install
 ```
 
 If you want to run tests against [TPTP](http://www.cs.miami.edu/~tptp/), you must have the  [TPTP](http://www.cs.miami.edu/~tptp/) library
@@ -15,35 +15,33 @@ of the library.
 Once that's ready, run
 
 ```bash
-mvn install -PlocalTptp
+mvn install -P localTptp
 ```
 
-That will run only tests that need TPTP.
+That will run tests that need TPTP.
+
+Some tests have problems if you use JVM 8.  JVM 11 and higher work well.
 
 ## Run UI
 
-```bash
-mvn clean install
-```
+In the appropriate app folder, run
 
-Then hit the `javafx:run` target in `proof-service` to start a UI.  Doesn't do much so far.
+`mvn javafx:run`
 
-Will create a folder named `.bitnots` in your home directory for your personal preferences.
+You may need to enable the `localTptp` profile the first time you run an app that uses TPTP.
 
-## Run tests
+`mvn javafx:run -P localTptp`
 
-Be sure to edit the `.properties` files in the `config` folder.
+The UI will create a folder named `.bitnots` in your home directory for your personal preferences.
 
-```bash
-mvn clean install
-```
+To debug
 
-Some tests have problems if you use JVM 8.  JVM 11 works well.  (I use 11.J9.)
+`mvn javafx:run@debug -P localTptp`
 
 ## Enhanced testing
 
 I'm working on making it easier to find the limits of what the prover can do and find regressions.  This 
-work is in `common/test`.
+work is in `common/test` now and moving toward a UI in `app/regression`.
 
 My process is to edit the file `common/test/src/main/kotlin/com/benjishults/bitnots/test/EnhancedTests.kts`
 then run it with kscript:

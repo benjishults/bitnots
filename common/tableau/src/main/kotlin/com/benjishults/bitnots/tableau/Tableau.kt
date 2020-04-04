@@ -1,16 +1,16 @@
 package com.benjishults.bitnots.tableau
 
 import com.benjishults.bitnots.prover.finish.ProofInProgress
+import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
 import com.benjishults.bitnots.tableau.closer.RanOutOfRunwayTableauProgressIndicator
-import com.benjishults.bitnots.tableau.closer.TableauProofProgressIndicator
+import com.benjishults.bitnots.util.StepCounter
+import com.benjishults.bitnots.util.StepCounterImpl
 
-interface Tableau<TN : TableauNode<TN>> : ProofInProgress {
+abstract class Tableau<TN : TableauNode<TN>> : ProofInProgress, StepCounter by StepCounterImpl() {
 
-    val root: TN
+    abstract val root: TN
 
-    /**
-     * If the tableau is closed, closer().isDone() should return [true].
-     */
-    fun closer(): TableauProofProgressIndicator = RanOutOfRunwayTableauProgressIndicator
+    @Volatile
+    override var indicator: ProofProgressIndicator = RanOutOfRunwayTableauProgressIndicator
 
 }

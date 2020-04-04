@@ -9,10 +9,13 @@ open class PropositionalStepStrategy(
 ) : StepStrategy<PropositionalTableau> {
 
     private val betaStep: BetaStep<PropositionalTableau, PropositionalTableauNode> =
-            BetaStep { formula, tableauNode ->
-                PropositionalInitializationStrategy.init(PropositionalTableauNode(mutableListOf(formula), tableauNode))
-            }
+        BetaStep { formula, tableauNode ->
+            PropositionalInitializationStrategy.init(PropositionalTableauNode(mutableListOf(formula), tableauNode))
+        }
 
-    override fun step(proofInProgress: PropositionalTableau): Boolean = betaStep.apply(proofInProgress)
+    override fun step(proofInProgress: PropositionalTableau): Boolean {
+        proofInProgress.incrementSteps()
+        return betaStep.apply(proofInProgress)
+    }
 
 }

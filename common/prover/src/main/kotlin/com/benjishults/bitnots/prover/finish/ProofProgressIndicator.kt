@@ -2,15 +2,16 @@ package com.benjishults.bitnots.prover.finish
 
 interface ProofProgressIndicator {
     fun isDone(): Boolean
+    // fun <T: Any> extendBy(extension: T): ProofProgressIndicator
 }
 
 interface FailedProofIndicator : ProofProgressIndicator {
     override fun isDone(): Boolean = false
 }
 
-interface TimeOutProofIndicator : FailedProofIndicator {
+open class TimeOutProofIndicator(
     val allowedMillis: Long
-}
+) : FailedProofIndicator
 
 interface EngineErrorIndicator<out T : Any> : FailedProofIndicator {
     val reason: T?

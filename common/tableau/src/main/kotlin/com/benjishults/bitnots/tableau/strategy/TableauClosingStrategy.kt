@@ -44,6 +44,7 @@ interface TableauClosingStrategy<in T : Tableau<*>> :
                 extending.nextNode().branchClosers.forEach { bc ->
                     extending.createExtension(bc).let { ext ->
                         if (ext.isDone()) {
+                            proofInProgress.indicator = ext
                             return ext
                         } else {
                             toBeExtended.safePush(ext) // this means I'll come back to it
@@ -53,7 +54,9 @@ interface TableauClosingStrategy<in T : Tableau<*>> :
                 toBeExtended.safePush(extending.progress())
             }
         } while (toBeExtended.isNotEmpty());
-        return RanOutOfRunwayTableauProgressIndicator
+        return RanOutOfRunwayTableauProgressIndicator.also { indicator ->
+            proofInProgress.indicator = indicator
+        }
     }
 
 }

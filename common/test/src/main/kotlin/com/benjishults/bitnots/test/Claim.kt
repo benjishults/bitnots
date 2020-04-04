@@ -3,135 +3,121 @@ package com.benjishults.bitnots.test
 import com.benjishults.bitnots.inference.createSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.util.isPropositional
+import com.benjishults.bitnots.prover.Harness
 import com.benjishults.bitnots.prover.Prover
 import com.benjishults.bitnots.prover.finish.ProofInProgress
-import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
 import com.benjishults.bitnots.tableau.FolTableau
 import com.benjishults.bitnots.tableau.FolTableauNode
 import com.benjishults.bitnots.tableau.PropositionalTableau
 import com.benjishults.bitnots.tableau.PropositionalTableauNode
-import com.benjishults.bitnots.tableau.Tableau
-import com.benjishults.bitnots.tableau.closer.SuccessfulTableauProofIndicator
-import com.benjishults.bitnots.tableau.closer.TableauProofProgressIndicator
-import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
-import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
-import com.benjishults.bitnots.tableau.strategy.PropositionalClosingStrategy
 import com.benjishults.bitnots.tableau.strategy.PropositionalInitializationStrategy
-import com.benjishults.bitnots.tableau.strategy.PropositionalStepStrategy
 import com.benjishults.bitnots.tableauProver.FolFormulaTableauProver
+import com.benjishults.bitnots.tableauProver.FolTableauHarness
 import com.benjishults.bitnots.tableauProver.PropositionalFormulaProver
-import com.benjishults.bitnots.tableauProver.TableauProver
+import com.benjishults.bitnots.tableauProver.PropositionalTableauHarness
 
 val DEFAULT_MAX_STEPS: Long = 30L
 val DEFAULT_Q_LIMIT: Long = 6L
 
-interface Claim<T : ProofInProgress, in P : Prover<T>> {
-    val proofInProgress: T
-    val formula: Formula
-    fun validate(): ProofProgressIndicator
-    fun validateWithProver(prover: P): ProofProgressIndicator
+interface ExpectOutcome {
+    fun validate(proofInProgress: ProofInProgress): Boolean
 }
 
-/**
- * Not thread safe
- */
+interface Claim<T : ProofInProgress, in P : Prover<T>> : ExpectOutcome {
+    val formula: Formula
+    suspend fun attempt(harness: Harness<T, P>): ProofInProgress
+    suspend fun attempt(): ProofInProgress
+}
+
+object FalseClaim : ExpectOutcome {
+    override fun validate(proofInProgress: ProofInProgress): Boolean {
+        return !proofInProgress.indicator.isDone()
+    }
+}
+
+class TrueClaim(private val maxSteps: Long, private val minSteps: Long) : ExpectOutcome {
+    override fun validate(proofInProgress: ProofInProgress): Boolean {
+        return proofInProgress.indicator.isDone() && proofInProgress.getSteps() in minSteps..maxSteps
+    }
+}
+
 abstract class PropositionalClaim(
-        final override val formula: Formula
+    final override val formula: Formula
 ) : Claim<PropositionalTableau, PropositionalFormulaProver> {
 
     init {
         require(formula.isPropositional())
     }
 
-    override val proofInProgress: PropositionalTableau = PropositionalTableau(
-            PropositionalInitializationStrategy.init(
-                    PropositionalTableauNode(
-                            mutableListOf(formula.createSignedFormula()))))
+    override suspend fun attempt(): ProofInProgress =
+        attempt(PropositionalTableauHarness)
 
-    override fun validate(): ProofProgressIndicator {
-        return validateWithProver(PropositionalFormulaProver(
-                PropositionalClosingStrategy(),
-                PropositionalStepStrategy()))
+    override suspend fun attempt(harness: Harness<PropositionalTableau, PropositionalFormulaProver>): ProofInProgress {
+        return PropositionalTableau(
+            PropositionalInitializationStrategy.init(
+                PropositionalTableauNode(
+                    mutableListOf(formula.createSignedFormula())
+                )
+            )
+        ).also {
+            harness.toProver().prove(it)
+        }
     }
 
 }
 
-/**
- * Not thread safe
- */
 abstract class FolClaim(
-        final override val formula: Formula
+    final override val formula: Formula
 ) : Claim<FolTableau, FolFormulaTableauProver> {
     abstract val qLimit: Long
 
-    override val proofInProgress: FolTableau = FolTableau(
+    override suspend fun attempt(): ProofInProgress =
+        attempt(FolTableauHarness(qLimit))
+
+    override suspend fun attempt(harness: Harness<FolTableau, FolFormulaTableauProver>): ProofInProgress {
+        return FolTableau(
             PropositionalInitializationStrategy.init(
-                    FolTableauNode(mutableListOf(formula.createSignedFormula()))))
-
-    override fun validate(): ProofProgressIndicator {
-        return validateWithProver(FolFormulaTableauProver(
-                FolUnificationClosingStrategy(),
-                FolStepStrategy(qLimit)))
+                FolTableauNode(mutableListOf(formula.createSignedFormula()))
+            )
+        ).also { harness.toProver().prove(it) }
     }
 
 }
 
-
-interface FalseClaim<T : Tableau<*>, in P : TableauProver<T>> : Claim<T, P> {
-    override fun validateWithProver(prover: P): ProofProgressIndicator {
-
-        while (true) {
-            prover.searchForFinisher(proofInProgress).let { progressIndicator ->
-                if (progressIndicator.isDone())
-                    error("Unexpectedly proved ${formula}.")
-                else if (!prover.step(proofInProgress))
-                    return SuccessfulTableauProofIndicator
-            }
-        }
+class FalsePropClaim(
+    formula: Formula
+) : ExpectOutcome by FalseClaim, PropositionalClaim(formula) {
+    override fun toString(): String {
+        return "{formula=$formula}"
     }
 }
-
-class FalsePropClaim(formula: Formula) : FalseClaim<PropositionalTableau, PropositionalFormulaProver>,
-                                            PropositionalClaim(formula)
 
 class FalseFolClaim(
-        formula: Formula,
-        override val qLimit: Long = DEFAULT_Q_LIMIT
-) : FalseClaim<FolTableau, FolFormulaTableauProver>, FolClaim(formula)
-
-interface TrueClaim<T : Tableau<*>, in P : TableauProver<T>> : Claim<T, P> {
-    val maxSteps: Long
-    val minSteps: Long
-    override fun validateWithProver(prover: P): TableauProofProgressIndicator {
-
-        for (step in maxSteps downTo 1) {
-            prover.searchForFinisher(proofInProgress).let { progressIndicator ->
-                if (progressIndicator.isDone()) {
-                    (maxSteps - step).takeIf {
-                        it < minSteps
-                    }?.let {
-                        error("${formula} is unexpectedly proved before ${it + 1} steps.")
-                    } ?: return progressIndicator
-                }
-            }
-            if (!prover.step(proofInProgress))
-                error("Failed to prove ${formula} with ${maxSteps} steps.")
-        }
-        return prover.searchForFinisher(proofInProgress).takeIf {
-            it.isDone()
-        } ?: error("Failed to prove ${formula} with ${maxSteps} steps.")
+    formula: Formula,
+    override val qLimit: Long = DEFAULT_Q_LIMIT
+) : ExpectOutcome by FalseClaim, FolClaim(formula) {
+    override fun toString(): String {
+        return "{formula=$formula, qLimit=$qLimit}"
     }
 }
 
 class TruePropClaim(
-        formula: Formula,
-        override val maxSteps: Long = DEFAULT_MAX_STEPS,
-        override val minSteps: Long = 0L
-) : TrueClaim<PropositionalTableau, PropositionalFormulaProver>, PropositionalClaim(formula)
+    formula: Formula,
+    val maxSteps: Long = DEFAULT_MAX_STEPS,
+    val minSteps: Long = 0L
+) : ExpectOutcome by TrueClaim(maxSteps, minSteps), PropositionalClaim(formula) {
+    override fun toString(): String {
+        return "{formula=$formula, minSteps=$minSteps, maxSteps=$maxSteps}"
+    }
+}
 
 class TrueFolClaim(
-        formula: Formula,
-        override val qLimit: Long = DEFAULT_Q_LIMIT,
-        override val maxSteps: Long = DEFAULT_MAX_STEPS,
-        override val minSteps: Long = 0L
-) : TrueClaim<FolTableau, FolFormulaTableauProver>, FolClaim(formula)
+    formula: Formula,
+    override val qLimit: Long = DEFAULT_Q_LIMIT,
+    val maxSteps: Long = DEFAULT_MAX_STEPS,
+    val minSteps: Long = 0L
+) : ExpectOutcome by TrueClaim(maxSteps, minSteps), FolClaim(formula) {
+    override fun toString(): String {
+        return "{formula=$formula, minSteps=$minSteps, maxSteps=$maxSteps, qLimit=$qLimit}"
+    }
+}

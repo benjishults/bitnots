@@ -32,8 +32,15 @@
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
             <artifactId>language</artifactId>
-            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>tableau</artifactId>
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
@@ -95,8 +102,8 @@
                 <groupId>org.jetbrains.kotlin</groupId>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -1,3 +1,7 @@
 package com.benjishults.bitnots.prover.finish
 
-interface ProofInProgress
+import com.benjishults.bitnots.util.StepCounter
+
+interface ProofInProgress : StepCounter {
+    var indicator: ProofProgressIndicator
+}

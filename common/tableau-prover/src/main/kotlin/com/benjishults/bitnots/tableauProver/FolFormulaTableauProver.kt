@@ -5,6 +5,7 @@ import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
 import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 
 class FolFormulaTableauProver(
-        override val finishingStrategy: FolUnificationClosingStrategy,
-        override val stepStrategy: FolStepStrategy
+    override val finishingStrategy: FolUnificationClosingStrategy,
+    override val stepStrategy: FolStepStrategy,
+    override val harness: FolTableauHarness
 ) : TableauProver<FolTableau>

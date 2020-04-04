@@ -1,6 +1,21 @@
 package com.benjishults.bitnots.theory
 
-import kotlinx.serialization.Serializable
+class Theory(val axioms: List<Axiom>) {
+    /**
+     * the theories known terms
+     */
+    val termConstructorTable: Map<String, TermConstructorInfo> = mutableMapOf()
+    /**
+     * the theories known formulas
+     */
+    val formConstructorTable: Map<String, FormulaConstructorInfo> = mutableMapOf()
 
-@Serializable
-class Theory(val axioms: List<Axiom>)
+}
+
+interface FormulaConstructorInfo {
+    val arity : Long
+}
+
+interface TermConstructorInfo {
+    val arity : Long
+}

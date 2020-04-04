@@ -28,6 +28,10 @@ class ProblemSet(
         return Path.of("")
     }
 
+    companion object {
+        val EMPTY = ProblemSet("No problem set selected", harnesses = emptyMap())
+    }
+
 }
 
 data class ProblemSetBuilder(

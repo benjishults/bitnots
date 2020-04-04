@@ -30,13 +30,13 @@ fun Pred(name: String, arity: Int = 1): PredicateConstructor {
  */
 fun PredU(name: String, arity: Int = 1): PredicateConstructor {
     require(arity > 0)
-    return PredicateConstructor.new(name, arity)
+    return PredicateConstructor.newSimilar(name, arity)
 }
 
 /**
- * Represents a simple function term in the language.  A constant is represented by a function of no arguments.
- * @param name the FunctionConstructor for the term
- * @param arguments the arguments in the function term
+ * Represents a predicate in the language.  A propositional variable can be represented by a predicate of no arguments.
+ * @param name the PredicateConstructor for the predicate
+ * @param arguments the arguments in the function predicate
  */
 class Predicate private constructor(override val constructor: PredicateConstructor, var arguments: List<Term>) :
         Formula {
@@ -118,16 +118,6 @@ class Predicate private constructor(override val constructor: PredicateConstruct
         } ?: freeVars
     }
 
-    //    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
-    //            arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
-    //                t.getFreeVariablesAndCounts().entries.forEach { (v, c) ->
-    //                    s.get(v)?.also {
-    //                        s.put(v, c + it)
-    //                    } ?: s.put(v, c)
-    //                }
-    //                s
-    //            }
-
     override fun applySub(substitution: Substitution) =
             constructor(arguments.map {
                 it.applySub(substitution)
@@ -137,13 +127,6 @@ class Predicate private constructor(override val constructor: PredicateConstruct
             constructor(arguments.map {
                 it.applyPair(pair)
             })
-
-    //    override fun getVariablesUnboundExcept(boundVars: List<Variable>) =
-    //            arguments.fold(mutableSetOf<Variable>()) { s, t ->
-    //                s.also {
-    //                    it.addAll(t.getVariablesUnboundExcept(boundVars))
-    //                }
-    //            }
 
     override fun toString() =
             "(${constructor.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"

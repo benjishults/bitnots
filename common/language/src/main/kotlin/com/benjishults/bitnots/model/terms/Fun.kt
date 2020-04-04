@@ -24,7 +24,7 @@ fun Fn(name: String, arity: Int = 1): FunctionConstructor {
  */
 fun FnU(name: String, arity: Int = 1): FunctionConstructor {
     require(arity > 0)
-    return FunctionConstructor.new(name, arity)
+    return FunctionConstructor.newSimilar(name, arity)
 }
 
 /**
@@ -41,7 +41,7 @@ fun Const(name: String) =
  * @return a Function of no arguments with a unique name similar to the given name.
  */
 fun ConstU(name: String) =
-        FunctionConstructor.new(name, 0)(emptyList())
+        FunctionConstructor.newSimilar(name, 0)(emptyList())
 
 /**
  * Represents a simple function term in the language.  A constant is represented by a function of no arguments.

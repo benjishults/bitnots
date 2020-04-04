@@ -5,21 +5,20 @@ import com.benjishults.bitnots.tableau.FolTableau
 import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
 import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 
-data class FolTableauHarness(val qLimit: Long?, val stepLimit: Long?, val timeLimitMillis: Long?) :
-        Harness<FolTableau, FolFormulaTableauProver> {
-
-    init {
-        require(qLimit != null ||
-                stepLimit != null ||
-                timeLimitMillis != null)
-    }
+data class FolTableauHarness(
+    val qLimit: Long = 3L, val stepLimit: Long = -1L, val timeLimitMillis: Long = -1L
+) : Harness<FolTableau, FolFormulaTableauProver> {
 
     override fun toProver(): FolFormulaTableauProver {
-        return FolFormulaTableauProver(FolUnificationClosingStrategy(),
-                                       qLimit?.let {
-                                           FolStepStrategy(it)
-                                       }
-                                       ?: FolStepStrategy())
+        return FolFormulaTableauProver(
+            FolUnificationClosingStrategy(),
+            FolStepStrategy(qLimit),
+            this
+        )
+    }
+
+    override fun rein(proofInProgress: FolTableau): Boolean {
+        return stepLimit >= 0 && proofInProgress.getSteps() == stepLimit
     }
 
 }

@@ -14,7 +14,7 @@ abstract class DeltaFormula<F : VarsBindingFormula>(formula: F, sign: Boolean) :
         val unboundVars = formula.formula.getFreeVariables()
         val skolems = formula.variables.fold(EmptySub) { s: Substitution, t ->
             t.cons.name
-            s + Sub(t.to(FunctionConstructor.new(t.cons.name, unboundVars.size)(unboundVars.toList())))
+            s + Sub(t.to(FunctionConstructor.newSimilar(t.cons.name, unboundVars.size)(unboundVars.toList())))
         }
         return listOf(formula.formula.applySub(skolems).createSignedFormula(sign))
     }

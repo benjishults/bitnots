@@ -18,10 +18,10 @@
 
     <profiles>
         <profile>
-            <id>localTptp</id>
-            <properties>
-                <included.tags>localTptp</included.tags>
-            </properties>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -33,7 +33,25 @@
                             <systemPropertyVariables>
                                 <config>${project.basedir}/../../config</config>
                             </systemPropertyVariables>
-                            <groups>${included.tags}</groups>
+                            <groups>!localTptp</groups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>localTptp</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.22.2</version>
+                        <configuration>
+                            <failIfNoTests>false</failIfNoTests>
+                            <systemPropertyVariables>
+                                <config>${project.basedir}/../../config</config>
+                            </systemPropertyVariables>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -54,22 +72,12 @@
         <dokka.version>0.9.15</dokka.version>
         <jackson.version>2.10.1</jackson.version>
         <camel.version>3.0.1</camel.version>
-        <!--        <spring.version>5.2.1.RELEASE</spring.version>-->
         <ktor.version>1.3.0</ktor.version>
         <boot.version>2.2.1.RELEASE</boot.version>
-        <included.tags>none()</included.tags>
-        <!--        <skip.unit.tests>false</skip.unit.tests>
-                <skip.integration.tests>true</skip.integration.tests>-->
         <log4j.version>2.12.1</log4j.version>
     </properties>
 
     <repositories>
-        <!--
-                <repository>
-                    <id>java.net</id>
-                    <url>https://maven.java.net/content/repositories/public/</url>
-                </repository>
-         -->
         <repository>
             <id>jcenter</id>
             <name>JCenter</name>
@@ -461,7 +469,11 @@
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>5.4.0</version>
-                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>5.4.0</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
@@ -495,7 +507,21 @@
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-serialization-runtime</artifactId>
-            <version>0.14.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -590,34 +616,6 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.0.0</version>
-                    <executions>
-                        <execution>
-                            <id>add-test-source</id>
-                            <phase>generate-test-sources</phase>
-                            <goals>
-                                <goal>add-test-source</goal>
-                            </goals>
-                            <configuration>
-                                <sources>
-                                    <source>src/localTptp/kotlin</source>
-                                </sources>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.2</version>
-                    <configuration>
-                        <failIfNoTests>false</failIfNoTests>
-                        <groups>${included.tags}</groups>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.openjfx</groupId>
                     <artifactId>javafx-maven-plugin</artifactId>
                     <version>0.0.4</version>
@@ -689,6 +687,50 @@
                             </configuration>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>pl.project13.maven</groupId>
+                    <artifactId>git-commit-id-plugin</artifactId>
+                    <version>2.2.4</version>
+                    <executions>
+                        <execution>
+                            <id>get-the-git-infos</id>
+                            <goals>
+                                <goal>revision</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>validate-the-git-infos</id>
+                            <goals>
+                                <goal>validateRevision</goal>
+                            </goals>
+                            <phase>package</phase>
+                        </execution>
+                    </executions>
+
+                    <configuration>
+                        <validationProperties>
+                            <!-- verify that the current repository is not dirty -->
+                            <validationProperty>
+                                <name>validating git dirty</name>
+                                <value>${git.dirty}</value>
+                                <shouldMatchTo>false</shouldMatchTo>
+                            </validationProperty>
+                        </validationProperties>
+                        <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                        <prefix>git</prefix>
+                        <verbose>false</verbose>
+                        <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                        <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                        <format>json</format>
+                        <gitDescribe>
+                            <skip>false</skip>
+                            <always>false</always>
+                            <dirty>-dirty</dirty>
+                        </gitDescribe>
+
+                    </configuration>
+
                 </plugin>
             </plugins>
         </pluginManagement>

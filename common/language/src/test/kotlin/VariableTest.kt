@@ -7,17 +7,17 @@ class VariableTest {
     @Test
     fun testNewVariables() {
         listOf("a", "b", "c", "d", "e", "f", "b-line", "c-").map {
-            FreeVariable.new(it)
+            FreeVariable.newSimilar(it)
         }.forEach { name ->
-            Assertions.assertEquals(name.cons.name + "-0", FreeVariable.new(name.cons.name).cons.name)
-            Assertions.assertEquals(name.cons.name + "-1", FreeVariable.new(name.cons.name).cons.name)
+            Assertions.assertEquals(name.cons.name + "-0", FreeVariable.newSimilar(name.cons.name).cons.name)
+            Assertions.assertEquals(name.cons.name + "-1", FreeVariable.newSimilar(name.cons.name).cons.name)
         }
     }
 
     @Test
     fun testNumericSuffixedVariables() {
-        FreeVariable.new("a-2")
-        Assertions.assertEquals("a-3", FreeVariable.new("a-2").cons.name)
+        FreeVariable.newSimilar("a-2")
+        Assertions.assertEquals("a-3", FreeVariable.newSimilar("a-2").cons.name)
     }
 
 }

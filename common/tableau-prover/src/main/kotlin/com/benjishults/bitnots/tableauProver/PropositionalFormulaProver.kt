@@ -5,6 +5,7 @@ import com.benjishults.bitnots.tableau.PropositionalTableau
 import com.benjishults.bitnots.tableau.strategy.PropositionalClosingStrategy
 
 open class PropositionalFormulaProver(
-        override val finishingStrategy: PropositionalClosingStrategy,
-        override val stepStrategy: StepStrategy<PropositionalTableau>
+    override val finishingStrategy: PropositionalClosingStrategy,
+    override val stepStrategy: StepStrategy<PropositionalTableau>,
+    override val harness: PropositionalTableauHarness
 ) : TableauProver<PropositionalTableau>

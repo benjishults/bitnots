@@ -3,25 +3,18 @@ package com.benjishults.bitnots.test
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.Predicate
 import com.benjishults.bitnots.model.formulas.propositional.And
-import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.terms.Function
-import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
+import com.benjishults.bitnots.prover.finish.ProofInProgress
+import com.benjishults.bitnots.prover.finish.TimeOutProofIndicator
 import com.benjishults.bitnots.tableau.FolTableau
-import com.benjishults.bitnots.tableau.closer.TableauTimeOutProofIndicator
-import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
-import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 import com.benjishults.bitnots.tableauProver.FolFormulaTableauProver
-import com.benjishults.bitnots.test.CsvHelper.writeCsvHeader
-import com.benjishults.bitnots.test.CsvHelper.writeCsvLine
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.TptpProperties
 import com.benjishults.bitnots.tptp.files.TptpDomain
-import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
-import com.benjishults.bitnots.tptp.parser.TptpFofParser
 import com.benjishults.bitnots.util.meter.NoOpPushMeterRegistry
 import io.micrometer.core.instrument.Clock
 import io.micrometer.core.instrument.Timer
@@ -29,8 +22,6 @@ import io.micrometer.core.instrument.step.StepRegistryConfig
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import org.apache.commons.csv.CSVFormat
-import org.apache.commons.csv.CSVParser
 import java.io.BufferedWriter
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -55,22 +46,22 @@ val registry = NoOpPushMeterRegistry(object : StepRegistryConfig {
 object Regression {
     fun newBaselineFof() {
         createResults(
-                "baseline${Instant.now().toEpochMilli()}.csv",
-                listOf(*TptpDomain.values()),
-                listOf(TptpFormulaForm.FOF),
-                3,
-                // stack overflow on parsing file
-                TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 680, 1, 15),
-                // stack overflow on parsing file
-                TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 680, 1, 20),
-                // didn't even try
-                TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 681, 1, 20),
-                // didn't even try
-                TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 684, 1, 20),
-                // didn't even try
-                TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 685, 1, 20),
-                // Unexpected character at beginning of FOF '+' at line 30 of /usr/local/share/tptp/Problems/LCL/LCL882+1.p.
-                TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 882, 1)
+            "baseline${Instant.now().toEpochMilli()}.csv",
+            listOf(*TptpDomain.values()),
+            listOf(TptpFormulaForm.FOF),
+            3,
+            // stack overflow on parsing file
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 680, 1, 15),
+            // stack overflow on parsing file
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 680, 1, 20),
+            // didn't even try
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 681, 1, 20),
+            // didn't even try
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 684, 1, 20),
+            // didn't even try
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 685, 1, 20),
+            // Unexpected character at beginning of FOF '+' at line 30 of /usr/local/share/tptp/Problems/LCL/LCL882+1.p.
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 882, 1)
         )
     }
 
@@ -79,176 +70,177 @@ object Regression {
     }
 
     fun doAsWellAsAccepted() {
-        tptpReadResultsFolder.resolve("baseline.csv")
-            .toFile()
-            .reader()
-            .use { acceptedResultsFile ->
-                CSVParser(
-                        acceptedResultsFile,
-                        CSVFormat.DEFAULT.withHeader(*CsvHelper.HEADER.split(",").toTypedArray())
-                ).use { parser ->
-                    // if it succeeded last time
-                    parser.filter { it.get("status") == "success" }
-                        .forEach { record ->
-                            val domain = TptpDomain.valueOf(record.get("domain"))
-                            val form = TptpFormulaForm.valueOf(record.get("form"))
-                            val number = record.get("number").toInt(10)
-                            val version = record.get("version").toInt(10)
-                            val size = record.get("size").toInt(10)
-                            val acceptedMillis = record.get("millis").toDouble()
-                            // val acceptedTimeOut = record.get("timeoutMillis").toInt(10)
-                            val acceptedQLimit = record.get("q-limit").toLong(10)
-                            val descriptor = TptpProblemFileDescriptor(domain, form, number, version, size)
-                            classifyFormulas(
-                                    TptpFofParser.parseFile(
-                                            TptpFileFetcher.findProblemFile(descriptor))
-                            ).let { (hyps, targets) ->
-                                val hypothesis = createConjunct(hyps)
-                                targets.forEach { target ->
-                                    FolFormulaTableauProver(
-                                            FolUnificationClosingStrategy(),
-                                            FolStepStrategy(acceptedQLimit)
-                                    ).also { prover ->
-                                        clearInternTables()
-                                        val timer = fetchTimer(descriptor, "problem")
-
-                                        timer.record {
-                                            limitedTimeProve(
-                                                    prover,
-                                                    hypothesis?.let {
-                                                        Implies(it, target)
-                                                    } ?: target,
-                                                    acceptedMillis.toLong() + 1)
-                                        }
-                                        assert(result.get() === Proved)
-                                        val max = timer.max(TimeUnit.MILLISECONDS)
-                                        if (1.0 - (Math.abs(max - acceptedMillis) / acceptedMillis) > .1)
-                                            println("This run ($max) was about as fast as the previous ($acceptedMillis) for $descriptor with q-limit $acceptedQLimit")
-                                        else
-                                            println("This run ($max) was significantly slower than the previous ($acceptedMillis) for $descriptor with q-limit $acceptedQLimit")
-                                    }
-                                }
-                            }
-                        }
-                }
-            }
+        // tptpReadResultsFolder.resolve("baseline.csv")
+        //     .toFile()
+        //     .reader()
+        //     .use { acceptedResultsFile ->
+        //         CSVParser(
+        //                 acceptedResultsFile,
+        //                 CSVFormat.DEFAULT.withHeader(*CsvHelper.HEADER.split(",").toTypedArray())
+        //         ).use { parser ->
+        //             // if it succeeded last time
+        //             parser.filter { it.get("status") == "success" }
+        //                 .forEach { record ->
+        //                     val domain = TptpDomain.valueOf(record.get("domain"))
+        //                     val form = TptpFormulaForm.valueOf(record.get("form"))
+        //                     val number = record.get("number").toInt(10)
+        //                     val version = record.get("version").toInt(10)
+        //                     val size = record.get("size").toInt(10)
+        //                     val acceptedMillis = record.get("millis").toDouble()
+        //                     // val acceptedTimeOut = record.get("timeoutMillis").toInt(10)
+        //                     val acceptedQLimit = record.get("q-limit").toLong(10)
+        //                     val descriptor = TptpProblemFileDescriptor(domain, form, number, version, size)
+        //                     classifyFormulas(
+        //                             TptpFofParser.parseFile(
+        //                                     TptpFileFetcher.findProblemFile(descriptor))
+        //                     ).let { (hyps, targets) ->
+        //                         val hypothesis = createConjunct(hyps)
+        //                         targets.forEach { target ->
+        //                             FolFormulaTableauProver(
+        //                                     FolUnificationClosingStrategy(),
+        //                                     FolStepStrategy(acceptedQLimit)
+        //                             ).also { prover ->
+        //                                 clearInternTables()
+        //                                 val timer = fetchTimer(descriptor, "problem")
+        //
+        //                                 timer.record {
+        //                                     limitedTimeProve(
+        //                                             prover,
+        //                                             hypothesis?.let {
+        //                                                 Implies(it, target)
+        //                                             } ?: target,
+        //                                             acceptedMillis.toLong() + 1)
+        //                                 }
+        //                                 assert(result.get() === Proved)
+        //                                 val max = timer.max(TimeUnit.MILLISECONDS)
+        //                                 if (1.0 - (Math.abs(max - acceptedMillis) / acceptedMillis) > .1)
+        //                                     println("This run ($max) was about as fast as the previous ($acceptedMillis) for $descriptor with q-limit $acceptedQLimit")
+        //                                 else
+        //                                     println("This run ($max) was significantly slower than the previous ($acceptedMillis) for $descriptor with q-limit $acceptedQLimit")
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //         }
+        //     }
     }
 
 }
 
 fun fetchTimer(descriptor: TptpProblemFileDescriptor, name: String): Timer =
-        registry.timer(
-                name,
-                "domain", descriptor.domain.name.toLowerCase(),
-                "form", descriptor.form.name.toLowerCase(),
-                "number", descriptor.number.toString(),
-                "version", descriptor.version.toString(),
-                "size", descriptor.size.toString())
+    registry.timer(
+        name,
+        "domain", descriptor.domain.name.toLowerCase(),
+        "form", descriptor.form.name.toLowerCase(),
+        "number", descriptor.number.toString(),
+        "version", descriptor.version.toString(),
+        "size", descriptor.size.toString()
+    )
 
 object PushLimits {
 
     fun tryHigherQLimit() {
-        tptpWriteResultsFolder.resolve("results${Instant.now().toEpochMilli()}.csv")
-            .toFile()
-            .outputStream()
-            .bufferedWriter()
-            .use { resultsFile ->
-                writeCsvHeader(resultsFile)
-
-                tptpReadResultsFolder.resolve("results.csv")
-                    .toFile()
-                    .reader()
-                    .use { acceptedResultsFile ->
-                        CSVParser(
-                                acceptedResultsFile,
-                                CSVFormat.DEFAULT.withHeader(*CsvHelper.HEADER.split(",").toTypedArray())
-                        ).use { parser ->
-                            // if it succeeded last time
-                            parser.filter { it.get("status") == "fail" }
-                                .filter { it.get("millis").toDouble() < (it.get("timeoutMillis").toDouble() * 0.75) }
-                                .forEach { record ->
-                                    val domain = TptpDomain.valueOf(record.get("domain"))
-                                    val form = TptpFormulaForm.valueOf(record.get("form"))
-                                    val number = record.get("number").toInt(10)
-                                    val version = record.get("version").toInt(10)
-                                    val size = record.get("size").toInt(10)
-                                    // val acceptedMillis = record.get("millis").toDouble()
-                                    // val acceptedTimeOut = record.get("timeoutMillis").toInt(10)
-                                    val acceptedQLimit = record.get("q-limit").toLong(10)
-                                    val descriptor = TptpProblemFileDescriptor(domain, form, number, version, size)
-                                    // TODO catch exception here
-                                    classifyFormulas(
-                                            TptpFofParser.parseFile(
-                                                    TptpFileFetcher.findProblemFile(descriptor))
-                                    ).let { (hyps, targets) ->
-                                        val hypothesis = createConjunct(hyps)
-                                        targets.forEach { target ->
-                                            FolFormulaTableauProver(
-                                                    FolUnificationClosingStrategy(),
-                                                    FolStepStrategy(acceptedQLimit + 1)
-                                            ).also { prover ->
-                                                clearInternTables()
-                                                val timer = fetchTimer(descriptor, "problem")
-                                                println("Quick test for ${descriptor}.")
-                                                timer.record {
-                                                    limitedTimeProve(
-                                                            prover,
-                                                            hypothesis?.let {
-                                                                Implies(it, target)
-                                                            } ?: target,
-                                                            millis)
-                                                }
-                                                writeCsvLine(resultsFile, descriptor, timer, millis, DEFAULT_Q_LIMIT)
-                                            }
-                                        }
-                                    }
-                                }
-                        }
-                    }
-            }
+        // tptpWriteResultsFolder.resolve("results${Instant.now().toEpochMilli()}.csv")
+        //     .toFile()
+        //     .outputStream()
+        //     .bufferedWriter()
+        //     .use { resultsFile ->
+        //         writeCsvHeader(resultsFile)
+        //
+        //         tptpReadResultsFolder.resolve("results.csv")
+        //             .toFile()
+        //             .reader()
+        //             .use { acceptedResultsFile ->
+        //                 CSVParser(
+        //                         acceptedResultsFile,
+        //                         CSVFormat.DEFAULT.withHeader(*CsvHelper.HEADER.split(",").toTypedArray())
+        //                 ).use { parser ->
+        //                     // if it succeeded last time
+        //                     parser.filter { it.get("status") == "fail" }
+        //                         .filter { it.get("millis").toDouble() < (it.get("timeoutMillis").toDouble() * 0.75) }
+        //                         .forEach { record ->
+        //                             val domain = TptpDomain.valueOf(record.get("domain"))
+        //                             val form = TptpFormulaForm.valueOf(record.get("form"))
+        //                             val number = record.get("number").toInt(10)
+        //                             val version = record.get("version").toInt(10)
+        //                             val size = record.get("size").toInt(10)
+        //                             // val acceptedMillis = record.get("millis").toDouble()
+        //                             // val acceptedTimeOut = record.get("timeoutMillis").toInt(10)
+        //                             val acceptedQLimit = record.get("q-limit").toLong(10)
+        //                             val descriptor = TptpProblemFileDescriptor(domain, form, number, version, size)
+        //                             // TODO catch exception here
+        //                             classifyFormulas(
+        //                                     TptpFofParser.parseFile(
+        //                                             TptpFileFetcher.findProblemFile(descriptor))
+        //                             ).let { (hyps, targets) ->
+        //                                 val hypothesis = createConjunct(hyps)
+        //                                 targets.forEach { target ->
+        //                                     FolFormulaTableauProver(
+        //                                             FolUnificationClosingStrategy(),
+        //                                             FolStepStrategy(acceptedQLimit + 1)
+        //                                     ).also { prover ->
+        //                                         clearInternTables()
+        //                                         val timer = fetchTimer(descriptor, "problem")
+        //                                         println("Quick test for ${descriptor}.")
+        //                                         timer.record {
+        //                                             limitedTimeProve(
+        //                                                     prover,
+        //                                                     hypothesis?.let {
+        //                                                         Implies(it, target)
+        //                                                     } ?: target,
+        //                                                     millis)
+        //                                         }
+        //                                         writeCsvLine(resultsFile, descriptor, timer, millis, DEFAULT_Q_LIMIT)
+        //                                     }
+        //                                 }
+        //                             }
+        //                         }
+        //                 }
+        //             }
+        //     }
 
     }
 }
 
 fun createResults(
-        fileName: String,
-        domains: List<TptpDomain>,
-        forms: List<TptpFormulaForm>,
-        qLimit: Long,
-        vararg excludes: TptpProblemFileDescriptor
+    fileName: String,
+    domains: List<TptpDomain>,
+    forms: List<TptpFormulaForm>,
+    qLimit: Long,
+    vararg excludes: TptpProblemFileDescriptor
 ) {
 
-    tptpWriteResultsFolder.resolve(fileName)
-        .toFile()
-        .outputStream()
-        .bufferedWriter()
-        .use { resultsFile ->
-            writeCsvHeader(resultsFile)
-            TptpFileFetcher.problemFileFilter(domains, forms, *excludes).forEach { descriptor ->
-                val path = TptpFileFetcher.findProblemFolder(descriptor.domain).resolve(descriptor.toFileName())
-                classifyFormulas(TptpFofParser.parseFile(path)).let { (hyps, targets) ->
-                    val hypothesis = createConjunct(hyps)
-                    targets.forEach { target ->
-                        FolFormulaTableauProver(
-                                FolUnificationClosingStrategy(),
-                                FolStepStrategy(qLimit)
-                        ).also {
-                            proveAndWrite(
-                                    descriptor,
-                                    hypothesis?.let {
-                                        Implies(it, target)
-                                    } ?: target,
-                                    resultsFile,
-                                    it)
-                        }
-                    }
-                }
-            }
-        }
+    // tptpWriteResultsFolder.resolve(fileName)
+    //     .toFile()
+    //     .outputStream()
+    //     .bufferedWriter()
+    //     .use { resultsFile ->
+    //         writeCsvHeader(resultsFile)
+    //         TptpFileFetcher.problemFileFilter(domains, forms, *excludes).forEach { descriptor ->
+    //             val path = TptpFileFetcher.findProblemFolder(descriptor.domain).resolve(descriptor.toFileName())
+    //             classifyFormulas(TptpFofParser.parseFile(path)).let { (hyps, targets) ->
+    //                 val hypothesis = createConjunct(hyps)
+    //                 targets.forEach { target ->
+    //                     FolFormulaTableauProver(
+    //                             FolUnificationClosingStrategy(),
+    //                             FolStepStrategy(qLimit)
+    //                     ).also {
+    //                         proveAndWrite(
+    //                                 descriptor,
+    //                                 hypothesis?.let {
+    //                                     Implies(it, target)
+    //                                 } ?: target,
+    //                                 resultsFile,
+    //                                 it)
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
 }
 
 fun createConjunct(
-        hyps: MutableList<Formula>
+    hyps: MutableList<Formula>
 ): Formula? {
     var hypothesis = null as Formula?
     if (hyps.isNotEmpty()) {
@@ -264,10 +256,10 @@ fun createConjunct(
 }
 
 fun classifyFormulas(
-        tptpFile: List<FolAnnotatedFormula>
+    tptpFile: List<FolAnnotatedFormula>
 ): Pair<MutableList<Formula>, MutableList<Formula>> {
     return tptpFile.fold(
-            mutableListOf<Formula>() to mutableListOf<Formula>()
+        mutableListOf<Formula>() to mutableListOf<Formula>()
     ) { (hyps, targets), input ->
         input.let { annotated ->
             when (annotated.formulaRole) {
@@ -305,17 +297,19 @@ fun classifyFormulas(
     }
 }
 
-fun limitedTimeProve(prover: FolFormulaTableauProver, formula: Formula, millis: Long): ProofProgressIndicator =
+fun limitedTimeProve(prover: FolFormulaTableauProver, formula: Formula, millis: Long): ProofInProgress {
+    return FolTableau(formula).also {
         try {
-            val proofInProgress = FolTableau(formula)
             runBlocking {
                 withTimeout(millis) {
-                    prover.prove(proofInProgress)
+                    prover.prove(it)
                 }
             }
         } catch (e: TimeoutCancellationException) {
-            TableauTimeOutProofIndicator(millis)
+            it.indicator = TimeOutProofIndicator(millis)
         }
+    }
+}
 
 object CsvHelper {
 
@@ -327,27 +321,29 @@ object CsvHelper {
     }
 
     fun writeCsvLine(
-            o: BufferedWriter,
-            descriptor: TptpProblemFileDescriptor,
-            timer: Timer,
-            timeOut: Long,
-            qLimit: Long) {
+        o: BufferedWriter,
+        descriptor: TptpProblemFileDescriptor,
+        timer: Timer,
+        timeOut: Long,
+        qLimit: Long
+    ) {
         o.write(
-                "${descriptor.domain
-                },${descriptor.number
-                },${descriptor.version
-                },${descriptor.form
-                },${descriptor.size
-                },${timer.max(TimeUnit.MILLISECONDS)
-                },${timeOut
-                },${qLimit
-                },${result.get().name
-                },${result.get().let {
-                    if (it is Error)
-                        it.message
-                    else
-                        ""
-                }}")
+            "${descriptor.domain
+            },${descriptor.number
+            },${descriptor.version
+            },${descriptor.form
+            },${descriptor.size
+            },${timer.max(TimeUnit.MILLISECONDS)
+            },${timeOut
+            },${qLimit
+            },${result.get().name
+            },${result.get().let {
+                if (it is Error)
+                    it.message
+                else
+                    ""
+            }}"
+        )
         o.newLine()
     }
 }
@@ -358,10 +354,11 @@ fun clearInternTables() {
 }
 
 fun proveAndWrite(
-        descriptor: TptpProblemFileDescriptor,
-        formula: Formula,
-        resultsFile: BufferedWriter,
-        prover: FolFormulaTableauProver) {
+    descriptor: TptpProblemFileDescriptor,
+    formula: Formula,
+    resultsFile: BufferedWriter,
+    prover: FolFormulaTableauProver
+) {
     clearInternTables()
     println("Quick test for ${descriptor}.")
     val timer = fetchTimer(descriptor, "problem")

@@ -18,7 +18,7 @@ abstract class GammaFormula<F : VarsBindingFormula>(formula: F, sign: Boolean) :
         val boundToFree = formula.variables.fold(EmptySub) { s: Substitution, t ->
             s + Sub(t.to(
                     if (FreeVariable.exists(t.cons.name))
-                        FreeVariable.new(t.cons.name)
+                        FreeVariable.newSimilar(t.cons.name)
                     else
                         FV(t.cons.name)))
         }
