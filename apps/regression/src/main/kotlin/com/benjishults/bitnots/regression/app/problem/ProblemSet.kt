@@ -7,6 +7,7 @@ import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import java.nio.file.Path
+import java.time.Instant
 
 
 class ProblemSet(
@@ -53,7 +54,8 @@ data class ProblemSetBuilder(
 }
 
 class ProblemSetRun(
-        val problemSet: ProblemSet,
-        vararg val problemRunDescriptors: ProblemRunDescriptor
+    val problemSet: ProblemSet,
+    val startedAt: Instant,
+    vararg val problemRunnerDescriptors: ProblemRunnerDescriptor
 )
 

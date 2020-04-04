@@ -8,8 +8,10 @@ import kotlinx.coroutines.withTimeout
 
 interface Prover<in T : ProofInProgress> {
 
+    val version: String
+
     /**
-     * Long-running and as exhaustive as allowed by the receiver type.
+     * Long-running and as exhaustive as allowed.
      */
     suspend fun prove(proofInProgress: T)
 
@@ -18,7 +20,10 @@ interface Prover<in T : ProofInProgress> {
      */
     fun isDone(proofInProgress: T): Boolean
 
-    fun limitedTimeProve(proofInProgress: T, millis: Long): ProofInProgress {
+    fun limitedTimeProve(
+        proofInProgress: T,
+        millis: Long
+    ): ProofInProgress {
         if (millis >= 0)
             try {
                 runBlocking {

@@ -50,7 +50,7 @@ abstract class PropositionalClaim(
     }
 
     override suspend fun attempt(): ProofInProgress =
-        attempt(PropositionalTableauHarness)
+        attempt(PropositionalTableauHarness())
 
     override suspend fun attempt(harness: Harness<PropositionalTableau, PropositionalFormulaProver>): ProofInProgress {
         return PropositionalTableau(

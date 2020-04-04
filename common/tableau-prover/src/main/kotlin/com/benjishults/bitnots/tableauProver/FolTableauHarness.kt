@@ -6,14 +6,18 @@ import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
 import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 
 data class FolTableauHarness(
-    val qLimit: Long = 3L, val stepLimit: Long = -1L, val timeLimitMillis: Long = -1L
+    val qLimit: Long = 3L,
+    val stepLimit: Long = -1L,
+    val timeLimitMillis: Long = -1L,
+    val version: String = "unversioned"
 ) : Harness<FolTableau, FolFormulaTableauProver> {
 
     override fun toProver(): FolFormulaTableauProver {
         return FolFormulaTableauProver(
             FolUnificationClosingStrategy(),
             FolStepStrategy(qLimit),
-            this
+            this,
+            version
         )
     }
 
