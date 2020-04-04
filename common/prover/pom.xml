@@ -40,12 +40,12 @@
             <artifactId>theory</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>tptp-parser</artifactId>
-            <scope>test</scope>
+            <artifactId>language</artifactId>
+            <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>parser</artifactId>

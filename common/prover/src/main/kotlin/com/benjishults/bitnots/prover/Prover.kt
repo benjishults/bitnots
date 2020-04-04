@@ -1,43 +1,31 @@
 package com.benjishults.bitnots.prover
 
 import com.benjishults.bitnots.prover.finish.ProofInProgress
+import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
 import com.benjishults.bitnots.prover.finish.TimeOutProofIndicator
+import com.benjishults.bitnots.prover.strategy.FinishingStrategy
+import com.benjishults.bitnots.prover.strategy.StepStrategy
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 
 interface Prover<in T : ProofInProgress> {
 
     val version: String
+    val finishingStrategy: FinishingStrategy<T, *>
+    val stepStrategy: StepStrategy<T>
 
     /**
-     * Long-running and as exhaustive as allowed.
+     * Take one step expanding the proof.
+     * @return false if no step was possible
      */
-    suspend fun prove(proofInProgress: T)
+    fun step(proofInProgress: T): Boolean = stepStrategy.step(proofInProgress)
 
     /**
-     * Should be fast as a lookup.
+     * Check whether the proof is finished.
+     * @return an object that indicates how much, if any, work remains to be done.
      */
-    fun isDone(proofInProgress: T): Boolean
-
-    fun limitedTimeProve(
-        proofInProgress: T,
-        millis: Long
-    ): ProofInProgress {
-        if (millis >= 0)
-            try {
-                runBlocking {
-                    withTimeout(millis) {
-                        prove(proofInProgress)
-                    }
-                }
-            } catch (e: TimeoutCancellationException) {
-                proofInProgress.indicator = TimeOutProofIndicator(millis)
-            }
-        else runBlocking {
-            prove(proofInProgress)
-        }
-        return proofInProgress
+    fun checkProgress(proofInProgress: T): ProofProgressIndicator {
+        return finishingStrategy.checkProgress(proofInProgress)
     }
 
 }

@@ -8,7 +8,7 @@ import com.benjishults.bitnots.model.terms.Function
 import com.benjishults.bitnots.prover.finish.ProofInProgress
 import com.benjishults.bitnots.prover.finish.TimeOutProofIndicator
 import com.benjishults.bitnots.tableau.FolTableau
-import com.benjishults.bitnots.tableauProver.FolFormulaTableauProver
+import com.benjishults.bitnots.tableauProver.FolTableauHarness
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.TptpProperties
@@ -297,12 +297,12 @@ fun classifyFormulas(
     }
 }
 
-fun limitedTimeProve(prover: FolFormulaTableauProver, formula: Formula, millis: Long): ProofInProgress {
+fun limitedTimeProve(harness: FolTableauHarness, formula: Formula, millis: Long): ProofInProgress {
     return FolTableau(formula).also {
         try {
             runBlocking {
                 withTimeout(millis) {
-                    prover.prove(it)
+                    harness.prove(it)
                 }
             }
         } catch (e: TimeoutCancellationException) {
@@ -357,11 +357,11 @@ fun proveAndWrite(
     descriptor: TptpProblemFileDescriptor,
     formula: Formula,
     resultsFile: BufferedWriter,
-    prover: FolFormulaTableauProver
+    harness: FolTableauHarness
 ) {
     clearInternTables()
     println("Quick test for ${descriptor}.")
     val timer = fetchTimer(descriptor, "problem")
-    timer.record { limitedTimeProve(prover, formula, millis) }
-    CsvHelper.writeCsvLine(resultsFile, descriptor, timer, millis, prover.stepStrategy.qLimit)
+    timer.record { limitedTimeProve(harness, formula, millis) }
+    CsvHelper.writeCsvLine(resultsFile, descriptor, timer, millis, harness.stepStrategy.qLimit)
 }

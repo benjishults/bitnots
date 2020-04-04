@@ -1,3 +1,5 @@
 package com.benjishults.bitnots.theory.formula
 
-interface FormulaForm
+interface FormulaForm {
+    // fun prove(problemDescriptor: ProblemDescriptor)
+}

@@ -7,7 +7,6 @@ import com.benjishults.bitnots.parser.ProblemSource
 import com.benjishults.bitnots.prover.Harness
 import com.benjishults.bitnots.regression.app.problem.ProblemRow
 import com.benjishults.bitnots.regression.app.problem.ProblemSet
-import com.benjishults.bitnots.tableau.FolTableau
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
 import com.benjishults.bitnots.tableauProver.PropositionalTableauHarness
 import com.benjishults.bitnots.theory.DomainCategory
@@ -35,6 +34,7 @@ import javafx.scene.control.TableView
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.FlowPane
 import javafx.scene.layout.VBox
+import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
@@ -119,14 +119,14 @@ class RegressionMainPane(
         }
     }
 
-    fun TptpFormulaForm.toHarness(): Harness<*, *> =
+    fun FormulaForm.toHarness(): Harness<*> =
         when (this) {
             TptpFormulaForm.FOF -> FolTableauHarness(version = "${gitCommitTime()}__${gitCommitId()}")
             TptpFormulaForm.CNF -> PropositionalTableauHarness(version = "${gitCommitTime()}__${gitCommitId()}")
             else                -> error("unsupported formula form")
         }
 
-    fun TptpFormulaForm.toParser(): Parser<*, *, *> =
+    fun FormulaForm.toParser(): Parser<*, *, *> =
         when (this) {
             TptpFormulaForm.FOF -> TptpFofParser
             TptpFormulaForm.CNF -> TptpCnfParser
@@ -137,29 +137,28 @@ class RegressionMainPane(
         Button("Run").also { runButton ->
             runButton.setOnAction {
                 problemSet.problems.forEachIndexed { index, problemDescriptor ->
-                    val harness = (problemDescriptor.form as TptpFormulaForm).toHarness()
-                    val prover = harness.toProver()
+                    val harness = problemDescriptor.form.toHarness()
                     val descriptor = TptpProblemFileDescriptor(problemDescriptor)
                     TptpFormulaClassifier().classify(
                         // TODO simplify these APIs
-                        when (problemDescriptor.form) {
-                            TptpFormulaForm.FOF -> TptpFofParser
-                            TptpFormulaForm.CNF -> TptpCnfParser
-                            else                -> error("unsupported formula form")
-                        }.parseFile(TptpFileFetcher.findProblemFile(descriptor))
+                        problemDescriptor.form.toParser()
+                        // when (problemDescriptor.form) {
+                        //     TptpFormulaForm.FOF -> TptpFofParser
+                        //     TptpFormulaForm.CNF -> TptpCnfParser
+                        //     else                -> error("unsupported formula form")
+                        // }
+                            .parseFile(TptpFileFetcher.findProblemFile(descriptor))
                     ).let { (hyps, targets) ->
                         // clearInternTables()
                         val hypothesis = hyps.toConjunct()
                         targets.forEach { target ->
-                            val proofInProgress = FolTableau(
+                            runBlocking {  harness.limitedTimeProve(
                                 hypothesis?.let {
                                     Implies(it, target)
-                                } ?: target)
-                            prover.limitedTimeProve(
-                                proofInProgress,
+                                } ?: target,
                                 -1L
                                 // problemDescriptor.timeLimit
-                            ).indicator.isDone()
+                            )}.indicator.isDone()
                             // TODO create new runs and update table
                         }
                     }

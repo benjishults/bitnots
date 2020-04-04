@@ -81,7 +81,7 @@ class TptpSynTest {
             ).let { (hyps, targets) ->
                 val hypothesis = createConjunct(hyps)
                 targets.forEach { target ->
-                    FolTableauHarness().toProver().let { prover ->
+                    FolTableauHarness().let { prover ->
                         clearInternTables()
                         Assertions.assertTrue(
                             limitedTimeProve(

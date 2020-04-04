@@ -5,5 +5,5 @@ import com.benjishults.bitnots.theory.ProblemDescriptor
 
 class ProblemRunnerDescriptor(
     val problemDescriptor: ProblemDescriptor,
-    val harness: Harness<*, *>
+    val harness: Harness<*>
 ) : ProblemDescriptor by problemDescriptor

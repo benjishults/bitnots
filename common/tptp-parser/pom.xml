@@ -47,6 +47,16 @@
         </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>prover</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>tableau-prover</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
             <artifactId>theory</artifactId>
             <scope>provided</scope>
         </dependency>

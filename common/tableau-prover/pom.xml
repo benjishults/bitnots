@@ -60,12 +60,6 @@
             <artifactId>inference</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- TODO this should be needed only for tests! -->
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>tptp-parser</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>parser</artifactId>

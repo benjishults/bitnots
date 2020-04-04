@@ -32,7 +32,7 @@ interface TableauClosingStrategy<in T : Tableau<*>> :
      * Calls [populateBranchClosers] then tries to find a compatible combination of branch closers.
      * @return the result of the search for a compatible combination of branch closers.
      */
-    override fun searchForClosure(proofInProgress: T): TableauProofProgressIndicator {
+    override fun checkProgress(proofInProgress: T): TableauProofProgressIndicator {
         // TODO could this indicate that not all branches have branch-closers?
         populateBranchClosers(proofInProgress)
         // will this ever exceed size 1?

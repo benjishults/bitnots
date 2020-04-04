@@ -4,16 +4,13 @@ import com.benjishults.bitnots.inference.createSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.util.isPropositional
 import com.benjishults.bitnots.prover.Harness
-import com.benjishults.bitnots.prover.Prover
 import com.benjishults.bitnots.prover.finish.ProofInProgress
 import com.benjishults.bitnots.tableau.FolTableau
 import com.benjishults.bitnots.tableau.FolTableauNode
 import com.benjishults.bitnots.tableau.PropositionalTableau
 import com.benjishults.bitnots.tableau.PropositionalTableauNode
 import com.benjishults.bitnots.tableau.strategy.PropositionalInitializationStrategy
-import com.benjishults.bitnots.tableauProver.FolFormulaTableauProver
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
-import com.benjishults.bitnots.tableauProver.PropositionalFormulaProver
 import com.benjishults.bitnots.tableauProver.PropositionalTableauHarness
 
 val DEFAULT_MAX_STEPS: Long = 30L
@@ -23,9 +20,9 @@ interface ExpectOutcome {
     fun validate(proofInProgress: ProofInProgress): Boolean
 }
 
-interface Claim<T : ProofInProgress, in P : Prover<T>> : ExpectOutcome {
+interface Claim<T : ProofInProgress> : ExpectOutcome {
     val formula: Formula
-    suspend fun attempt(harness: Harness<T, P>): ProofInProgress
+    suspend fun attempt(harness: Harness<T>): ProofInProgress
     suspend fun attempt(): ProofInProgress
 }
 
@@ -43,7 +40,7 @@ class TrueClaim(private val maxSteps: Long, private val minSteps: Long) : Expect
 
 abstract class PropositionalClaim(
     final override val formula: Formula
-) : Claim<PropositionalTableau, PropositionalFormulaProver> {
+) : Claim<PropositionalTableau> {
 
     init {
         require(formula.isPropositional())
@@ -52,7 +49,7 @@ abstract class PropositionalClaim(
     override suspend fun attempt(): ProofInProgress =
         attempt(PropositionalTableauHarness())
 
-    override suspend fun attempt(harness: Harness<PropositionalTableau, PropositionalFormulaProver>): ProofInProgress {
+    override suspend fun attempt(harness: Harness<PropositionalTableau>): ProofInProgress {
         return PropositionalTableau(
             PropositionalInitializationStrategy.init(
                 PropositionalTableauNode(
@@ -60,7 +57,7 @@ abstract class PropositionalClaim(
                 )
             )
         ).also {
-            harness.toProver().prove(it)
+            harness.prove(it)
         }
     }
 
@@ -68,18 +65,18 @@ abstract class PropositionalClaim(
 
 abstract class FolClaim(
     final override val formula: Formula
-) : Claim<FolTableau, FolFormulaTableauProver> {
+) : Claim<FolTableau> {
     abstract val qLimit: Long
 
     override suspend fun attempt(): ProofInProgress =
         attempt(FolTableauHarness(qLimit))
 
-    override suspend fun attempt(harness: Harness<FolTableau, FolFormulaTableauProver>): ProofInProgress {
+    override suspend fun attempt(harness: Harness<FolTableau>): ProofInProgress {
         return FolTableau(
             PropositionalInitializationStrategy.init(
                 FolTableauNode(mutableListOf(formula.createSignedFormula()))
             )
-        ).also { harness.toProver().prove(it) }
+        ).also { harness.prove(it) }
     }
 
 }

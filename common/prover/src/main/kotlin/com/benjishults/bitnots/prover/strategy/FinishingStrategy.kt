@@ -10,6 +10,8 @@ import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
  */
 interface FinishingStrategy<in P : ProofInProgress, out I : ProofProgressIndicator> {
     /**
+     * Check whether the proof is finished.
+     * @return an object that indicates how much, if any, work remains to be done.
      */
-    fun searchForClosure(proofInProgress: P): I
+    fun checkProgress(proofInProgress: P): I
 }

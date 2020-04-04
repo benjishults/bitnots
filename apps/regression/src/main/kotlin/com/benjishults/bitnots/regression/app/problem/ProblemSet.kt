@@ -13,7 +13,7 @@ import java.time.Instant
 class ProblemSet(
         val name: String,
         vararg val problems: ProblemDescriptor,
-        val harnesses: Map<ProblemDescriptor, Harness<*, *>>
+        val harnesses: Map<ProblemDescriptor, Harness<*>>
 ) {
 
     val path: Path
@@ -42,7 +42,7 @@ data class ProblemSetBuilder(
         val form: TptpFormulaForm
 ) {
 
-    val harnesses: MutableMap<ProblemDescriptor, Harness<*, *>> = mutableMapOf()
+    val harnesses: MutableMap<ProblemDescriptor, Harness<*>> = mutableMapOf()
 
     fun build() = ProblemSet(
             name,

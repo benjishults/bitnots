@@ -176,7 +176,7 @@ class TableauStepCountTest {
     fun testFols() =
         testClaims(FOL_CLAIMS)
 
-    private fun <C : Claim<*, *>> testClaims(claims: Array<C>) = runBlocking {
+    private fun <C : Claim<*>> testClaims(claims: Array<C>) = runBlocking {
         claims.forEach {
             it.validate(it.attempt()) || error("failed: $it")
         }
