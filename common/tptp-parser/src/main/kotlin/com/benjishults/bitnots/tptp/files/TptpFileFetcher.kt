@@ -1,5 +1,6 @@
 package com.benjishults.bitnots.tptp.files
 
+import com.benjishults.bitnots.parser.FileFetcher
 import com.benjishults.bitnots.tptp.TptpProperties
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
@@ -14,17 +15,17 @@ import java.util.regex.Pattern
 fun padToThreeDigits(version: Int) =
         String.format("%03d", version)
 
-object TptpFileFetcher {
+object TptpFileFetcher : FileFetcher<TptpDomain, TptpFormulaForm, TptpProblemFileDescriptor> {
 
     // A regular expression for recognizing axiom file names is "[A-Z]{3}[0-9]{3}[-+^=_][1-9][0-9]*\.ax".
 
     private val FILE_SYSTEM: FileSystem = FileSystems.getDefault()
 
-    fun findProblemFolder(domain: TptpDomain): Path = FILE_SYSTEM.getPath(
+    override fun findProblemFolder(domain: TptpDomain): Path = FILE_SYSTEM.getPath(
             TptpProperties.getBaseFolderName(),
             "Problems", domain.toString())
 
-    fun findAllPaths(
+    override fun findAllPaths(
             domain: TptpDomain,
             form: TptpFormulaForm
     ): List<Path> {
@@ -34,7 +35,7 @@ object TptpFileFetcher {
         }.toList()
     }
 
-    fun findAllDescriptors(
+    override fun findAllDescriptors(
             domain: TptpDomain,
             form: TptpFormulaForm
     ): List<TptpProblemFileDescriptor> {
@@ -64,11 +65,11 @@ object TptpFileFetcher {
         }?.toString() ?: "\\+"}(?<version>[1-9][0-9]*)(?:\\.(?<size>[0-9]{3}?))\\.p")
     }
 
-    fun findProblemFile(descriptor: TptpProblemFileDescriptor): Path {
+    override fun findProblemFile(descriptor: TptpProblemFileDescriptor): Path {
         return findProblemFolder(descriptor.domain).resolve(descriptor.toFileName())
     }
 
-    fun problemFileFilter(
+    override fun problemFileFilter(
             domains: List<TptpDomain>,
             forms: List<TptpFormulaForm>,
             vararg excludes: TptpProblemFileDescriptor

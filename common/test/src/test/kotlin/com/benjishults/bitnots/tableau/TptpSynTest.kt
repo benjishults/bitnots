@@ -7,7 +7,6 @@ import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.terms.Function
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
-import com.benjishults.bitnots.test.limitedTimeProve
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.files.TptpDomain
@@ -15,6 +14,7 @@ import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
 import com.benjishults.bitnots.tptp.parser.TptpFofParser
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -81,16 +81,15 @@ class TptpSynTest {
             ).let { (hyps, targets) ->
                 val hypothesis = createConjunct(hyps)
                 targets.forEach { target ->
-                    FolTableauHarness().let { prover ->
+                    FolTableauHarness(limitMillis = millis).let { prover ->
                         clearInternTables()
-                        Assertions.assertTrue(
-                            limitedTimeProve(
-                                prover,
+                        Assertions.assertTrue(runBlocking {
+                            prover.prove(
                                 hypothesis?.let {
                                     Implies(it, target)
-                                } ?: target,
-                                millis
-                            ).indicator.isDone())
+                                } ?: target
+                            ).indicator.isDone()
+                        })
                     }
                 }
             }

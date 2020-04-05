@@ -5,7 +5,7 @@ import com.benjishults.bitnots.prover.finish.ProofInProgress
 import kotlinx.coroutines.isActive
 import kotlin.coroutines.coroutineContext
 
-interface Harness<T : ProofInProgress, P : Prover<T>> {
+interface Harness<T : ProofInProgress, out P : Prover<T>> {
 
     val prover: P
 
@@ -23,21 +23,20 @@ interface Harness<T : ProofInProgress, P : Prover<T>> {
 
     suspend fun prove(
         proofInProgress: T
-    ) {
+    ): T {
         while (coroutineContext.isActive) {
             val indicator = prover.checkProgress(proofInProgress)
             proofInProgress.indicator = indicator
             if (indicator.isDone()) {
-                return
+                return proofInProgress
             } else if (!coroutineContext.isActive) {
                 break
             } else if (rein(proofInProgress)) {
-                return
+                return proofInProgress
             } else if (!prover.step(proofInProgress)) {
-                return
+                return proofInProgress
             }
         }
-        // yield()
         error("Impossible!")
     }
 

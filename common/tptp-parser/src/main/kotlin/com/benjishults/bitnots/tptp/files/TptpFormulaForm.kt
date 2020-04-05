@@ -2,7 +2,7 @@ package com.benjishults.bitnots.tptp.files
 
 import com.benjishults.bitnots.theory.formula.FormulaForm
 
-enum class TptpFormulaForm(val form: Char): FormulaForm {
+enum class TptpFormulaForm(val form: Char) : FormulaForm {
     CNF('-') {
         // override fun prove(problemDescriptor: ProblemDescriptor) {
         //     TODO("Not yet implemented")

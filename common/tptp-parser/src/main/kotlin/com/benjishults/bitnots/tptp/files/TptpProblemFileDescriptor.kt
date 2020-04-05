@@ -11,7 +11,7 @@ data class TptpProblemFileDescriptor(
     val number: Int = 0,
     val version: Int = 1,
     val size: Int = -1
-) : FileDescriptor {
+) : FileDescriptor<TptpFormulaForm, TptpFileRepo> {
 
     override val source: TptpFileRepo = TptpFileRepo
 

@@ -10,8 +10,6 @@ import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
-import java.time.Instant
-import java.util.*
 
 class FolTableauHarness(
     val qLimit: Long = 3L,
@@ -28,30 +26,6 @@ class FolTableauHarness(
 
     override fun initializeProof(formula: Formula): FolTableau =
         FolTableau(formula)
-
-    private fun versionLabel() = "${gitCommitTime()}__${gitCommitId()}"
-
-    private fun gitCommitId() =
-        gitCommitInfo()["git.commit.id"]?.let { it as String } ?: "dirty-SNAPSHOT"
-
-    private fun gitCommitTime(): Instant? =
-        gitCommitInfo()["git.commit.time"]?.let { timeString ->
-            Instant.parse(timeString as String)
-        } ?: Instant.now()
-
-    private fun gitCommitInfo() =
-        javaClass.classLoader.getResource("git.properties")?.let { url ->
-            url.file
-                .reader()
-                .buffered()
-                .use { reader ->
-                    Properties().also {
-                        it.load(reader)
-                    }
-                }
-        } ?: Properties()
-
-
 
     override fun toString(): String =
         sequenceOf(

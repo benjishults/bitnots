@@ -1,6 +1,5 @@
 package com.benjishults.bitnots.prover
 
-import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.prover.finish.ProofInProgress
 import com.benjishults.bitnots.prover.finish.TimeOutProofIndicator
 import kotlinx.coroutines.TimeoutCancellationException
@@ -10,25 +9,20 @@ interface TimedHarness<T : ProofInProgress, P : Prover<T>> : Harness<T, P> {
 
     val limitMillis: Long
 
-    suspend fun limitedTimeProve(
+    override suspend fun prove(
         proofInProgress: T
-    ): ProofInProgress {
+    ): T {
         if (limitMillis >= 0)
             try {
                 withTimeout(limitMillis) {
-                    prove(proofInProgress)
+                    super.prove(proofInProgress)
                 }
             } catch (e: TimeoutCancellationException) {
                 proofInProgress.indicator = TimeOutProofIndicator(limitMillis)
             }
         else
-            prove(proofInProgress)
+            super.prove(proofInProgress)
         return proofInProgress
     }
-
-    suspend fun limitedTimeProve(
-        formula: Formula
-    ): ProofInProgress =
-        initializeProof(formula).also { limitedTimeProve(it) }
 
 }

@@ -1,10 +1,15 @@
 package com.benjishults.bitnots.regression.app
 
+import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.util.toConjunct
+import com.benjishults.bitnots.parser.FileDescriptor
+import com.benjishults.bitnots.parser.FileFetcher
 import com.benjishults.bitnots.parser.Parser
 import com.benjishults.bitnots.parser.ProblemSource
+import com.benjishults.bitnots.parser.formula.FormulaClassifier
 import com.benjishults.bitnots.prover.Harness
+import com.benjishults.bitnots.prover.finish.ProofInProgress
 import com.benjishults.bitnots.prover.problem.ProblemRunDescriptor
 import com.benjishults.bitnots.prover.problem.ProblemRunStatus
 import com.benjishults.bitnots.prover.problem.ProblemSet
@@ -98,8 +103,8 @@ class RegressionMainPane(
         }
     }
 
-    fun FormulaForm.toParser(): Parser<*, *, *> =
-        when (this) {
+    private fun toParser(form: FormulaForm): Parser<*, *, *> =
+        when (form) {
             TptpFormulaForm.FOF -> TptpFofParser
             TptpFormulaForm.CNF -> TptpCnfParser
             else                -> error("unsupported formula form")
@@ -110,41 +115,75 @@ class RegressionMainPane(
             runButton.setOnAction {
                 // TODO extract this to be testable
                 // TODO do this on another thread
-                problemSet.problems.forEach { fileDescriptor ->
-
-                }
+                val toParser: (FormulaForm) -> Parser<*, *, *> = this::toParser
+                val fileFetcher: FileFetcher<*, TptpFormulaForm, TptpProblemFileDescriptor> = TptpFileFetcher
                 problemSet.problems.forEach { problemRun ->
+                    val onProof: (ProofInProgress) -> Unit = { pip -> updateTableItem(problemRun, pip) }
                     val (fileDescriptor, harness) = problemRun
                     fileDescriptor as TptpProblemFileDescriptor
-                    TptpFormulaClassifier().classify(
-                        // TODO simplify these APIs
-                        fileDescriptor.form.toParser().parseFile(TptpFileFetcher.findProblemFile(fileDescriptor))
-                    ).let { (hyps, targets) ->
-                        // clearInternTables()
-                        val hypothesis = hyps.toConjunct()
-                        targets.forEach { target ->
-                            table.items.set(
-                                table.items.indexOf(problemRun),
-                                ProblemRunDescriptor(
-                                    fileDescriptor,
-                                    harness,
-                                    runBlocking {
-                                        harness.limitedTimeProve(
-                                            hypothesis?.let {
-                                                Implies(
-                                                    it,
-                                                    target
-                                                )
-                                            } ?: target
-                                        )
-                                    }.indicator.toProblemRunStatus()
-                                )
-                            )
+                    val formulaClassifier: FormulaClassifier = TptpFormulaClassifier()
+                    parseAndClassify(formulaClassifier, toParser, fileDescriptor, fileFetcher)
+                        .let { (hyps, targets) ->
+                            proveAllTargets(hyps, targets, onProof, harness)
+                            // TODO update problem set history
                         }
-                    }
                 }
             }
         }
+
+    private fun proveAllTargets(
+        hyps: List<Formula>,
+        targets: List<Formula>,
+        onProof: (ProofInProgress) -> Unit,
+        harness: Harness<*, *>
+    ) {
+        // clearInternTables()
+        targets.forEach { target ->
+            onProof(prove(harness, hyps, target))
+        }
+    }
+
+    private fun <F : FormulaForm, FD : FileDescriptor<F, *>> parseAndClassify(
+        formulaClassifier: FormulaClassifier,
+        toParser: (F) -> Parser<*, *, *>,
+        fileDescriptor: FD,
+        fileFetcher: FileFetcher<*, F, FD>
+    ): Pair<MutableList<Formula>, MutableList<Formula>> {
+        return formulaClassifier.classify(
+            toParser(fileDescriptor.form).parseFile(fileFetcher.findProblemFile(fileDescriptor))
+        )
+    }
+
+    private fun updateTableItem(
+        problemRun: ProblemRunDescriptor,
+        proofInProgress: ProofInProgress
+    ) {
+        table.items.set(
+            table.items.indexOf(problemRun),
+            ProblemRunDescriptor(
+                problemRun.fileDescriptor,
+                problemRun.harness,
+                proofInProgress.indicator.toProblemRunStatus()
+            )
+        )
+    }
+
+    private fun prove(
+        harness: Harness<*, *>,
+        hypotheses: List<Formula>,
+        target: Formula
+    ): ProofInProgress {
+        return runBlocking {
+            harness.prove(
+                hypotheses.toConjunct()?.let {
+                    Implies(
+                        it,
+                        target
+                    )
+                } ?: target
+            )
+        }
+    }
 
     private fun top(pane: BorderPane) {
         pane.top = Label().apply {

@@ -5,9 +5,6 @@ import com.benjishults.bitnots.model.formulas.fol.Predicate
 import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.terms.Function
-import com.benjishults.bitnots.prover.finish.ProofInProgress
-import com.benjishults.bitnots.prover.finish.TimeOutProofIndicator
-import com.benjishults.bitnots.tableau.FolTableau
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRole
@@ -19,9 +16,7 @@ import com.benjishults.bitnots.util.meter.NoOpPushMeterRegistry
 import io.micrometer.core.instrument.Clock
 import io.micrometer.core.instrument.Timer
 import io.micrometer.core.instrument.step.StepRegistryConfig
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import java.io.BufferedWriter
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -297,20 +292,6 @@ fun classifyFormulas(
     }
 }
 
-fun limitedTimeProve(harness: FolTableauHarness, formula: Formula, millis: Long): ProofInProgress {
-    return FolTableau(formula).also {
-        try {
-            runBlocking {
-                withTimeout(millis) {
-                    harness.prove(it)
-                }
-            }
-        } catch (e: TimeoutCancellationException) {
-            it.indicator = TimeOutProofIndicator(millis)
-        }
-    }
-}
-
 object CsvHelper {
 
     val HEADER = "domain,number,version,form,size,millis,timeoutMillis,q-limit,status,message"
@@ -362,6 +343,6 @@ fun proveAndWrite(
     clearInternTables()
     println("Quick test for ${descriptor}.")
     val timer = fetchTimer(descriptor, "problem")
-    timer.record { limitedTimeProve(harness, formula, millis) }
+    timer.record { runBlocking { harness.prove(formula) } }
     CsvHelper.writeCsvLine(resultsFile, descriptor, timer, millis, harness.prover.stepStrategy.qLimit)
 }

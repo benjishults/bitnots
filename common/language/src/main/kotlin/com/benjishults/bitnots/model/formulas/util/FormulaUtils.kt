@@ -41,7 +41,7 @@ fun Formula.isPropositional(): Boolean =
                     )
 
 fun List<Formula>.toConjunct(): Formula? =
-    takeIf { it.isNotEmpty() }?.let { nonEmptyFormulas ->
+    takeIf { this.isNotEmpty() }?.let { nonEmptyFormulas ->
         nonEmptyFormulas.toTypedArray().let { formulasArray ->
             if (formulasArray.size > 1) {
                 And(*formulasArray)
