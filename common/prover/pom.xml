@@ -45,11 +45,9 @@
             <artifactId>language</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>com.benjishults.bitnots</groupId>
             <artifactId>parser</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

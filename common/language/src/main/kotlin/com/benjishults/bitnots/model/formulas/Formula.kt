@@ -1,5 +1,3 @@
-@file:ContextualSerialization(Formula::class)
-
 package com.benjishults.bitnots.model.formulas
 
 import com.benjishults.bitnots.model.terms.FreeVariable
@@ -8,8 +6,6 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.util.memo.memoize
-import kotlinx.serialization.ContextualSerialization
-import kotlinx.serialization.Serializable
 
 // NOTE should be immutable
 interface Formula {
@@ -40,7 +36,6 @@ interface Formula {
     // override fun hashCode(): Int
 }
 
-@Serializable
 abstract class FormulaWithSubformulas(
         override val constructor: FormulaConstructor,
         vararg val formulas: Formula

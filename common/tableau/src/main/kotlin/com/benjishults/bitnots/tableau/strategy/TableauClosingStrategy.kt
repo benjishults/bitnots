@@ -1,21 +1,21 @@
 package com.benjishults.bitnots.tableau.strategy
 
+import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
 import com.benjishults.bitnots.prover.strategy.FinishingStrategy
 import com.benjishults.bitnots.tableau.Tableau
 import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.tableau.closer.InProgressTableauProgressIndicator
 import com.benjishults.bitnots.tableau.closer.RanOutOfRunwayTableauProgressIndicator
-import com.benjishults.bitnots.tableau.closer.TableauProofProgressIndicator
 import com.benjishults.bitnots.util.collection.pop
 import com.benjishults.bitnots.util.collection.push
 
 interface TableauClosingStrategy<in T : Tableau<*>> :
-        FinishingStrategy<T, TableauProofProgressIndicator> {
+        FinishingStrategy<T, ProofProgressIndicator> {
 
     /**
      * Push only if it is InProgressTableauClosedIndicator.
      */
-    fun MutableList<InProgressTableauProgressIndicator>.safePush(item: TableauProofProgressIndicator) =
+    fun MutableList<InProgressTableauProgressIndicator>.safePush(item: ProofProgressIndicator) =
             item is InProgressTableauProgressIndicator && push(item)
 
     /**
@@ -32,7 +32,7 @@ interface TableauClosingStrategy<in T : Tableau<*>> :
      * Calls [populateBranchClosers] then tries to find a compatible combination of branch closers.
      * @return the result of the search for a compatible combination of branch closers.
      */
-    override fun checkProgress(proofInProgress: T): TableauProofProgressIndicator {
+    override fun checkProgress(proofInProgress: T): ProofProgressIndicator {
         // TODO could this indicate that not all branches have branch-closers?
         populateBranchClosers(proofInProgress)
         // will this ever exceed size 1?

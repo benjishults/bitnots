@@ -5,31 +5,11 @@ import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 import com.benjishults.bitnots.prover.finish.FailedProofIndicator
 import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
-import com.benjishults.bitnots.prover.finish.SuccessfulProofIndicator
 import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.util.collection.clone
 import com.benjishults.bitnots.util.collection.peek
 import com.benjishults.bitnots.util.collection.pop
 import com.benjishults.bitnots.util.collection.push
-
-sealed class TableauProofProgressIndicator(
-) : ProofProgressIndicator
-
-object TableauFailedProofIndicator :
-    TableauProofProgressIndicator(),
-    FailedProofIndicator
-
-class TableauEngineErrorIndicator<T : Any>(
-    val reason: T? = null
-) : TableauProofProgressIndicator(),
-    FailedProofIndicator
-
-/**
- * We don't care or don't have interesting information about how it was done.
- */
-object SuccessfulTableauProofIndicator :
-    TableauProofProgressIndicator(),
-    SuccessfulProofIndicator
 
 /**
  * Indicates that an attempt was made to extend an InProgressTableauClosedIndicator with a BranchCloser with which it was not compatible.
@@ -37,21 +17,19 @@ object SuccessfulTableauProofIndicator :
 class ExtensionFailed(
     val branchCloser: BranchCloser,
     val indicator: InProgressTableauProgressIndicator
-) : TableauProofProgressIndicator(),
-    FailedProofIndicator
+) : FailedProofIndicator
 
 /**
  * Indicates that the proof is not complete
  */
 object RanOutOfRunwayTableauProgressIndicator
-    : TableauProofProgressIndicator(),
-      FailedProofIndicator
+    :       FailedProofIndicator
 
 /**
  * A tableau is a proof if its branches all have a compatible closer.
  */
 sealed class InProgressTableauProgressIndicator(
-) : TableauProofProgressIndicator() {
+) : ProofProgressIndicator {
 
     /**
      * A compatible list of branch closers that represent the branches closed.
@@ -61,7 +39,7 @@ sealed class InProgressTableauProgressIndicator(
     /**
      * @return NotCompatible if [closer] is not compatible with the receiver.
      */
-    abstract fun createExtension(closer: BranchCloser): TableauProofProgressIndicator
+    abstract fun createExtension(closer: BranchCloser): ProofProgressIndicator
 
     /**
      *
@@ -74,7 +52,7 @@ sealed class InProgressTableauProgressIndicator(
     /**
      * @return the result of an attempt to expand the receiver to cover at least one more branch.  Returns NotCompatible is no progress can be made.
      */
-    abstract fun progress(): TableauProofProgressIndicator
+    abstract fun progress(): ProofProgressIndicator
 
     abstract fun isCompatible(closer: BranchCloser): Substitution
 
@@ -115,7 +93,7 @@ open class BooleanProgressIndicator protected constructor(
         needToClose: MutableList<TableauNode<*>>,
         // TODO seriously, we can do better than this.
         substitution: Substitution = EmptySub
-    ): TableauProofProgressIndicator =
+    ): ProofProgressIndicator =
         when (substitution) {
             NotCompatible -> ExtensionFailed(branchClosers.last(), this)
             else          -> BooleanProgressIndicator(branchClosers, needToClose)
@@ -123,10 +101,10 @@ open class BooleanProgressIndicator protected constructor(
 
     override fun isCompatible(closer: BranchCloser): Substitution = EmptySub
 
-    override fun createExtension(closer: BranchCloser): TableauProofProgressIndicator =
+    override fun createExtension(closer: BranchCloser): ProofProgressIndicator =
         indicatorFactory(branchClosers + closer, needToClose, isCompatible(closer))
 
-    override fun progress(): TableauProofProgressIndicator =
+    override fun progress(): ProofProgressIndicator =
         nextNode().let { nextNode ->
             nextNode.children.takeIf {
                 it.isNotEmpty()

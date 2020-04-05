@@ -1,26 +1,19 @@
 package com.benjishults.bitnots.tptp.files
 
 import com.benjishults.bitnots.parser.FileDescriptor
-import com.benjishults.bitnots.theory.ProblemDescriptor
+import com.benjishults.bitnots.tptp.TptpFileRepo
 import java.nio.file.Path
 import java.util.regex.Pattern
 
 data class TptpProblemFileDescriptor(
-    override val domain: TptpDomain,
+    val domain: TptpDomain,
     override val form: TptpFormulaForm = TptpFormulaForm.FOF,
-    override val number: Int = 0,
-    override val version: Int = 1,
-    override val size: Int = -1
-) : FileDescriptor, ProblemDescriptor {
-    constructor(
-        problemDescriptor: ProblemDescriptor
-    ) : this(
-        problemDescriptor.domain as TptpDomain,
-        problemDescriptor.form as TptpFormulaForm,
-        problemDescriptor.number,
-        problemDescriptor.version,
-        problemDescriptor.size
-    )
+    val number: Int = 0,
+    val version: Int = 1,
+    val size: Int = -1
+) : FileDescriptor {
+
+    override val source: TptpFileRepo = TptpFileRepo
 
     companion object {
         val pattern = Pattern.compile(

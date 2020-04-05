@@ -1,11 +1,7 @@
-@file:ContextualSerialization(PropositionalFormulaConstructor::class)
 package com.benjishults.bitnots.model.formulas
 
 import com.benjishults.bitnots.util.intern.InternTable
-import kotlinx.serialization.ContextualSerialization
-import kotlinx.serialization.Serializable
 
-@Serializable
 open class FormulaConstructor(val name: String) {
     override fun equals(other: Any?): Boolean {
         other?.let {

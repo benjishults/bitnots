@@ -363,5 +363,5 @@ fun proveAndWrite(
     println("Quick test for ${descriptor}.")
     val timer = fetchTimer(descriptor, "problem")
     timer.record { limitedTimeProve(harness, formula, millis) }
-    CsvHelper.writeCsvLine(resultsFile, descriptor, timer, millis, harness.stepStrategy.qLimit)
+    CsvHelper.writeCsvLine(resultsFile, descriptor, timer, millis, harness.prover.stepStrategy.qLimit)
 }

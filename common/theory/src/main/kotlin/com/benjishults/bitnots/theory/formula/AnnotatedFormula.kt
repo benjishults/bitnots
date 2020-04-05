@@ -2,9 +2,7 @@ package com.benjishults.bitnots.theory.formula
 
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.util.isCnf
-import kotlinx.serialization.Serializable
 
-@Serializable
 open class AnnotatedFormula(
         val name: String,
         val formulaRole: FormulaRole,
