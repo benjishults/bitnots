@@ -5,11 +5,13 @@ import com.benjishults.bitnots.model.formulas.util.toConjunct
 import com.benjishults.bitnots.parser.Parser
 import com.benjishults.bitnots.parser.ProblemSource
 import com.benjishults.bitnots.prover.Harness
-import com.benjishults.bitnots.regression.app.problem.ProblemRow
+import com.benjishults.bitnots.prover.TimedHarness
+import com.benjishults.bitnots.regression.app.problem.NotRunStatus
+import com.benjishults.bitnots.regression.app.problem.ProblemRunDescriptor
+import com.benjishults.bitnots.regression.app.problem.ProblemRunStatus
 import com.benjishults.bitnots.regression.app.problem.ProblemSet
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
 import com.benjishults.bitnots.tableauProver.PropositionalTableauHarness
-import com.benjishults.bitnots.theory.DomainCategory
 import com.benjishults.bitnots.theory.formula.FormulaForm
 import com.benjishults.bitnots.tptp.TptpFileRepo
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
@@ -35,9 +37,6 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.FlowPane
 import javafx.scene.layout.VBox
 import kotlinx.coroutines.runBlocking
-import java.math.BigDecimal
-import java.math.MathContext
-import java.math.RoundingMode
 import java.time.Instant
 import java.util.*
 
@@ -58,7 +57,7 @@ class RegressionMainPane(
             field = value
         }
 
-    private val table: TableView<ProblemRow>
+    private val table: TableView<ProblemRunDescriptor>
 
     init {
         stylesheets.add("css/ui.css")
@@ -71,21 +70,27 @@ class RegressionMainPane(
         bottom(pane)
     }
 
-    private fun gitCommitId() =
-        gitCommitInfo()["git.commit.id"] as String
+    private fun versionLabel() = "${gitCommitTime()}__${gitCommitId()}"
 
-    private fun gitCommitTime() =
-        Instant.parse(gitCommitInfo()["git.commit.time"] as String)
+    private fun gitCommitId() =
+        gitCommitInfo()["git.commit.id"]?.let { it as String } ?: "dirty-SNAPSHOT"
+
+    private fun gitCommitTime(): Instant? =
+        gitCommitInfo()["git.commit.time"]?.let { timeString ->
+            Instant.parse(timeString as String)
+        } ?: Instant.now()
 
     private fun gitCommitInfo() =
-        javaClass.classLoader.getResource("git.properties")!!.file
-            .reader()
-            .buffered()
-            .use { reader ->
-                Properties().also {
-                    it.load(reader)
+        javaClass.classLoader.getResource("git.properties")?.let { url ->
+            url.file
+                .reader()
+                .buffered()
+                .use { reader ->
+                    Properties().also {
+                        it.load(reader)
+                    }
                 }
-            }
+        } ?: Properties()
 
     private fun bottom(pane: BorderPane) {
         pane.bottom = FlowPane().also { bottomPane ->
@@ -119,10 +124,10 @@ class RegressionMainPane(
         }
     }
 
-    fun FormulaForm.toHarness(): Harness<*> =
+    fun FormulaForm.toHarness(): TimedHarness<*> =
         when (this) {
-            TptpFormulaForm.FOF -> FolTableauHarness(version = "${gitCommitTime()}__${gitCommitId()}")
-            TptpFormulaForm.CNF -> PropositionalTableauHarness(version = "${gitCommitTime()}__${gitCommitId()}")
+            TptpFormulaForm.FOF -> FolTableauHarness(version = versionLabel())
+            TptpFormulaForm.CNF -> PropositionalTableauHarness(version = versionLabel())
             else                -> error("unsupported formula form")
         }
 
@@ -136,29 +141,30 @@ class RegressionMainPane(
     private fun runButton() =
         Button("Run").also { runButton ->
             runButton.setOnAction {
+                // TODO extract this to be testable
                 problemSet.problems.forEachIndexed { index, problemDescriptor ->
                     val harness = problemDescriptor.form.toHarness()
-                    val descriptor = TptpProblemFileDescriptor(problemDescriptor)
+                    val descriptor = TptpProblemFileDescriptor((problemDescriptor as TptpProblemFileDescriptor).domain)
                     TptpFormulaClassifier().classify(
                         // TODO simplify these APIs
                         problemDescriptor.form.toParser()
-                        // when (problemDescriptor.form) {
-                        //     TptpFormulaForm.FOF -> TptpFofParser
-                        //     TptpFormulaForm.CNF -> TptpCnfParser
-                        //     else                -> error("unsupported formula form")
-                        // }
+                            // when (problemDescriptor.form) {
+                            //     TptpFormulaForm.FOF -> TptpFofParser
+                            //     TptpFormulaForm.CNF -> TptpCnfParser
+                            //     else                -> error("unsupported formula form")
+                            // }
                             .parseFile(TptpFileFetcher.findProblemFile(descriptor))
                     ).let { (hyps, targets) ->
                         // clearInternTables()
                         val hypothesis = hyps.toConjunct()
                         targets.forEach { target ->
-                            runBlocking {  harness.limitedTimeProve(
-                                hypothesis?.let {
-                                    Implies(it, target)
-                                } ?: target,
-                                -1L
-                                // problemDescriptor.timeLimit
-                            )}.indicator.isDone()
+                            runBlocking {
+                                harness.limitedTimeProve(
+                                    hypothesis?.let {
+                                        Implies(it, target)
+                                    } ?: target
+                                )
+                            }.indicator.isDone()
                             // TODO create new runs and update table
                         }
                     }
@@ -183,53 +189,29 @@ class RegressionMainPane(
         menuBar.menus.addAll(fileMenu, Menu("Help"))
     }
 
-    private fun problemTable(): TableView<ProblemRow> {
-        val table = TableView<ProblemRow>()
-        val fileNameCol = TableColumn<ProblemRow, String>("File")
+    private fun problemTable(): TableView<ProblemRunDescriptor> {
+        val table = TableView<ProblemRunDescriptor>()
+        val fileNameCol = TableColumn<ProblemRunDescriptor, String>("File")
         fileNameCol.setCellValueFactory { column ->
-            ReadOnlyObjectWrapper(column.value.fileName)
+            ReadOnlyObjectWrapper(column.value.fileDescriptor.toFileName())
         }
-        val sourceCol = TableColumn<ProblemRow, ProblemSource>("Source")
+        val sourceCol = TableColumn<ProblemRunDescriptor, ProblemSource>("Source")
         sourceCol.setCellValueFactory { _ ->
             ReadOnlyObjectWrapper(TptpFileRepo)
         }
-        val domainCol = TableColumn<ProblemRow, DomainCategory>("Domain")
-        domainCol.setCellValueFactory { column ->
-            ReadOnlyObjectWrapper(column.value.descriptor.domain)
+        val harnessCol = TableColumn<ProblemRunDescriptor, Harness<*>>("Harness")
+        harnessCol.setCellValueFactory { column ->
+            ReadOnlyObjectWrapper(column.value.harness)
         }
-        val formCol = TableColumn<ProblemRow, FormulaForm>("Form")
-        formCol.setCellValueFactory { column ->
-            ReadOnlyObjectWrapper(column.value.descriptor.form)
-        }
-        val qLimitCol = TableColumn<ProblemRow, Long?>("Q-Limit")
-        qLimitCol.setCellValueFactory { column ->
-            ReadOnlyObjectWrapper(column.value.harness.qLimit)
-        }
-        val stepLimitCol = TableColumn<ProblemRow, Long?>("Step Limit")
-        stepLimitCol.setCellValueFactory { column ->
-            ReadOnlyObjectWrapper(column.value.harness.stepLimit)
-        }
-        val timeLimitCol = TableColumn<ProblemRow, BigDecimal?>("Time Limit (s)")
-        timeLimitCol.setCellValueFactory { column ->
-            ReadOnlyObjectWrapper(
-                column.value.harness.timeLimitMillis?.div(1000.0)
-                    ?.let { num ->
-                        BigDecimal(num, MathContext(2, RoundingMode.HALF_UP))
-                    })
-        }
-        val lastTimeCol = TableColumn<ProblemRow, Long?>("Last Time (ms)")
-        lastTimeCol.setCellValueFactory { column ->
-            ReadOnlyObjectWrapper(null)
+        val statusCol = TableColumn<ProblemRunDescriptor, ProblemRunStatus>("Last Run")
+        statusCol.setCellValueFactory { column ->
+            ReadOnlyObjectWrapper(if (column.value is ProblemRunDescriptor) column.value.status else null)
         }
         table.columns.addAll(
             fileNameCol,
             sourceCol,
-            domainCol,
-            formCol,
-            qLimitCol,
-            stepLimitCol,
-            timeLimitCol,
-            lastTimeCol
+            harnessCol,
+            statusCol
         )
         return table
     }
@@ -243,17 +225,16 @@ class RegressionMainPane(
             new.setOnAction { e: ActionEvent ->
                 NewProblemSetDialog().showAndWait().ifPresentOrElse(
                     { builder ->
-                        problemSetName.set(builder.name)
                         // Popup().also { popup ->
                         //     popup.content.add(Text("Initializing Problem Set '${builder.name}'"))
                         //     popup.show(this.window)
-                        table.items = FXCollections.observableList(builder.build().problems.map { descriptor ->
+                        problemSet = builder.build()
+                        table.items = FXCollections.observableList(problemSet.problems.map { descriptor ->
                             if (descriptor is TptpProblemFileDescriptor) {
-                                ProblemRow(
-                                    descriptor.toFileName(),
+                                ProblemRunDescriptor(
                                     descriptor,
-                                    FolTableauHarness(3),
-                                    -1L
+                                    FolTableauHarness(3, version = versionLabel()),
+                                    NotRunStatus
                                 )
                             } else error("not TPTP")
                         }.toList())

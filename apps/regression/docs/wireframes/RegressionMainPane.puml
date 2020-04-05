@@ -15,10 +15,10 @@ note top: $x
 "No problem set selected"
 {S
 {#
-File Name | Source | Domain | Form | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
-. | . | . | . | . | . | . | .
-. | . | . | . | . | . | . | .
-. | . | . | . | . | . | . | .
+File Name | Source | Harness | Last Run
+. | . | . | .
+. | . | . | .
+. | . | . | .
 }
 }
 { [ Run ] | [ See History ] | [ <&lock-locked> Unlock Options ] | [ Delete File From Problem Set ] }
@@ -37,9 +37,9 @@ source | ^tptp^ | domains | "AGT, SYN     " | form | ^ FOF ^ | name problem set:
 "My name for problem set"
 {S
 {#
-File Name | Source | Domain | Form | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
-multi-selectable | TPTP | SYN | FOF | 6 | 30 | 5 | .
-list of problem files | TPTP | SYN | FOF | 6 | 30 | 5 | .
+File Name | Source | Harness | Last Run
+multi-selectable | TPTP | q=6 to=30 sl=5 | .
+list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
 }
 { [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] | [ Delete Problem Set Permanently ] }
@@ -52,9 +52,9 @@ list of problem files | TPTP | SYN | FOF | 6 | 30 | 5 | .
 "My name for problem set"
 {S
 {#
-File Name | Source | Domain | Form | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
-multi-selectable | TPTP | SYN | FOF | 3 | . | 2.5 | .
-list of problem files | TPTP | SYN | FOF | 6 | 30 | 3 | .
+File Name | Source | Harness | Last Run
+multi-selectable | TPTP | q=6 to=30 sl=5 | .
+list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
 }
 { [ <&lock-unlocked> Save and Lock ] | [ Delete Problem From Problem Set ] | [ Undo ] | [ Reset ] }
@@ -76,9 +76,9 @@ previous run-times and configurations.
 "My name for problem set"
 {S
 {#
-File Name | Source | Domain | Form | Q-Limit | Step-Limit | Time-Limit (s) | Last time (ms)
-multi-selectable | TPTP | SYN | FOF | 3 | . | 2.5 | 98
-list of problem files | TPTP | SYN | FOF | 6 | 30 | 3 | timeout
+File Name | Source | Harness | Last Run
+multi-selectable | TPTP | q=6 to=30 sl=5 | .
+list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
 }
 { [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] | [ Delete Problem Set Permanently ] }
