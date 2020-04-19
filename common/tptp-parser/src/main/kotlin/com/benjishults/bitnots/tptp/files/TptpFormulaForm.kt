@@ -16,7 +16,7 @@ sealed class TptpFormulaForm(val representation: Char) : FormulaForm {
     companion object {
         private val map = mutableMapOf<Char, TptpFormulaForm>()
 
-        fun values() = map.values
+        // fun values() = map.values
 
         fun findByRepresentation(representation: Char) =
             map.getOrElse(representation) { throw IllegalArgumentException("Unknown representation: '$representation'") }

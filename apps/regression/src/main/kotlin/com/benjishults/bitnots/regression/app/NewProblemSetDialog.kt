@@ -4,9 +4,13 @@ import com.benjishults.bitnots.jfx.FormBuilder
 import com.benjishults.bitnots.regression.problem.TptpProblemSetBuilder
 import com.benjishults.bitnots.sexpParser.IprFileRepo
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
+import com.benjishults.bitnots.theory.formula.CNF
+import com.benjishults.bitnots.theory.formula.FOF
+import com.benjishults.bitnots.theory.formula.FormulaForm
 import com.benjishults.bitnots.tptp.TptpFileRepo
+import com.benjishults.bitnots.tptp.files.TptpCnf
 import com.benjishults.bitnots.tptp.files.TptpDomain
-import com.benjishults.bitnots.tptp.files.TptpFormulaForm
+import com.benjishults.bitnots.tptp.files.TptpFof
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.StringProperty
 import javafx.collections.FXCollections
@@ -30,7 +34,7 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
     private val nameProperty: StringProperty
     private val formatProperty: ObjectProperty<String>
     private val domainsProperty: ObservableList<TptpDomain>
-    private val formProperty: ObjectProperty<TptpFormulaForm>
+    private val formProperty: ObjectProperty<FormulaForm>
     private val qLimitProperty: StringProperty
     private var stepLimitProperty: StringProperty
     private var timeLimitProperty: StringProperty
@@ -88,10 +92,10 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
                         })
                     builder.addLabelAndControl(
                         Label("form"),
-                        ComboBox<TptpFormulaForm>(
+                        ComboBox(
                             FXCollections.unmodifiableObservableList(
                                 FXCollections.observableList(
-                                    TptpFormulaForm.values().toList()
+                                    listOf(FOF, CNF)
                                 )
                             )
                         ).also { comboBox ->
@@ -125,7 +129,14 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
                     TptpProblemSetBuilder(
                         nameProperty.get(),
                         domainsProperty.toList(),
-                        formProperty.value,
+                        // TODO abstract this appropriately
+                        when (formProperty.value) {
+                            CNF -> TptpCnf
+                            FOF -> TptpFof
+                            else -> {
+                                throw IllegalArgumentException()
+                            }
+                        },
                         FolTableauHarness(
                             qLimitProperty.value.takeIf { it.trim().length > 0 }?.toLong() ?: -1L,
                             stepLimitProperty.value.takeIf { it.trim().length > 0 }?.toLong() ?: -1L,
@@ -142,8 +153,8 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
             when (source) {
                 "tptp" -> TptpFileRepo
                 // "bitnots" -> BitnotsFileRepo
-                "ipr" -> IprFileRepo
-                else -> error("Unrecognized problem source: ${source}")
+                "ipr"  -> IprFileRepo
+                else   -> error("Unrecognized problem source: ${source}")
             }
     }
 }

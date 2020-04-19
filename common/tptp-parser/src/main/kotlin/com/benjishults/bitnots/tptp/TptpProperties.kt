@@ -46,6 +46,7 @@ object TptpFileRepo : ProblemSource {
     override val abbreviation: String = "TPTP"
     override fun <F : FormulaForm, AF : AnnotatedFormula> parser(form: F): Parser<AF, *> =
         when (form) {
+            // FIXME allow subclasses
             FOF  -> TptpFofParser as Parser<AF, *>
             CNF  -> TptpCnfParser as Parser<AF, *>
             else -> throw IllegalArgumentException()

@@ -26,15 +26,3 @@ interface TimedHarness<T : ProofInProgress, P : Prover<T>> : Harness<T, P> {
     }
 
 }
-
-// suspend fun <V> withPossibleTimeout(limitMillis: Long, block: suspend CoroutineScope.() -> V, onTimeout: () -> V) : V=
-//     if (limitMillis >= 0)
-//         try {
-//             withTimeout(limitMillis) {
-//                 block()
-//             }
-//         } catch (e: TimeoutCancellationException) {
-//             onTimeout()
-//         }
-//     else
-//         block()
