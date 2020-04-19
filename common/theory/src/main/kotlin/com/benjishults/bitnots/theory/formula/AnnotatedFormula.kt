@@ -5,7 +5,6 @@ import com.benjishults.bitnots.model.formulas.Formula
 open class AnnotatedFormula(
     val name: String,
     val formulaRole: FormulaRole,
-    val formulaForm: FormulaForm,
     val formula: Formula
 ) {
     override fun toString(): String {

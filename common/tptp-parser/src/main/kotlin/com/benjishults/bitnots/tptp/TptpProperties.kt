@@ -47,8 +47,8 @@ object TptpFileRepo : ProblemSource {
     override fun <F : FormulaForm, AF : AnnotatedFormula> parser(form: F): Parser<AF, *> =
         when (form) {
             // FIXME allow subclasses
-            FOF  -> TptpFofParser as Parser<AF, *>
-            CNF  -> TptpCnfParser as Parser<AF, *>
+            is FOF  -> TptpFofParser as Parser<AF, *>
+            is CNF  -> TptpCnfParser as Parser<AF, *>
             else -> throw IllegalArgumentException()
         }
 }

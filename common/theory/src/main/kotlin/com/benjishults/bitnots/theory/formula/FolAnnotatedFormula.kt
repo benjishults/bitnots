@@ -6,7 +6,7 @@ class FolAnnotatedFormula(
     name: String,
     formulaRole: FormulaRole,
     formula: Formula
-) : AnnotatedFormula(name, formulaRole, FOF, formula) {
+) : AnnotatedFormula(name, formulaRole, formula) {
 
 
     override fun equals(other: Any?): Boolean {

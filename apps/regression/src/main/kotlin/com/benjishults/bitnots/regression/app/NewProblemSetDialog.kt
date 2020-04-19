@@ -95,10 +95,19 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
                         ComboBox(
                             FXCollections.unmodifiableObservableList(
                                 FXCollections.observableList(
-                                    listOf(FOF, CNF)
+                                    listOf(FOF.IMPL, CNF.IMPL)
                                 )
                             )
                         ).also { comboBox ->
+                            comboBox.converter = object : StringConverter<FormulaForm>() {
+                                override fun toString(`object`: FormulaForm?): String =
+                                    `object`?.abbreviation ?: ""
+
+                                override fun fromString(string: String?): FormulaForm {
+                                    TODO("Not yet implemented")
+                                }
+
+                            }
                             formProperty = comboBox.valueProperty()
                         }
                     )
@@ -125,15 +134,15 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
         }
         resultConverter = Callback { buttonType: ButtonType ->
             when (buttonType.buttonData) {
-                ButtonBar.ButtonData.OK_DONE ->
+                ButtonBar.ButtonData.OK_DONE -> {
                     TptpProblemSetBuilder(
                         nameProperty.get(),
                         domainsProperty.toList(),
                         // TODO abstract this appropriately
                         when (formProperty.value) {
-                            CNF -> TptpCnf
-                            FOF -> TptpFof
-                            else -> {
+                            is CNF -> TptpCnf
+                            is FOF -> TptpFof
+                            else   -> {
                                 throw IllegalArgumentException()
                             }
                         },
@@ -143,6 +152,7 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
                             timeLimitProperty.value.takeIf { it.trim().length > 0 }?.toLong() ?: -1L
                         )
                     )
+                }
                 else                         -> null
             }
         }

@@ -24,9 +24,9 @@ sealed class TptpFormulaForm(val representation: Char) : FormulaForm {
 
 }
 
-object TptpCnf : TptpFormulaForm('-'), FormulaForm by CNF
+object TptpCnf : TptpFormulaForm('-'), CNF by CNF.IMPL
 
-object TptpFof : TptpFormulaForm('+'), FormulaForm by FOF
+object TptpFof : TptpFormulaForm('+'), FOF by FOF.IMPL
 
 object TptpTff : TptpFormulaForm('_'), FormulaForm by TFF
 

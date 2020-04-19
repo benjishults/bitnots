@@ -10,7 +10,7 @@ object IprFileRepo : ProblemSource {
     override val abbreviation: String = "IPR"
     override fun <F : FormulaForm, AF : AnnotatedFormula> parser(form: F): Parser<AF, *> =
         when (form) {
-            FOF  -> SexpParser as Parser<AF, *>
+            is FOF  -> SexpParser as Parser<AF, *>
             else -> throw IllegalArgumentException()
         }
 

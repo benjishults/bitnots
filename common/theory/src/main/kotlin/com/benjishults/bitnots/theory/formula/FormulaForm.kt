@@ -4,12 +4,20 @@ interface FormulaForm {
     val abbreviation: String
 }
 
-object CNF: FormulaForm {
-    override val abbreviation: String = "CNF"
+interface CNF : FormulaForm {
+    companion object {
+        val IMPL = object : CNF {
+            override val abbreviation: String = "CNF"
+        }
+    }
 }
 
-object FOF : FormulaForm {
-    override val abbreviation: String = "FOF"
+interface FOF : FormulaForm {
+    companion object {
+        val IMPL = object : FOF {
+            override val abbreviation: String = "FOF"
+        }
+    }
 }
 
 /**

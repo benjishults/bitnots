@@ -7,7 +7,7 @@ class CnfAnnotatedFormula(
     name: String,
     formulaRole: FormulaRole,
     formula: Formula
-) : AnnotatedFormula(name, formulaRole, CNF, formula) {
+) : AnnotatedFormula(name, formulaRole, formula) {
 
     init {
         require(formula.isCnf())
