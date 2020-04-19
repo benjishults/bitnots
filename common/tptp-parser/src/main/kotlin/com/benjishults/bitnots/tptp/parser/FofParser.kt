@@ -15,6 +15,7 @@ import com.benjishults.bitnots.model.formulas.propositional.Truth
 import com.benjishults.bitnots.model.terms.BV
 import com.benjishults.bitnots.model.terms.BoundVariable
 import com.benjishults.bitnots.parser.Tokenizer
+import com.benjishults.bitnots.theory.formula.FOF
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 
 sealed class BinaryConnector(open val connector: String) {
@@ -61,13 +62,13 @@ sealed class BinaryConnector(open val connector: String) {
 /**
  * NOTE: In TPTP, function symbols and predicate symbols should be disjoint in order to avoid parsing trouble.
  */
-object TptpFofParser : AbstractTptpParser<FolAnnotatedFormula, Formula>() {
+object TptpFofParser : AbstractTptpParser<FOF, FolAnnotatedFormula>() {
     override val annotatedFormulaFactory = FolAnnotatedFormula::class.constructors.first()
     override val formulaType: String = "fof"
-    private val includeParser = IncludeParser<FolAnnotatedFormula>()
+    private val includeParser = IncludeParser<FOF>()
 
     override fun parse(tokenizer: TptpTokenizer): List<FolAnnotatedFormula> {
-        return mutableListOf<FolAnnotatedFormula>().apply {
+        return mutableListOf<FolAnnotatedFormula>().also {annotatedFormulas ->
             while (true) {
                 try {
                     tokenizer.peekKeyword()
@@ -78,8 +79,8 @@ object TptpFofParser : AbstractTptpParser<FolAnnotatedFormula, Formula>() {
                         throw e
                 }.let {
                     when (it) {
-                        "fof" -> add(parseAnnotatedFormula(tokenizer))
-                        "include" -> addAll(includeParser.parse(tokenizer, TptpFofParser))
+                        "fof" -> annotatedFormulas.add(parseAnnotatedFormula(tokenizer))
+                        "include" -> annotatedFormulas.addAll(includeParser.parse(tokenizer, TptpFofParser))
                         else -> error(tokenizer.finishMessage("Parsing for '${it}' not yet implemented"))
                     }
                 }

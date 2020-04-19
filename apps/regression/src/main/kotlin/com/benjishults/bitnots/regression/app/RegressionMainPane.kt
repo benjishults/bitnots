@@ -5,23 +5,18 @@ import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.util.toConjunct
 import com.benjishults.bitnots.parser.FileDescriptor
 import com.benjishults.bitnots.parser.FileFetcher
-import com.benjishults.bitnots.parser.Parser
-import com.benjishults.bitnots.parser.ProblemSource
-import com.benjishults.bitnots.parser.formula.FormulaClassifier
 import com.benjishults.bitnots.prover.Harness
 import com.benjishults.bitnots.prover.finish.ProofInProgress
 import com.benjishults.bitnots.prover.problem.ProblemRunDescriptor
 import com.benjishults.bitnots.prover.problem.ProblemRunStatus
 import com.benjishults.bitnots.prover.problem.ProblemSet
 import com.benjishults.bitnots.prover.problem.toProblemRunStatus
-import com.benjishults.bitnots.theory.formula.FormulaForm
+import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.tptp.TptpFileRepo
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
 import com.benjishults.bitnots.tptp.formula.TptpFormulaClassifier
-import com.benjishults.bitnots.tptp.parser.TptpCnfParser
-import com.benjishults.bitnots.tptp.parser.TptpFofParser
 import javafx.beans.property.ReadOnlyObjectWrapper
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
@@ -38,7 +33,9 @@ import javafx.scene.control.TableView
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.FlowPane
 import javafx.scene.layout.VBox
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 class RegressionMainPane(
@@ -52,13 +49,13 @@ class RegressionMainPane(
     private val problemSetName = SimpleStringProperty("No problem set selected")
 
     @Volatile
-    private var problemSet: ProblemSet = ProblemSet.EMPTY
+    private var problemSet: ProblemSet<*> = ProblemSet.EMPTY
         set(value) {
             problemSetName.set(value.name)
             field = value
         }
 
-    private val table: TableView<ProblemRunDescriptor>
+    private val table: TableView<ProblemRunDescriptor<*>>
 
     init {
         stylesheets.add("css/ui.css")
@@ -103,30 +100,23 @@ class RegressionMainPane(
         }
     }
 
-    private fun toParser(form: FormulaForm): Parser<*, *, *> =
-        when (form) {
-            TptpFormulaForm.FOF -> TptpFofParser
-            TptpFormulaForm.CNF -> TptpCnfParser
-            else                -> error("unsupported formula form")
-        }
-
     private fun runButton() =
         Button("Run").also { runButton ->
             runButton.setOnAction {
                 // TODO extract this to be testable
-                // TODO do this on another thread
-                val toParser: (FormulaForm) -> Parser<*, *, *> = this::toParser
-                val fileFetcher: FileFetcher<*, TptpFormulaForm, TptpProblemFileDescriptor> = TptpFileFetcher
+                // val toParser: (FormulaForm) -> Parser<*, *> = this::toParser
+                val fileFetcher = TptpFileFetcher
                 problemSet.problems.forEach { problemRun ->
-                    val onProof: (ProofInProgress) -> Unit = { pip -> updateTableItem(problemRun, pip) }
+                    // val onProof: (ProofInProgress) -> Unit = { pip -> updateTableItem(problemRun, pip) }
                     val (fileDescriptor, harness) = problemRun
-                    fileDescriptor as TptpProblemFileDescriptor
-                    val formulaClassifier: FormulaClassifier = TptpFormulaClassifier()
-                    parseAndClassify(formulaClassifier, toParser, fileDescriptor, fileFetcher)
-                        .let { (hyps, targets) ->
-                            proveAllTargets(hyps, targets, onProof, harness)
-                            // TODO update problem set history
-                        }
+                    fileDescriptor.parser<FolAnnotatedFormula>().parseAndClassify(
+                        TptpFormulaClassifier(),
+                        fileDescriptor as TptpProblemFileDescriptor,
+                        fileFetcher as FileFetcher<*, TptpFormulaForm, FileDescriptor<TptpFormulaForm, *>>
+                    ).let { (hyps, targets) ->
+                        proveAllTargets(hyps, targets, harness)
+                        // TODO update problem set history
+                    }
                 }
             }
         }
@@ -134,28 +124,27 @@ class RegressionMainPane(
     private fun proveAllTargets(
         hyps: List<Formula>,
         targets: List<Formula>,
-        onProof: (ProofInProgress) -> Unit,
         harness: Harness<*, *>
     ) {
         // clearInternTables()
+        // TODO accumulate timings
         targets.forEach { target ->
-            onProof(prove(harness, hyps, target))
+            CoroutineScope(Dispatchers.Default).launch {
+                harness.prove(
+                    hyps.toConjunct()?.let {
+                        Implies(
+                            it,
+                            target
+                        )
+                    } ?: target
+                )
+                // ProverService(harness, hyps, target, onProof).start()
+            }
         }
     }
 
-    private fun <F : FormulaForm, FD : FileDescriptor<F, *>> parseAndClassify(
-        formulaClassifier: FormulaClassifier,
-        toParser: (F) -> Parser<*, *, *>,
-        fileDescriptor: FD,
-        fileFetcher: FileFetcher<*, F, FD>
-    ): Pair<MutableList<Formula>, MutableList<Formula>> {
-        return formulaClassifier.classify(
-            toParser(fileDescriptor.form).parseFile(fileFetcher.findProblemFile(fileDescriptor))
-        )
-    }
-
     private fun updateTableItem(
-        problemRun: ProblemRunDescriptor,
+        problemRun: ProblemRunDescriptor<*>,
         proofInProgress: ProofInProgress
     ) {
         table.items.set(
@@ -166,23 +155,6 @@ class RegressionMainPane(
                 proofInProgress.indicator.toProblemRunStatus()
             )
         )
-    }
-
-    private fun prove(
-        harness: Harness<*, *>,
-        hypotheses: List<Formula>,
-        target: Formula
-    ): ProofInProgress {
-        return runBlocking {
-            harness.prove(
-                hypotheses.toConjunct()?.let {
-                    Implies(
-                        it,
-                        target
-                    )
-                } ?: target
-            )
-        }
     }
 
     private fun top(pane: BorderPane) {
@@ -202,21 +174,21 @@ class RegressionMainPane(
         menuBar.menus.addAll(fileMenu, Menu("Help"))
     }
 
-    private fun problemTable(): TableView<ProblemRunDescriptor> {
-        val table = TableView<ProblemRunDescriptor>()
-        val fileNameCol = TableColumn<ProblemRunDescriptor, String>("File")
+    private fun problemTable(): TableView<ProblemRunDescriptor<*>> {
+        val table = TableView<ProblemRunDescriptor<*>>()
+        val fileNameCol = TableColumn<ProblemRunDescriptor<*>, String>("File")
         fileNameCol.setCellValueFactory { column ->
             ReadOnlyObjectWrapper(column.value.fileDescriptor.toFileName())
         }
-        val sourceCol = TableColumn<ProblemRunDescriptor, ProblemSource>("Source")
+        val sourceCol = TableColumn<ProblemRunDescriptor<*>, String>("Source")
         sourceCol.setCellValueFactory { _ ->
-            ReadOnlyObjectWrapper(TptpFileRepo)
+            ReadOnlyObjectWrapper(TptpFileRepo.abbreviation)
         }
-        val harnessCol = TableColumn<ProblemRunDescriptor, Harness<*, *>>("Harness")
+        val harnessCol = TableColumn<ProblemRunDescriptor<*>, Harness<*, *>>("Harness")
         harnessCol.setCellValueFactory { column ->
             ReadOnlyObjectWrapper(column.value.harness)
         }
-        val statusCol = TableColumn<ProblemRunDescriptor, ProblemRunStatus>("Last Run")
+        val statusCol = TableColumn<ProblemRunDescriptor<*>, ProblemRunStatus>("Last Run")
         statusCol.setCellValueFactory { column ->
             ReadOnlyObjectWrapper(if (column.value is ProblemRunDescriptor) column.value.status else null)
         }
@@ -258,49 +230,5 @@ class RegressionMainPane(
 
         }
     }
-
-    // private fun loadProblem(path: Path) {
-    //     val axioms = mutableListOf<FolAnnotatedFormula>()
-    //     val conjectures = mutableListOf<FolAnnotatedFormula>()
-    //     // TODO create a single theory and a problem for each conjecture
-    //     TptpFofParser.parseFile(path).forEach { annotatedFormula ->
-    //         when (annotatedFormula.formulaRole) {
-    //             FormulaRole.conjecture -> {
-    //                 conjectures.add(annotatedFormula)
-    //             }
-    //             FormulaRole.assumption,
-    //             FormulaRole.axiom,
-    //             FormulaRole.definition,
-    //             FormulaRole.hypothesis -> {
-    //                 axioms.add(annotatedFormula)
-    //             }
-    //             else                   -> {
-    //                 // ignore for now
-    //             }
-    //         }
-    //     }
-    //     // proofContext = Problem(axioms, conjectures)
-    // }
-
-    // private fun loadTheory() {
-    //
-    // }
-
-    // private fun loadFile(category: String): Path? {
-    //     // TODO also save
-    //     val folderKey = "ui.${inputFormat.get()}${category.capitalize()}InputFolder"
-    //     return FileChooser().run {
-    //         initialDirectory = File(uiProperties.getOrDefault(folderKey, System.getProperty("user.home")) as String)
-    //         title = "Select ${category} file"
-    //         showOpenDialog(this@RegressionMainPane.window)
-    //     }?.run {
-    //         uiProperties.put(folderKey, toPath().parent.toString())
-    //         problemSetName.value = absolutePath
-    //         textArea.text = inputStream().use {
-    //             String(it.readBytes())
-    //         }
-    //         toPath()
-    //     }
-    // }
 
 }

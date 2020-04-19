@@ -65,7 +65,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.version>1.3.61</kotlin.version>
+        <kotlin.version>1.3.71</kotlin.version>
         <java.version>11</java.version>
         <openjfx.version>14</openjfx.version>
         <reactor.version>3.1.0.RELEASE</reactor.version>
@@ -159,7 +159,12 @@
             <dependency>
                 <groupId>org.jetbrains.kotlinx</groupId>
                 <artifactId>kotlinx-coroutines-core</artifactId>
-                <version>1.3.3</version>
+                <version>1.3.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlinx</groupId>
+                <artifactId>kotlinx-coroutines-javafx</artifactId>
+                <version>1.3.5</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlinx</groupId>

@@ -9,7 +9,7 @@ class TopologyTest {
     @Disabled
     fun testFofGroups() {
 //        try {
-//            val path = TptpFileFetcher.findProblemFile(TptpDomain.TOP, TptpFormulaForm.FOF, 22, 1)
+//            val path = TptpFileFetcher.findProblemFile(TptpDomain.TOP, TptpFof, 22, 1)
 //
 //            TptpParser.parseFile(path).let { tptp ->
 //                FolTableau(FolTableauNode(

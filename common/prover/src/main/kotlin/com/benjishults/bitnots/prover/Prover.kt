@@ -2,11 +2,8 @@ package com.benjishults.bitnots.prover
 
 import com.benjishults.bitnots.prover.finish.ProofInProgress
 import com.benjishults.bitnots.prover.finish.ProofProgressIndicator
-import com.benjishults.bitnots.prover.finish.TimeOutProofIndicator
 import com.benjishults.bitnots.prover.strategy.FinishingStrategy
 import com.benjishults.bitnots.prover.strategy.StepStrategy
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
 
 interface Prover<in T : ProofInProgress> {
 

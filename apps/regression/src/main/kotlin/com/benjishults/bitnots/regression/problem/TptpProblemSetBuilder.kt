@@ -14,7 +14,7 @@ data class TptpProblemSetBuilder(
     val defaultHarness: FolTableauHarness = FolTableauHarness()
 ) {
 
-    fun build(): ProblemSet =
+    fun build(): ProblemSet<TptpFormulaForm> =
         ProblemSet(
             // TODO validate
             name,

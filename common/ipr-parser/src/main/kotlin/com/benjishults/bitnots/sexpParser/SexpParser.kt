@@ -25,72 +25,64 @@ import com.benjishults.bitnots.parser.Tokenizer
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import java.io.BufferedReader
 
-object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula> {
+object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer> {
     override val tokenizerFactory: (BufferedReader, String) -> SexpTokenizer
         get() = TODO()
-
-    override fun parse(tokenizer: SexpTokenizer): Nothing {
-        TODO()
-    }
-
-    override fun parseAnnotatedFormula(tokenizer: SexpTokenizer): FolAnnotatedFormula {
-        TODO()
-    }
 
     override fun parseFormula(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): Formula {
         SexpTokenizer.ensure(tokenizer.popToken(), "(")?.let { error(tokenizer.finishMessage(it)) }
         return tokenizer.peek().let {
             when (it) {
-            // TODO make this more dynamic, configurable, and extensible
-                "implies" -> {
+                // TODO make this more dynamic, configurable, and extensible
+                "implies"                       -> {
                     tokenizer.popToken()
                     Implies(parseFormula(tokenizer, bvs), parseFormula(tokenizer, bvs)).also {
                         SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
-                "iff" -> {
+                "iff"                           -> {
                     tokenizer.popToken()
                     Iff(parseFormula(tokenizer, bvs), parseFormula(tokenizer, bvs)).also {
                         SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
-                "=" -> {
+                "="                             -> {
                     tokenizer.popToken()
                     Equals(parseTerm(tokenizer, bvs), parseTerm(tokenizer, bvs)).also {
                         SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
-                "not" -> {
+                "not"                           -> {
                     tokenizer.popToken()
                     Not(parseFormula(tokenizer, bvs)).also {
                         SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
-                "truth" -> {
+                "truth"                         -> {
                     tokenizer.popToken()
                     Truth.also {
                         SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
-                "falsity" -> {
+                "falsity"                       -> {
                     tokenizer.popToken()
                     Falsity.also {
                         SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
-                "and" -> {
+                "and"                           -> {
                     tokenizer.popToken()
                     And(*parseFormulasToCloseParen(tokenizer, bvs).toTypedArray())
                 }
-                "or" -> {
+                "or"                            -> {
                     tokenizer.popToken()
                     Or(*parseFormulasToCloseParen(tokenizer, bvs).toTypedArray())
                 }
-                "tfae" -> {
+                "tfae"                          -> {
                     tokenizer.popToken()
                     Tfae(*parseFormulasToCloseParen(tokenizer, bvs).toTypedArray())
                 }
-                "forall", "for-all" -> {
+                "forall", "for-all"             -> {
                     tokenizer.popToken()
                     parseBoundVariables(tokenizer).let {
                         ForAll(*it.toTypedArray(), formula = parseFormula(tokenizer, bvs + it))
@@ -106,7 +98,7 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula> {
                         SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
                     }
                 }
-                else -> {
+                else                            -> {
                     parseAtomicFormula(tokenizer, bvs)
                 }
             }
@@ -118,8 +110,8 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula> {
         return generateSequence(parseBoundVar(tokenizer)) {
             tokenizer.peek().let {
                 when (it) {
-                    "(" -> parseBoundVar(tokenizer)
-                    ")" -> null
+                    "("  -> parseBoundVar(tokenizer)
+                    ")"  -> null
                     else -> error(tokenizer.finishMessage("Expected '(' or ')' but got '$it'"))
                 }
             }
@@ -176,7 +168,7 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula> {
         }
     }
 
-    fun parseTerm(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>):  Term {
+    fun parseTerm(tokenizer: SexpTokenizer, bvs: Set<BoundVariable>): Term {
         // NOTE the open paren (if any) has NOT been consumed
         return tokenizer.popToken().let { first ->
             when (first.first()) {
@@ -187,7 +179,7 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula> {
                         FV(first)
                     }
                 }
-                '(' -> {
+                '('                      -> {
                     tokenizer.popToken().let { functor ->
                         generateSequence {
                             tokenizer.peek().takeIf {
@@ -195,7 +187,8 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula> {
                             }?.let {
                                 parseTerm(tokenizer, bvs)
                             } ?: null.also {
-                                SexpTokenizer.ensure(tokenizer.popToken(), ")")?.let { error(tokenizer.finishMessage(it)) }
+                                SexpTokenizer.ensure(tokenizer.popToken(), ")")
+                                    ?.let { error(tokenizer.finishMessage(it)) }
                             }
                         }.toList().let { terms ->
                             if (terms.isEmpty()) {
@@ -206,10 +199,19 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer, Formula> {
                         }
                     }
                 }
-                else -> error(tokenizer.finishMessage("Expecting '(' or variable name, but found '$first'"))
+                else                     -> error(tokenizer.finishMessage("Expecting '(' or variable name, but found '$first'"))
             }
         }
     }
+
+    override fun parse(tokenizer: SexpTokenizer): List<FolAnnotatedFormula> {
+        TODO("Not yet implemented")
+    }
+
+    override fun parseAnnotatedFormula(tokenizer: SexpTokenizer): FolAnnotatedFormula {
+        TODO("Not yet implemented")
+    }
+
 }
 
 class SexpTokenizer(private val reader: BufferedReader, val fileName: String) : Tokenizer {
@@ -217,16 +219,17 @@ class SexpTokenizer(private val reader: BufferedReader, val fileName: String) : 
     companion object {
         val UNEXPECTED_END_OF_INPUT = "Unexpected end of input"
         fun ensure(expected: String, actual: String, message: String = "Expected '$expected' but found '$actual'.") =
-                if (actual != expected)
-                    message
-                else
-                    null
+            if (actual != expected)
+                message
+            else
+                null
     }
 
     private var lineNo: Int = 0
 
     // this will be the value of the last call to popChar()
     private var lastChar: Int = -1
+
     // after the first call to popChar(), this will always be the value that will next be returned by popChar().
     private var peekChar: Int = -1
     private var line: BufferedReader? = null
@@ -315,9 +318,9 @@ class SexpTokenizer(private val reader: BufferedReader, val fileName: String) : 
             check(peekChar != -1) { finishMessage(UNEXPECTED_END_OF_INPUT) }
             peekChar.toChar().let {
                 when (it) {
-                    '\'' -> {
+                    '\''          -> {
                         // return value should not contain the outer single quotes
-//                        TODO("one or more of ([\\40-\\46\\50-\\133\\135-\\176]|[\\\\]['\\\\]) followed by '")
+                        //                        TODO("one or more of ([\\40-\\46\\50-\\133\\135-\\176]|[\\\\]['\\\\]) followed by '")
                         popChar()
                         buildString {
                             append(readAlphaNumeric())
@@ -332,19 +335,19 @@ class SexpTokenizer(private val reader: BufferedReader, val fileName: String) : 
                     '(', ')', '=' -> {
                         popChar().toChar().toString()
                     }
-                    in 'a'..'z' -> {
+                    in 'a'..'z'   -> {
                         readAlphaNumeric()
                     }
-                    in 'A'..'Z' -> {
+                    in 'A'..'Z'   -> {
                         readAlphaNumeric()
                     }
-                    in '0'..'9' -> {
+                    in '0'..'9'   -> {
                         readNumber()
                     }
-                    '-' -> {
+                    '-'           -> {
                         readNumber()
                     }
-                    else -> {
+                    else          -> {
                         error(finishMessage("I was not prepared for '$it'"))
                     }
                 }
@@ -359,8 +362,8 @@ class SexpTokenizer(private val reader: BufferedReader, val fileName: String) : 
     fun hasNextToken(): Boolean = backup !== null || peekChar != -1
 
     private fun readAlphaNumeric(): String =
-            buildString {
-                while (peekChar.let {
+        buildString {
+            while (peekChar.let {
                     if (it == -1) {
                         false
                     } else
@@ -374,7 +377,7 @@ class SexpTokenizer(private val reader: BufferedReader, val fileName: String) : 
                                     append(popChar().toChar())
                                     true
                                 }
-                                '_', '-' -> {
+                                '_', '-'    -> {
                                     append(popChar().toChar())
                                     true
                                 }
@@ -382,18 +385,18 @@ class SexpTokenizer(private val reader: BufferedReader, val fileName: String) : 
                                     append(popChar().toChar())
                                     true
                                 }
-                                else -> {
+                                else        -> {
                                     false
                                 }
                             }
                         }
                 }) {
-                }
             }
+        }
 
     private fun readNumber(): String =
-            buildString {
-                while (peekChar.let {
+        buildString {
+            while (peekChar.let {
                     if (it == -1) {
                         false
                     } else
@@ -403,13 +406,13 @@ class SexpTokenizer(private val reader: BufferedReader, val fileName: String) : 
                                     append(popChar().toChar())
                                     true
                                 }
-                                else -> {
+                                else        -> {
                                     false
                                 }
                             }
                         }
                 }) {
-                }
             }
+        }
 
 }

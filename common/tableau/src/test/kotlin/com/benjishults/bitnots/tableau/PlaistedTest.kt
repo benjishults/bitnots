@@ -6,7 +6,7 @@ class PlaistedTest {
 //    @Disable
 //    fun testFofPlaisted() {
 //        try {
-//            val path = TptpFileFetcher.findProblemFile(TptpDomain.PLA, TptpFormulaForm.FOF, 34, 1)
+//            val path = TptpFileFetcher.findProblemFile(TptpDomain.PLA, TptpFof, 34, 1)
 //
 //            TptpParser.parseFile(path).let { tptp ->
 //                FolTableau(FolTableauNode(ArrayList<SignedFormula<Formula>>().also {

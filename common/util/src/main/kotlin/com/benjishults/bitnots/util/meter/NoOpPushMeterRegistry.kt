@@ -5,7 +5,7 @@ import io.micrometer.core.instrument.step.StepMeterRegistry
 import io.micrometer.core.instrument.step.StepRegistryConfig
 import java.util.concurrent.TimeUnit
 
-class NoOpPushMeterRegistry(config: StepRegistryConfig, clock: Clock) : StepMeterRegistry(config, clock) {
+open class NoOpPushMeterRegistry(config: StepRegistryConfig, clock: Clock) : StepMeterRegistry(config, clock) {
 
     override fun publish() {
     }

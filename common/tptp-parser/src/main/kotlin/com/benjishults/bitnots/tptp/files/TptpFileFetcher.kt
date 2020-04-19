@@ -12,7 +12,7 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-fun padToThreeDigits(version: Int) =
+fun padToThreeDigits(version: Long) =
         String.format("%03d", version)
 
 object TptpFileFetcher : FileFetcher<TptpDomain, TptpFormulaForm, TptpProblemFileDescriptor> {
@@ -49,9 +49,9 @@ object TptpFileFetcher : FileFetcher<TptpDomain, TptpFormulaForm, TptpProblemFil
                 TptpProblemFileDescriptor(
                         domain,
                         form,
-                        matcher.group("number").toInt(10),
-                        matcher.group("version").toInt(10),
-                        matcher.group("size")?.toInt(10) ?: -1)
+                        matcher.group("number").toLong(10),
+                        matcher.group("version").toLong(10),
+                        matcher.group("size")?.toLong(10) ?: -1)
             }
             .toList()
     }
@@ -60,7 +60,7 @@ object TptpFileFetcher : FileFetcher<TptpDomain, TptpFormulaForm, TptpProblemFil
             domain: TptpDomain,
             form: TptpFormulaForm
     ): Pattern {
-        return Pattern.compile("${domain}(?<number>[0-9]{3})${form.form.takeIf {
+        return Pattern.compile("${domain}(?<number>[0-9]{3})${form.representation.takeIf {
             it != '+'
         }?.toString() ?: "\\+"}(?<version>[1-9][0-9]*)(?:\\.(?<size>[0-9]{3}?))\\.p")
     }
@@ -101,16 +101,16 @@ object TptpFileFetcher : FileFetcher<TptpDomain, TptpFormulaForm, TptpProblemFil
     fun findProblemFile(
             domain: TptpDomain,
             form: TptpFormulaForm,
-            problemNumber: Int = 1,
-            version: Int = 0,
-            size: Int = -1
+            problemNumber: Long = 1,
+            version: Long = 0,
+            size: Long = -1
     ): Path =
             FILE_SYSTEM.getPath(
                     TptpProperties.getBaseFolderName(),
                     "Problems", domain.toString(),
                     domain.toString() +
                     padToThreeDigits(problemNumber) +
-                    form.form +
+                    form.representation +
                     version +
                     (if (size >= 0)
                         "." + padToThreeDigits(size)
@@ -122,23 +122,23 @@ object TptpFileFetcher : FileFetcher<TptpDomain, TptpFormulaForm, TptpProblemFil
     fun findAxiomsFile(
             domain: TptpDomain,
             form: TptpFormulaForm,
-            axiomatizationNumber: Int = 1,
+            axiomatizationNumber: Long = 1,
             version: Int = 0
     ): Path =
-            if (domain === TptpDomain.SET && axiomatizationNumber == 7) {
+            if (domain === TptpDomain.SET && axiomatizationNumber == 7L) {
                 FILE_SYSTEM.getPath(
                         TptpProperties.getBaseFolderName(),
                         "Axioms",
                         domain.toString() + padToThreeDigits(axiomatizationNumber),
                         "${domain}${padToThreeDigits(
-                                axiomatizationNumber)}${form.form}$version.ax"
+                                axiomatizationNumber)}${form.representation}$version.ax"
                 )
             } else
                 FILE_SYSTEM.getPath(
                         TptpProperties.getBaseFolderName(),
                         "Axioms",
                         "${domain}${padToThreeDigits(
-                                axiomatizationNumber)}${form.form}$version.ax"
+                                axiomatizationNumber)}${form.representation}$version.ax"
                 )
 
 }

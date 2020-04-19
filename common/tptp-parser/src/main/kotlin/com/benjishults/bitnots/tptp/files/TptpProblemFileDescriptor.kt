@@ -7,10 +7,10 @@ import java.util.regex.Pattern
 
 data class TptpProblemFileDescriptor(
     val domain: TptpDomain,
-    override val form: TptpFormulaForm = TptpFormulaForm.FOF,
-    val number: Int = 0,
-    val version: Int = 1,
-    val size: Int = -1
+    override val form: TptpFormulaForm = TptpFof,
+    val number: Long = 0L,
+    val version: Long = 1L,
+    val size: Long = -1L
 ) : FileDescriptor<TptpFormulaForm, TptpFileRepo> {
 
     override val source: TptpFileRepo = TptpFileRepo
@@ -32,17 +32,17 @@ data class TptpProblemFileDescriptor(
             pattern.matcher(path.fileName.toString()).let { matcher ->
                 if (matcher.find()) {
                     TptpDomain.valueOf(matcher.group("domain")).let { domain ->
-                        matcher.group("number").toInt(10).let { number ->
-                            TptpFormulaForm.findByForm(
+                        matcher.group("number").toLong(10).let { number ->
+                            TptpFormulaForm.findByRepresentation(
                                 matcher.group("form")[0]
                             ).let { form ->
-                                matcher.group("version").toInt(10).let { version ->
+                                matcher.group("version").toLong(10).let { version ->
                                     TptpProblemFileDescriptor(
                                         domain,
                                         form,
                                         number,
                                         version,
-                                        matcher.group("size")?.substring(1)?.toInt(10) ?: -1
+                                        matcher.group("size")?.substring(1)?.toLong(10) ?: -1
                                     )
                                 }
                             }
@@ -58,11 +58,13 @@ data class TptpProblemFileDescriptor(
         buildString {
             append(domain.name)
             append(padToThreeDigits(number))
-            append(form.form)
+            append(form.representation)
             append(version)
             append(
-                if (size >= 0) ("." + padToThreeDigits(size))
-                else ""
+                if (size >= 0)
+                    "." + padToThreeDigits(size)
+                else
+                    ""
             )
             append(".p")
         }

@@ -2,12 +2,13 @@ package com.benjishults.bitnots.tptp.parser
 
 import com.benjishults.bitnots.parser.Tokenizer
 import com.benjishults.bitnots.theory.formula.AnnotatedFormula
+import com.benjishults.bitnots.theory.formula.FormulaForm
 
-class TptpFileParser<AF : AnnotatedFormula> : InnerParser<AF> {
+class TptpFileParser<FF: FormulaForm> : InnerParser<FF> {
 
-    private val includeParser = IncludeParser<AF>()
+    private val includeParser = IncludeParser<FF>()
 
-    override fun parse(tokenizer: TptpTokenizer, parser: AbstractTptpParser<AF, *>): List<AF> {
+    override fun <AF: AnnotatedFormula> parse(tokenizer: TptpTokenizer, parser: AbstractTptpParser<FF, AF>): List<AF> {
         return mutableListOf<AF>().apply {
             while (true) {
                 try {

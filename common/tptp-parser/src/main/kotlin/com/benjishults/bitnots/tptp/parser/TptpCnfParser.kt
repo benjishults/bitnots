@@ -6,14 +6,15 @@ import com.benjishults.bitnots.model.formulas.propositional.Or
 import com.benjishults.bitnots.model.formulas.util.isAtomic
 import com.benjishults.bitnots.model.formulas.util.isLiteral
 import com.benjishults.bitnots.parser.Tokenizer
+import com.benjishults.bitnots.theory.formula.CNF
 import com.benjishults.bitnots.theory.formula.CnfAnnotatedFormula
 
-object TptpCnfParser : AbstractTptpParser<CnfAnnotatedFormula, Formula>() {
+object TptpCnfParser : AbstractTptpParser<CNF, CnfAnnotatedFormula>() {
     override val formulaType = "cnf"
     override val annotatedFormulaFactory = CnfAnnotatedFormula::class.constructors.first()
-    private val includeParser = IncludeParser<CnfAnnotatedFormula>()
+    private val includeParser = IncludeParser<CNF>()
 
-    // TODO abstract thiscamel-spring-javaconfig
+    // TODO abstract this
     override fun parse(tokenizer: TptpTokenizer): List<CnfAnnotatedFormula> {
         return mutableListOf<CnfAnnotatedFormula>().apply {
             while (true) {
@@ -90,6 +91,5 @@ object TptpCnfParser : AbstractTptpParser<CnfAnnotatedFormula, Formula>() {
                             tokenizer.finishMessage("Unexpected type of formula '${parsedFormula::class.simpleName}'"))
                 }
             }
-
 
 }

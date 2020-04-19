@@ -1,6 +1,13 @@
 package com.benjishults.bitnots.tptp
 
+import com.benjishults.bitnots.parser.Parser
 import com.benjishults.bitnots.parser.ProblemSource
+import com.benjishults.bitnots.theory.formula.AnnotatedFormula
+import com.benjishults.bitnots.theory.formula.CNF
+import com.benjishults.bitnots.theory.formula.FOF
+import com.benjishults.bitnots.theory.formula.FormulaForm
+import com.benjishults.bitnots.tptp.parser.TptpCnfParser
+import com.benjishults.bitnots.tptp.parser.TptpFofParser
 import java.io.File
 import java.nio.file.Path
 import java.util.*
@@ -21,20 +28,26 @@ object TptpProperties : Properties() {
     }
 
     fun getBaseFolderName() =
-            get("tptp.base.folder") as String
+        get("tptp.base.folder") as String
 
     fun getTptpVersion() =
-            get("tptp.version") as String
+        get("tptp.version") as String
 
     fun getWriteResultsFolderName() =
-            get("tptp.write.results.folder") as String
+        get("tptp.write.results.folder") as String
 
     fun getReadResultsFolderName() =
-            get("tptp.read.results.folder") as String
+        get("tptp.read.results.folder") as String
 }
 
-object TptpFileRepo : ProblemSource() {
+object TptpFileRepo : ProblemSource {
     val version: String = TptpProperties.getTptpVersion()
     val path: Path = Path.of(TptpProperties.getBaseFolderName())
-    override fun toString() = "TPTP"
+    override val abbreviation: String = "TPTP"
+    override fun <F : FormulaForm, AF : AnnotatedFormula> parser(form: F): Parser<AF, *> =
+        when (form) {
+            FOF  -> TptpFofParser as Parser<AF, *>
+            CNF  -> TptpCnfParser as Parser<AF, *>
+            else -> throw IllegalArgumentException()
+        }
 }

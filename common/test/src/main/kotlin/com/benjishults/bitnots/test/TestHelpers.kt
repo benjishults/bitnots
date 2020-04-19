@@ -5,17 +5,17 @@ import com.benjishults.bitnots.model.formulas.fol.Predicate
 import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.terms.Function
+import com.benjishults.bitnots.prover.ProblemMeterRegistry
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.theory.formula.FormulaRole
 import com.benjishults.bitnots.tptp.TptpProperties
+import com.benjishults.bitnots.tptp.extension.fetchTimer
 import com.benjishults.bitnots.tptp.files.TptpDomain
+import com.benjishults.bitnots.tptp.files.TptpFof
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
-import com.benjishults.bitnots.util.meter.NoOpPushMeterRegistry
-import io.micrometer.core.instrument.Clock
 import io.micrometer.core.instrument.Timer
-import io.micrometer.core.instrument.step.StepRegistryConfig
 import kotlinx.coroutines.runBlocking
 import java.io.BufferedWriter
 import java.nio.file.Path
@@ -30,33 +30,26 @@ val tptpReadResultsFolder: Path = Paths.get(TptpProperties.getReadResultsFolderN
 val tptpWriteResultsFolder: Path = Paths.get(TptpProperties.getWriteResultsFolderName())
 
 const val millis = 1000L
-val registry = NoOpPushMeterRegistry(object : StepRegistryConfig {
-    override fun get(key: String): String? {
-        return null
-    }
-
-    override fun prefix(): String = ""
-}, Clock.SYSTEM);
 
 object Regression {
     fun newBaselineFof() {
         createResults(
             "baseline${Instant.now().toEpochMilli()}.csv",
             listOf(*TptpDomain.values()),
-            listOf(TptpFormulaForm.FOF),
+            listOf(TptpFof),
             3,
             // stack overflow on parsing file
-            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 680, 1, 15),
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFof, 680, 1, 15),
             // stack overflow on parsing file
-            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 680, 1, 20),
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFof, 680, 1, 20),
             // didn't even try
-            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 681, 1, 20),
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFof, 681, 1, 20),
             // didn't even try
-            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 684, 1, 20),
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFof, 684, 1, 20),
             // didn't even try
-            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 685, 1, 20),
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFof, 685, 1, 20),
             // Unexpected character at beginning of FOF '+' at line 30 of /usr/local/share/tptp/Problems/LCL/LCL882+1.p.
-            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFormulaForm.FOF, 882, 1)
+            TptpProblemFileDescriptor(TptpDomain.LCL, TptpFof, 882, 1)
         )
     }
 
@@ -121,16 +114,6 @@ object Regression {
     }
 
 }
-
-fun fetchTimer(descriptor: TptpProblemFileDescriptor, name: String): Timer =
-    registry.timer(
-        name,
-        "domain", descriptor.domain.name.toLowerCase(),
-        "form", descriptor.form.name.toLowerCase(),
-        "number", descriptor.number.toString(),
-        "version", descriptor.version.toString(),
-        "size", descriptor.size.toString()
-    )
 
 object PushLimits {
 
@@ -342,7 +325,7 @@ fun proveAndWrite(
 ) {
     clearInternTables()
     println("Quick test for ${descriptor}.")
-    val timer = fetchTimer(descriptor, "problem")
+    val timer = ProblemMeterRegistry.fetchTimer(descriptor)
     timer.record { runBlocking { harness.prove(formula) } }
     CsvHelper.writeCsvLine(resultsFile, descriptor, timer, millis, harness.prover.stepStrategy.qLimit)
 }

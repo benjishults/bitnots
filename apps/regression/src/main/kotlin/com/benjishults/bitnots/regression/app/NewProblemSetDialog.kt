@@ -1,9 +1,8 @@
 package com.benjishults.bitnots.regression.app
 
 import com.benjishults.bitnots.jfx.FormBuilder
-import com.benjishults.bitnots.parser.BitnotsFileRepo
-import com.benjishults.bitnots.parser.IprFileRepo
 import com.benjishults.bitnots.regression.problem.TptpProblemSetBuilder
+import com.benjishults.bitnots.sexpParser.IprFileRepo
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
 import com.benjishults.bitnots.tptp.TptpFileRepo
 import com.benjishults.bitnots.tptp.files.TptpDomain
@@ -142,7 +141,7 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
         fun stringToProblemSource(source: String) =
             when (source) {
                 "tptp" -> TptpFileRepo
-                "bitnots" -> BitnotsFileRepo
+                // "bitnots" -> BitnotsFileRepo
                 "ipr" -> IprFileRepo
                 else -> error("Unrecognized problem source: ${source}")
             }

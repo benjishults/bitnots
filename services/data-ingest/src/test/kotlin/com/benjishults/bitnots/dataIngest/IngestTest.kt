@@ -29,7 +29,7 @@ open class IngestTest {
     @Test
     @Disable
     fun ingestTest() {
-        TptpFileFetcher.findAll(TptpDomain.SYN, TptpFormulaForm.FOF).sortedWith(object : Comparator<Path> {
+        TptpFileFetcher.findAll(TptpDomain.SYN, TptpFof).sortedWith(object : Comparator<Path> {
             override fun compare(o1: Path?, o2: Path?): Int =
                     o1?.getFileName()?.toString()?.compareTo(o2?.getFileName()?.toString() ?: "") ?: 0
         }).forEach { path ->
@@ -46,7 +46,7 @@ open class IngestTest {
     @Test
     @Disable
     fun ingestProblemsTest() {
-        TptpFileFetcher.findAll(TptpDomain.SYN, TptpFormulaForm.FOF).sortedWith(object : Comparator<Path> {
+        TptpFileFetcher.findAll(TptpDomain.SYN, TptpFof).sortedWith(object : Comparator<Path> {
             override fun compare(o1: Path?, o2: Path?): Int =
                     o1?.getFileName()?.toString()?.compareTo(o2?.getFileName()?.toString() ?: "") ?: 0
         }).forEach { path ->

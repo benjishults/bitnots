@@ -24,7 +24,7 @@
         <module>prover</module>
         <module>tableau-prover</module>
         <module>parser</module>
-        <module>bitnots-parser</module>
+<!--        <module>bitnots-parser</module>-->
         <module>ipr-parser</module>
         <module>tptp-parser</module>
         <module>problem-service-client</module>

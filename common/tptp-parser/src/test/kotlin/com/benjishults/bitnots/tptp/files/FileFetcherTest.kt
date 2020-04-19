@@ -10,17 +10,17 @@ class FileFetcherTest {
     @Test
     fun findProblemDescriptors() {
 
-        val descriptors = TptpFileFetcher.findAllDescriptors(TptpDomain.SYN, TptpFormulaForm.FOF)
+        val descriptors = TptpFileFetcher.findAllDescriptors(TptpDomain.SYN, TptpFof)
         Assertions.assertEquals(9, descriptors.size)
-        Assertions.assertTrue(TptpProblemFileDescriptor(TptpDomain.SYN, TptpFormulaForm.FOF, 7, 1, 14) in descriptors)
+        Assertions.assertTrue(TptpProblemFileDescriptor(TptpDomain.SYN, TptpFof, 7, 1, 14) in descriptors)
     }
 
     @Test
     private fun findAxiomFiles() {
-        var path = TptpFileFetcher.findAxiomsFile(TptpDomain.SET, TptpFormulaForm.FOF, 7, 118)
+        var path = TptpFileFetcher.findAxiomsFile(TptpDomain.SET, TptpFof, 7, 118)
         println(path.toUri().toString())
         Assertions.assertTrue(path.toFile().exists())
-         path = TptpFileFetcher.findAxiomsFile(TptpDomain.ANA, TptpFormulaForm.CNF)
+         path = TptpFileFetcher.findAxiomsFile(TptpDomain.ANA, TptpCnf)
         println(path.fileName)
         Assertions.assertTrue(path.toFile().exists())
     }

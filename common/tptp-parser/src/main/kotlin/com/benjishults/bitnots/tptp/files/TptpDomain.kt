@@ -57,6 +57,8 @@ enum class TptpDomain(override val field: String, override val subfield: String)
     PUZ("Other", "Puzzles"),
     MSC("Other", "Miscellaneous");
 
+    override val abbreviation: String = name
+
     companion object {
         fun findBySubfield(subfield: String) = values().find { it.subfield == subfield }
     }

@@ -1,6 +1,8 @@
 package com.benjishults.bitnots.prover
 
 import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.model.formulas.propositional.Implies
+import com.benjishults.bitnots.model.formulas.util.toConjunct
 import com.benjishults.bitnots.prover.finish.ProofInProgress
 import kotlinx.coroutines.isActive
 import kotlin.coroutines.coroutineContext
@@ -16,6 +18,28 @@ interface Harness<T : ProofInProgress, out P : Prover<T>> {
      */
     fun rein(proofInProgress: T): Boolean = false
 
+    suspend fun proveWithHyps(
+        hyps: List<Formula>,
+        target: Formula
+    ): T =
+        prove(
+            hyps.toConjunct()?.let {
+                Implies(
+                    it,
+                    target
+                )
+            } ?: target)
+
+    suspend fun proveAllTargets(
+        hyps: List<Formula>,
+        targets: List<Formula>
+    ): Collection<T> =
+        mutableListOf<T>().also { value ->
+            targets.forEach { target ->
+                value.add(proveWithHyps(hyps, target))
+            }
+        }
+
     suspend fun prove(
         formula: Formula
     ) =
@@ -23,11 +47,10 @@ interface Harness<T : ProofInProgress, out P : Prover<T>> {
 
     suspend fun prove(
         proofInProgress: T
-    ): T {
+    ): T {//=  withContext(Dispatchers.Default) {
         while (coroutineContext.isActive) {
-            val indicator = prover.checkProgress(proofInProgress)
-            proofInProgress.indicator = indicator
-            if (indicator.isDone()) {
+            proofInProgress.indicator = prover.checkProgress(proofInProgress)
+            if (proofInProgress.indicator.isDone()) {
                 return proofInProgress
             } else if (!coroutineContext.isActive) {
                 break

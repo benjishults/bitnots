@@ -4,13 +4,22 @@
 
 ## Build
 
+### Build without TPTP tests
+
 ```bash
 mvn clean install
 ```
 
-If you want to run tests against [TPTP](http://www.cs.miami.edu/~tptp/), you must have the  [TPTP](http://www.cs.miami.edu/~tptp/) library
-installed locally and [this file](config/tptp.properties) must define `tptp.base.folder` to point to the local location
-of the library.
+### Build without TPTP tests
+
+If you want to run tests against [TPTP](http://www.cs.miami.edu/~tptp/), you must 
+
+1. have the  [TPTP](http://www.cs.miami.edu/~tptp/) library
+installed locally
+2. the `tptp.base.folder` system property must be defined when you run tests
+   1. an easy way to have the property defined is to set it in [this file](config/tptp.properties)
+   2. you can store that `tptp.properties` configuration file elsewhere by redefining the system property
+   `config` to point to the folder containing that file.
 
 Once that's ready, run
 
@@ -20,7 +29,7 @@ mvn install -P localTptp
 
 That will run tests that need TPTP.
 
-Some tests have problems if you use JVM 8.  JVM 11 and higher work well.
+Some tests have problems if you use JVM 8.  JVM 11 and 14 are tested and work well.  (I use the J9 versions.)
 
 ## Run UI
 

@@ -11,8 +11,13 @@ import java.math.MathContext
 import java.math.RoundingMode
 
 class PropositionalTableauHarness(
+    val stepLimit: Long = -1L,
     override val limitMillis: Long = -1L
 ) : TimedHarness<PropositionalTableau, PropositionalFormulaProver> {
+
+    override fun rein(proofInProgress: PropositionalTableau): Boolean {
+        return stepLimit >= 0 && proofInProgress.getSteps() >= stepLimit
+    }
 
     override val prover: PropositionalFormulaProver = PropositionalFormulaProver(
         PropositionalClosingStrategy(),
@@ -24,10 +29,13 @@ class PropositionalTableauHarness(
         PropositionalTableau(formula)
 
     override fun toString(): String =
-        limitMillis.takeIf { it >= 0 }
-            ?.div(1000.0)
-            ?.let { num ->
-                BigDecimal(num, MathContext(2, RoundingMode.HALF_UP)).toString()
-            } ?: ""
+        sequenceOf(
+            limitMillis.takeIf { it >= 0 }
+                ?.div(1000.0)
+                ?.let { num ->
+                    BigDecimal(num, MathContext(2, RoundingMode.HALF_UP)).toString()
+                } ?: "",
+            stepLimit.takeIf { it >= 0 }?.let { nonNegative -> "sl=$nonNegative" } ?: ""
+        ).joinToString(" ").trim()
 
 }
