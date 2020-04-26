@@ -11,7 +11,8 @@ note top: $x
 !function _empty()
 {+
 {* File | Help
- File | New | Open | Recent > | Save }
+ File | New | Open | Recent > }
+{ [ Save ] | [ Delete Problem Set ] }
 "No problem set selected"
 {S
 {#
@@ -21,19 +22,24 @@ File Name | Source | Harness | Last Run
 . | . | . | .
 }
 }
-{ [ Run ] | [ See History ] | [ <&lock-locked> Unlock Options ] | [ Delete File From Problem Set ] }
+{ [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] }
 }
 !endfunction
 
 !function _new()
 {+
-source | ^tptp^ | domains | "AGT, SYN     " | form | ^ FOF ^ | name problem set: | "My name for problem set" | [ Fetch ]
+name problem set: | "My name for problem set"
+source | ^tptp^
+domains | ^"AGT, SYN     "^
+form | ^ FOF ^
+[ Fetch ]
 }
 !endfunction
 
 !function _new_fetch()
 {+
 {* File | Help }
+{ [ Save ] | [ Delete Problem Set ] }
 "My name for problem set"
 {S
 {#
@@ -42,13 +48,14 @@ multi-selectable | TPTP | q=6 to=30 sl=5 | .
 list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
 }
-{ [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] | [ Delete Problem Set Permanently ] }
+{ [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] }
 }
 !endfunction
 
 !function _unlock()
 {+
 {* File | Help }
+{ [ Save ] | [ Delete Problem Set ] }
 "My name for problem set"
 {S
 {#
@@ -57,7 +64,7 @@ multi-selectable | TPTP | q=6 to=30 sl=5 | .
 list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
 }
-{ [ <&lock-unlocked> Save and Lock ] | [ Delete Problem From Problem Set ] | [ Undo ] | [ Reset ] }
+{ [ <&lock-unlocked> Save and Lock ] | [ Delete Problem ] | [ Undo ] | [ Reset ] }
 }
 !endfunction
 
@@ -73,6 +80,7 @@ previous run-times and configurations.
 !function _run()
 {+
 {* File | Help }
+{ [ Save ] | [ Delete Problem Set ] }
 "My name for problem set"
 {S
 {#
@@ -81,15 +89,15 @@ multi-selectable | TPTP | q=6 to=30 sl=5 | .
 list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
 }
-{ [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] | [ Delete Problem Set Permanently ] }
+{ [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] }
 }
 !endfunction
 
 (*) -> SALT(empty) : first run
---> SALT(new)
+empty -right-> SALT(new)
 new --> SALT(new_fetch) : require and new name
-new_fetch --> SALT(unlock)
+new_fetch -left-> SALT(unlock)
 unlock --> SALT(lock_warning)
-lock_warning --> SALT(run)
+lock_warning -right-> SALT(run)
 
 @enduml

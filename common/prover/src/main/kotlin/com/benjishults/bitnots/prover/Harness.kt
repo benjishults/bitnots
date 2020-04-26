@@ -4,11 +4,17 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.util.toConjunct
 import com.benjishults.bitnots.prover.finish.ProofInProgress
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.coroutineContext
 
-interface Harness<T : ProofInProgress, out P : Prover<T>> {
+interface Harness<T : ProofInProgress, out P : Prover<T>> { // : CoroutineScope {
 
+    // override val coroutineContext: CoroutineContext get() = Dispatchers.Default + SupervisorJob()
     val prover: P
 
     fun initializeProof(formula: Formula): T
@@ -23,21 +29,42 @@ interface Harness<T : ProofInProgress, out P : Prover<T>> {
         target: Formula
     ): T =
         prove(
-            hyps.toConjunct()?.let {
+            formula = hyps.toConjunct()?.let {
                 Implies(
                     it,
                     target
                 )
             } ?: target)
 
+    // TODO I want a cancellable channel with smart lifecycle handling.
+    suspend fun proveEachTarget(
+        hyps: List<Formula>,
+        targets: List<Formula>
+    ): Channel<T> = Channel<T>(10).also { channel ->
+        withContext(Dispatchers.Default) {
+            // TODO how to specify the exception handler?
+            supervisorScope {
+                targets.forEach { target ->
+                    coroutineScope {
+                        channel.send(proveWithHyps(hyps, target))
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO I want a cancellable channel with smart lifecycle handling.
     suspend fun proveAllTargets(
         hyps: List<Formula>,
         targets: List<Formula>
-    ): Collection<T> =
-        mutableListOf<T>().also { value ->
+    ): List<T> =
+        withContext(Dispatchers.Default) {
+            val value = mutableListOf<T>()
+            // TODO how to specify the exception handler?
             targets.forEach { target ->
                 value.add(proveWithHyps(hyps, target))
             }
+            value
         }
 
     suspend fun prove(
@@ -47,7 +74,8 @@ interface Harness<T : ProofInProgress, out P : Prover<T>> {
 
     suspend fun prove(
         proofInProgress: T
-    ): T {//=  withContext(Dispatchers.Default) {
+    ): T /*= withContext(Dispatchers.Default)*/ {
+        // measureTimeMillis {  }
         while (coroutineContext.isActive) {
             proofInProgress.indicator = prover.checkProgress(proofInProgress)
             if (proofInProgress.indicator.isDone()) {

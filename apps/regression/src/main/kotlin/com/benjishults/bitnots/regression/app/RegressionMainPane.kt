@@ -1,8 +1,5 @@
 package com.benjishults.bitnots.regression.app
 
-import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.formulas.propositional.Implies
-import com.benjishults.bitnots.model.formulas.util.toConjunct
 import com.benjishults.bitnots.parser.FileDescriptor
 import com.benjishults.bitnots.parser.FileFetcher
 import com.benjishults.bitnots.prover.Harness
@@ -35,8 +32,10 @@ import javafx.scene.layout.FlowPane
 import javafx.scene.layout.VBox
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 class RegressionMainPane(
     private val uiProperties: Properties,
@@ -44,7 +43,10 @@ class RegressionMainPane(
     height: Double,
     menuBar: MenuBar = MenuBar(),
     pane: BorderPane = BorderPane()
-) : Scene(VBox(menuBar, pane), width, height) {
+) : Scene(VBox(menuBar, pane), width, height), CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.JavaFx
 
     private val problemSetName = SimpleStringProperty("No problem set selected")
 
@@ -62,10 +64,48 @@ class RegressionMainPane(
         pane.idProperty().set("root")
 
         menu(menuBar)
+
         top(pane)
+
         table = problemTable()
         pane.center = ScrollPane(table)
+
         bottom(pane)
+    }
+
+    private fun top(pane: BorderPane) {
+        pane.top = VBox().also { vbox ->
+            vbox.children.addAll(
+                FlowPane().also { bottomPane ->
+                    bottomPane.children.addAll(
+                        Button("Save").also { saveButton ->
+                            saveButton.setOnAction { _ ->
+                                TODO("Implement")
+                            }
+                        },
+                        Button("Delete Problem Set").also { deleteButton ->
+                            deleteButton.setOnAction { _ ->
+                                TODO("Implement")
+                            }
+                        }
+                    )
+                },
+                Label().also { label ->
+                    label.textProperty().bind(problemSetName)
+                }
+            )
+        }
+    }
+
+    private fun menu(menuBar: MenuBar) {
+        val fileMenu = Menu("File")
+        fileMenu.items.addAll(
+            newProblemSetMenuItem(),
+            openProblemSetMenuItem(),
+            recentProblemSetsMenu()
+        )
+
+        menuBar.menus.addAll(fileMenu, Menu("Help"))
     }
 
     private fun bottom(pane: BorderPane) {
@@ -90,12 +130,6 @@ class RegressionMainPane(
                         //     // TODO add to theories loaded
                         // }
                     }
-                },
-                Button("Delete Problem Set").apply
-                {
-                    setOnAction { _ ->
-                        TODO("Implement")
-                    }
                 })
         }
     }
@@ -105,6 +139,8 @@ class RegressionMainPane(
             runButton.setOnAction {
                 // TODO extract this to be testable
                 // val toParser: (FormulaForm) -> Parser<*, *> = this::toParser
+
+
                 val fileFetcher = TptpFileFetcher
                 problemSet.problems.forEach { problemRun ->
                     // val onProof: (ProofInProgress) -> Unit = { pip -> updateTableItem(problemRun, pip) }
@@ -114,34 +150,14 @@ class RegressionMainPane(
                         fileDescriptor as TptpProblemFileDescriptor,
                         fileFetcher as FileFetcher<*, TptpFormulaForm, FileDescriptor<TptpFormulaForm, *>>
                     ).let { (hyps, targets) ->
-                        proveAllTargets(hyps, targets, harness)
-                        // TODO update problem set history
+                        this.launch {
+                            // TODO extract data for table
+                            harness.proveAllTargets(hyps, targets)
+                        }
                     }
                 }
             }
         }
-
-    private fun proveAllTargets(
-        hyps: List<Formula>,
-        targets: List<Formula>,
-        harness: Harness<*, *>
-    ) {
-        // clearInternTables()
-        // TODO accumulate timings
-        targets.forEach { target ->
-            CoroutineScope(Dispatchers.Default).launch {
-                harness.prove(
-                    hyps.toConjunct()?.let {
-                        Implies(
-                            it,
-                            target
-                        )
-                    } ?: target
-                )
-                // ProverService(harness, hyps, target, onProof).start()
-            }
-        }
-    }
 
     private fun updateTableItem(
         problemRun: ProblemRunDescriptor<*>,
@@ -155,23 +171,6 @@ class RegressionMainPane(
                 proofInProgress.indicator.toProblemRunStatus()
             )
         )
-    }
-
-    private fun top(pane: BorderPane) {
-        pane.top = Label().apply {
-            textProperty().bind(problemSetName)
-        }
-    }
-
-    private fun menu(menuBar: MenuBar) {
-        val fileMenu = Menu("File")
-        fileMenu.items.addAll(
-            newProblemSetMenuItem(),
-            openProblemSetMenuItem(),
-            recentProblemSetsMenu()
-        )
-
-        menuBar.menus.addAll(fileMenu, Menu("Help"))
     }
 
     private fun problemTable(): TableView<ProblemRunDescriptor<*>> {
@@ -208,26 +207,26 @@ class RegressionMainPane(
     private fun newProblemSetMenuItem(): MenuItem {
         return MenuItem("New").also { new ->
             new.setOnAction { e: ActionEvent ->
-                NewProblemSetDialog().showAndWait().ifPresentOrElse(
-                    { builder ->
-                        // TODO do this in other thread
-                        //      show spinny gif
-                        //      load data on UI thread
-                        // Popup().also { popup ->
-                        //     popup.content.add(Text("Initializing Problem Set '${builder.name}'"))
-                        //     popup.show(this.window)
-                        problemSet = builder.build()
-                        table.items = FXCollections.observableList(
-                            problemSet.problems
-                        )
-                        // popup.hide()
-                        // }
+                NewProblemSetDialog()
+                    .showAndWait()
+                    .ifPresentOrElse(
+                        { builder ->
+                            launch(Dispatchers.JavaFx.immediate) {
+                                // Popup().also { popup ->
+                                //     popup.content.add(Text("Initializing Problem Set '${builder.name}'"))
+                                //     popup.show(this.window)
+                                problemSet = builder.build()
+                                table.items = FXCollections.observableList(
+                                    problemSet.problems
+                                )
+                                // popup.hide()
+                                // }
+                            }
+                        }
+                    ) {
+                        // do nothing
                     }
-                ) {
-                    // do nothing
-                }
             }
-
         }
     }
 

@@ -8,19 +8,19 @@ interface FileFetcher<in D: DomainCategory, F :FormulaForm, FD: FileDescriptor<F
 
     fun findProblemFolder(domain: D): Path
 
-    fun findAllPaths(
+    suspend fun findAllPaths(
         domain: D,
         form: F
     ): List<Path>
 
-    fun findAllDescriptors(
+    suspend fun findAllDescriptors(
         domain: D,
         form: F
     ): List<FD>
 
     fun findProblemFile(descriptor: FD): Path
 
-    fun problemFileFilter(
+    suspend fun problemFileFilter(
         domains: List<D>,
         forms: List<F>,
         vararg excludes: FD

@@ -111,24 +111,9 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
                             formProperty = comboBox.valueProperty()
                         }
                     )
-                    builder.addLabelAndControl(
-                        Label("qLimit"),
-                        TextField("3").also { field ->
-                            qLimitProperty = field.textProperty()
-                        }
-                    )
-                    builder.addLabelAndControl(
-                        Label("step limit"),
-                        TextField().also { field ->
-                            stepLimitProperty = field.textProperty()
-                        }
-                    )
-                    builder.addLabelAndControl(
-                        Label("time limit millis"),
-                        TextField().also { field ->
-                            timeLimitProperty = field.textProperty()
-                        }
-                    )
+                    qLimitProperty = addLabeledTextField(builder, "qLimit", "3").textProperty()
+                    stepLimitProperty = addLabeledTextField(builder, "step limit").textProperty()
+                    timeLimitProperty = addLabeledTextField(builder, "time limit millis").textProperty()
                 }.form
             )
         }
@@ -147,9 +132,9 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
                             }
                         },
                         FolTableauHarness(
-                            qLimitProperty.value.takeIf { it.trim().length > 0 }?.toLong() ?: -1L,
-                            stepLimitProperty.value.takeIf { it.trim().length > 0 }?.toLong() ?: -1L,
-                            timeLimitProperty.value.takeIf { it.trim().length > 0 }?.toLong() ?: -1L
+                            qLimitProperty.value.takeIf { it.trim().isNotEmpty() }?.toLong() ?: -1L,
+                            stepLimitProperty.value.takeIf { it.trim().isNotEmpty() }?.toLong() ?: -1L,
+                            timeLimitProperty.value.takeIf { it.trim().isNotEmpty() }?.toLong() ?: -1L
                         )
                     )
                 }
@@ -157,6 +142,17 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
             }
         }
     }
+
+    private fun addLabeledTextField(
+        builder: FormBuilder,
+        label: String,
+        initial: String = "",
+        config: (TextField) -> Unit = {}
+    ): TextField =
+        builder.addLabelAndControl(
+            Label(label),
+            TextField(initial).also(config)
+        ) as TextField
 
     companion object {
         fun stringToProblemSource(source: String) =

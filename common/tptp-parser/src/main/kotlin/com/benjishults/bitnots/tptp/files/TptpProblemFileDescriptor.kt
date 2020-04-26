@@ -2,7 +2,6 @@ package com.benjishults.bitnots.tptp.files
 
 import com.benjishults.bitnots.parser.FileDescriptor
 import com.benjishults.bitnots.tptp.TptpFileRepo
-import java.nio.file.Path
 import java.util.regex.Pattern
 
 data class TptpProblemFileDescriptor(
@@ -28,8 +27,8 @@ data class TptpProblemFileDescriptor(
                     ?: o1.size.compareTo(o2.size)
         }
 
-        fun parseTptpPath(path: Path): TptpProblemFileDescriptor =
-            pattern.matcher(path.fileName.toString()).let { matcher ->
+        fun fromFileName(fileName: String): TptpProblemFileDescriptor =
+            pattern.matcher(fileName).let { matcher ->
                 if (matcher.find()) {
                     TptpDomain.valueOf(matcher.group("domain")).let { domain ->
                         matcher.group("number").toLong(10).let { number ->
@@ -49,7 +48,7 @@ data class TptpProblemFileDescriptor(
                         }
                     }
                 } else {
-                    error("$path is not a properly-formatted TPTP problem file name")
+                    error("$fileName is not a properly-formatted TPTP problem file name")
                 }
             }
     }
