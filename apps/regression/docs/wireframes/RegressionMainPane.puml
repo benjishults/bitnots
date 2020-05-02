@@ -1,14 +1,14 @@
 @startuml
 
-!unquoted function SALT($x)
+!unquoted procedure SALT($x)
 "{{
 salt
 %invoke_void_func("_"+$x)
 }}" as $x
 note top: $x
-!endfunction
+!endprocedure
 
-!function _empty()
+!procedure _empty()
 {+
 {* File | Help
  File | New | Open | Recent > }
@@ -24,9 +24,9 @@ File Name | Source | Harness | Last Run
 }
 { [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] }
 }
-!endfunction
+!endprocedure
 
-!function _new()
+!procedure _new()
 {+
 name problem set: | "My name for problem set"
 source | ^tptp^
@@ -34,9 +34,9 @@ domains | ^"AGT, SYN     "^
 form | ^ FOF ^
 [ Fetch ]
 }
-!endfunction
+!endprocedure
 
-!function _new_fetch()
+!procedure _new_fetch()
 {+
 {* File | Help }
 { [ Save ] | [ Delete Problem Set ] }
@@ -50,9 +50,9 @@ list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
 { [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] }
 }
-!endfunction
+!endprocedure
 
-!function _unlock()
+!procedure _unlock()
 {+
 {* File | Help }
 { [ Save ] | [ Delete Problem Set ] }
@@ -66,18 +66,18 @@ list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
 { [ <&lock-unlocked> Save and Lock ] | [ Delete Problem ] | [ Undo ] | [ Reset ] }
 }
-!endfunction
+!endprocedure
 
-!function _lock_warning()
+!procedure _lock_warning()
 {+
 Warning: A problem set with this name already exists.
 If you over-write that files, you will lose your record of
 previous run-times and configurations.
 { [ Over-write files ] | [ Go back and rename ] }
 }
-!endfunction
+!endprocedure
 
-!function _run()
+!procedure _run()
 {+
 {* File | Help }
 { [ Save ] | [ Delete Problem Set ] }
@@ -91,7 +91,7 @@ list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
 { [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] }
 }
-!endfunction
+!endprocedure
 
 (*) -> SALT(empty) : first run
 empty -right-> SALT(new)
