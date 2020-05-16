@@ -4,9 +4,10 @@ import com.benjishults.bitnots.prover.Prover
 import com.benjishults.bitnots.tableau.FolTableau
 import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
 import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
+import com.benjishults.bitnots.util.identity.CommitIdTimeVersioner
+import com.benjishults.bitnots.util.identity.Versioned
 
 class FolFormulaTableauProver(
     override val finishingStrategy: FolUnificationClosingStrategy,
-    override val stepStrategy: FolStepStrategy,
-    override val version: String = "unversioned"
-) : Prover<FolTableau>
+    override val stepStrategy: FolStepStrategy
+) : Prover<FolTableau>, Versioned by CommitIdTimeVersioner

@@ -5,5 +5,6 @@ import com.benjishults.bitnots.theory.formula.FormulaForm
 
 interface ProblemSource {
     val abbreviation: String
+    val version: String
     fun <F : FormulaForm, AF : AnnotatedFormula> parser(form: F): Parser<AF, *>
 }

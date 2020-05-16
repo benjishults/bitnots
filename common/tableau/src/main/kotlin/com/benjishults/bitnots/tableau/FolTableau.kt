@@ -14,7 +14,8 @@ class FolTableau(
         )
     )
 
-    override fun toString() = ""/*: String {
+    override fun toString() = this.root.newFormulas.toString()
+    /*: String {
         return buildString {
             root.preOrderWithPath { n, path ->
                 this.append(path.joinToString("."))

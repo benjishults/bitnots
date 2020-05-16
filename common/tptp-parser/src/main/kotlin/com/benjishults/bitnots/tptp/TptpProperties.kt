@@ -41,7 +41,7 @@ object TptpProperties : Properties() {
 }
 
 object TptpFileRepo : ProblemSource {
-    val version: String = TptpProperties.getTptpVersion()
+    override val version: String = TptpProperties.getTptpVersion()
     val path: Path = Path.of(TptpProperties.getBaseFolderName())
     override val abbreviation: String = "TPTP"
     override fun <F : FormulaForm, AF : AnnotatedFormula> parser(form: F): Parser<AF, *> =

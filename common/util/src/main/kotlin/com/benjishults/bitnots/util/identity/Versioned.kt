@@ -1,17 +1,17 @@
-package com.benjishults.bitnots.prover
+package com.benjishults.bitnots.util.identity
 
 import java.time.Instant
 import java.util.*
 
-interface VersionLabelProvider {
-    fun versionLabel(): String
+interface Versioned {
+    val version: String
 }
 
-object TimeCommitIdVersionLabelProvider : VersionLabelProvider {
+object CommitIdTimeVersioner : Versioned {
 
     val now = Instant.now()
 
-    override fun versionLabel() = "${gitCommitTime()}__${gitCommitId()}"
+    override val version = "${gitCommitTime()}__${gitCommitId()}"
 
     private fun gitCommitId() =
         gitCommitInfo()["git.commit.id"]?.let { it as String } ?: "dirty-SNAPSHOT"

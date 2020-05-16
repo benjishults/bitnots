@@ -23,7 +23,7 @@ class FormBuilder(
         form.padding = Insets(25.0, 25.0, 25.0, 25.0);
     }
 
-    fun addLabelAndControl(label: Label, control: Control): Control {
+    fun <T: Control> addLabelAndControl(label: Label, control: T): T {
         form.add(label, 0, numberOfRows)
         form.add(control, 1, numberOfRows)
         label.labelFor = control

@@ -11,8 +11,10 @@ import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.tableau.closer.BranchCloser
 import com.benjishults.bitnots.tableau.closer.InProgressTableauProgressIndicator
 import com.benjishults.bitnots.tableau.closer.UnifyingProgressIndicator
+import com.benjishults.bitnots.util.identity.CommitIdTimeVersioner
+import com.benjishults.bitnots.util.identity.Versioned
 
-open class FolUnificationClosingStrategy : TableauClosingStrategy<FolTableau> {
+open class FolUnificationClosingStrategy : TableauClosingStrategy<FolTableau>, Versioned by CommitIdTimeVersioner {
 
     override fun populateBranchClosers(tableau: FolTableau) {
         with(tableau.root.preorderIterator()) {

@@ -4,22 +4,27 @@ import com.benjishults.bitnots.parser.FileDescriptor
 import com.benjishults.bitnots.parser.FileFetcher
 import com.benjishults.bitnots.prover.Harness
 import com.benjishults.bitnots.prover.finish.ProofInProgress
-import com.benjishults.bitnots.prover.problem.ProblemRunDescriptor
 import com.benjishults.bitnots.prover.problem.ProblemRunStatus
-import com.benjishults.bitnots.prover.problem.ProblemSet
 import com.benjishults.bitnots.prover.problem.toProblemRunStatus
+import com.benjishults.bitnots.regression.files.willOverwriteExistingProblemSet
+import com.benjishults.bitnots.regression.files.writeNewProblemSet
+import com.benjishults.bitnots.regression.problem.ProblemFileSet
+import com.benjishults.bitnots.regression.problem.ProblemFileSetRow
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
 import com.benjishults.bitnots.tptp.TptpFileRepo
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
 import com.benjishults.bitnots.tptp.formula.TptpFormulaClassifier
+import javafx.application.Platform
 import javafx.beans.property.ReadOnlyObjectWrapper
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.event.ActionEvent
 import javafx.scene.Scene
+import javafx.scene.control.Alert
 import javafx.scene.control.Button
+import javafx.scene.control.ButtonType
 import javafx.scene.control.Label
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
@@ -51,13 +56,13 @@ class RegressionMainPane(
     private val problemSetName = SimpleStringProperty("No problem set selected")
 
     @Volatile
-    private var problemSet: ProblemSet<*> = ProblemSet.EMPTY
+    private var problemFileSet: ProblemFileSet<*> = ProblemFileSet.EMPTY
         set(value) {
             problemSetName.set(value.name)
             field = value
         }
 
-    private val table: TableView<ProblemRunDescriptor<*>>
+    private val table: TableView<ProblemFileSetRow<*, *>>
 
     init {
         stylesheets.add("css/ui.css")
@@ -80,7 +85,16 @@ class RegressionMainPane(
                     bottomPane.children.addAll(
                         Button("Save").also { saveButton ->
                             saveButton.setOnAction { _ ->
-                                TODO("Implement")
+                                if (problemSetName.get().willOverwriteExistingProblemSet()) {
+                                    Alert(
+                                        Alert.AlertType.WARNING,
+                                        "This will overwrite an existing problem set configuration and its history.  Are you sure?"
+                                    ).showAndWait()
+                                        .filter { it === ButtonType.OK }
+                                        .ifPresent { problemFileSet.writeNewProblemSet() }
+                                } else {
+                                    problemFileSet.writeNewProblemSet()
+                                }
                             }
                         },
                         Button("Delete Problem Set").also { deleteButton ->
@@ -102,7 +116,8 @@ class RegressionMainPane(
         fileMenu.items.addAll(
             newProblemSetMenuItem(),
             openProblemSetMenuItem(),
-            recentProblemSetsMenu()
+            recentProblemSetsMenu(),
+            quitMenuItem()
         )
 
         menuBar.menus.addAll(fileMenu, Menu("Help"))
@@ -142,9 +157,9 @@ class RegressionMainPane(
 
 
                 val fileFetcher = TptpFileFetcher
-                problemSet.problems.forEach { problemRun ->
+                problemFileSet.problemFiles.forEach { problemFileDescriptor ->
                     // val onProof: (ProofInProgress) -> Unit = { pip -> updateTableItem(problemRun, pip) }
-                    val (fileDescriptor, harness) = problemRun
+                    val (fileDescriptor, harness) = problemFileDescriptor
                     fileDescriptor.parser<FolAnnotatedFormula>().parseAndClassify(
                         TptpFormulaClassifier(),
                         fileDescriptor as TptpProblemFileDescriptor,
@@ -160,36 +175,36 @@ class RegressionMainPane(
         }
 
     private fun updateTableItem(
-        problemRun: ProblemRunDescriptor<*>,
+        problemFile: ProblemFileSetRow<*, *>,
         proofInProgress: ProofInProgress
     ) {
         table.items.set(
-            table.items.indexOf(problemRun),
-            ProblemRunDescriptor(
-                problemRun.fileDescriptor,
-                problemRun.harness,
+            table.items.indexOf(problemFile),
+            ProblemFileSetRow(
+                problemFile.fileDescriptor,
+                problemFile.harness,
                 proofInProgress.indicator.toProblemRunStatus()
             )
         )
     }
 
-    private fun problemTable(): TableView<ProblemRunDescriptor<*>> {
-        val table = TableView<ProblemRunDescriptor<*>>()
-        val fileNameCol = TableColumn<ProblemRunDescriptor<*>, String>("File")
+    private fun problemTable(): TableView<ProblemFileSetRow<*,*>> {
+        val table = TableView<ProblemFileSetRow<*,*>>()
+        val fileNameCol = TableColumn<ProblemFileSetRow<*,*>, String>("File")
         fileNameCol.setCellValueFactory { column ->
             ReadOnlyObjectWrapper(column.value.fileDescriptor.toFileName())
         }
-        val sourceCol = TableColumn<ProblemRunDescriptor<*>, String>("Source")
+        val sourceCol = TableColumn<ProblemFileSetRow<*,*>, String>("Source")
         sourceCol.setCellValueFactory { _ ->
             ReadOnlyObjectWrapper(TptpFileRepo.abbreviation)
         }
-        val harnessCol = TableColumn<ProblemRunDescriptor<*>, Harness<*, *>>("Harness")
+        val harnessCol = TableColumn<ProblemFileSetRow<*,*>, Harness<*, *>>("Harness")
         harnessCol.setCellValueFactory { column ->
             ReadOnlyObjectWrapper(column.value.harness)
         }
-        val statusCol = TableColumn<ProblemRunDescriptor<*>, ProblemRunStatus>("Last Run")
+        val statusCol = TableColumn<ProblemFileSetRow<*,*>, ProblemRunStatus>("Last Run")
         statusCol.setCellValueFactory { column ->
-            ReadOnlyObjectWrapper(if (column.value is ProblemRunDescriptor) column.value.status else null)
+            ReadOnlyObjectWrapper(if (column.value is ProblemFileSetRow) column.value.status else null)
         }
         table.columns.addAll(
             fileNameCol,
@@ -215,9 +230,9 @@ class RegressionMainPane(
                                 // Popup().also { popup ->
                                 //     popup.content.add(Text("Initializing Problem Set '${builder.name}'"))
                                 //     popup.show(this.window)
-                                problemSet = builder.build()
+                                problemFileSet = builder.build()
                                 table.items = FXCollections.observableList(
-                                    problemSet.problems
+                                    problemFileSet.problemFiles
                                 )
                                 // popup.hide()
                                 // }
@@ -226,6 +241,14 @@ class RegressionMainPane(
                     ) {
                         // do nothing
                     }
+            }
+        }
+    }
+
+    private fun quitMenuItem(): MenuItem {
+        return MenuItem("Quit").also { quit ->
+            quit.setOnAction { e: ActionEvent ->
+                Platform.exit()
             }
         }
     }

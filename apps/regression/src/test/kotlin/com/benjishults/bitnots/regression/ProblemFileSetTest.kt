@@ -5,7 +5,7 @@ import com.benjishults.bitnots.tptp.files.TptpFof
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
 import org.junit.jupiter.api.Test
 
-class ProblemSetTest {
+class ProblemFileSetTest {
 
     @Test
    fun testSynFof() {

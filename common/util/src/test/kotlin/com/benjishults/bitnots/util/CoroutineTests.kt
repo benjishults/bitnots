@@ -8,6 +8,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.supervisorScope
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
 // import kotlin.coroutines.coroutineContext
 
@@ -29,11 +30,36 @@ class TestNonCoroutineScope {
     //     }
     // }
 
+    fun test4() {
+        suspend {
+            coroutineScope {
+
+            }
+            coroutineContext
+        }
+    }
+
+    // fun test5() {
+    //     suspend {
+    //         coroutineScope {
+    //
+    //         }
+    //         coroutineContext
+    //     }()
+    // }
+
     suspend fun test2() {
-        val job = kotlin.coroutines.coroutineContext[Job]
+        val job = coroutineContext[Job]
         coroutineScope {
 
         }
+        suspend {
+            coroutineScope {
+
+            }
+            coroutineContext
+        }()
+
 
         supervisorScope {
 
@@ -51,12 +77,12 @@ class TestNonCoroutineScope {
 }
 
 class TestCoroutineScope : CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default
+    override val coroutineContext: CoroutineContext = Dispatchers.Default
 
     fun test0() {
         val job = coroutineContext[Job]
-
+        //     // cannot call suspend function here
+        // kotlin.coroutines.coroutineContext
     }
 
     // fun test1() {

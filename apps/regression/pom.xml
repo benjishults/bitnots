@@ -111,6 +111,15 @@
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.uchuhimo</groupId>
+            <artifactId>konf-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.uchuhimo</groupId>
+            <artifactId>konf-yaml</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

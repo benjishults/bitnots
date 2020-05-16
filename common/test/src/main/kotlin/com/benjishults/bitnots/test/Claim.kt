@@ -15,6 +15,7 @@ import com.benjishults.bitnots.tableauProver.FolFormulaTableauProver
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
 import com.benjishults.bitnots.tableauProver.PropositionalFormulaProver
 import com.benjishults.bitnots.tableauProver.PropositionalTableauHarness
+import kotlin.system.measureTimeMillis
 
 val DEFAULT_MAX_STEPS: Long = 30L
 val DEFAULT_Q_LIMIT: Long = 6L
@@ -37,7 +38,7 @@ object FalseClaim : ExpectOutcome {
 
 class TrueClaim(private val maxSteps: Long, private val minSteps: Long) : ExpectOutcome {
     override fun validate(proofInProgress: ProofInProgress): Boolean {
-        return proofInProgress.indicator.isDone() && proofInProgress.getSteps() in minSteps..maxSteps
+        return proofInProgress.indicator.isDone() && proofInProgress.steps in minSteps..maxSteps
     }
 }
 
@@ -60,6 +61,7 @@ abstract class PropositionalClaim(
                 )
             )
         ).also {
+            measureTimeMillis {  }
             harness.prove(it)
         }
     }

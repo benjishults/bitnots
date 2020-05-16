@@ -1,11 +1,11 @@
 package com.benjishults.bitnots.regression.app
 
+import com.benjishults.bitnots.regression.userConfigFolder
 import javafx.application.Application
 import javafx.scene.layout.Region
 import javafx.stage.Stage
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.*
 
 class FxApplication : Application() {
@@ -26,9 +26,7 @@ class FxApplication : Application() {
     }
 
     private fun loadUiConfiguration() {
-        val folder = Paths.get(System.getProperty("user.home"), ".bitnots")
-        Files.createDirectories(folder)
-        uiSettingsFile = folder.resolve("ui-settings.properties")
+        uiSettingsFile = userConfigFolder.resolve("ui-settings.properties")
         if (Files.notExists(uiSettingsFile)) {
             Files.copy(
                     this.javaClass.getResourceAsStream("/ui-settings.properties-sample"),

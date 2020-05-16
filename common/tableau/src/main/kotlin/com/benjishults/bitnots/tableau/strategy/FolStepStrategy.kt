@@ -7,10 +7,12 @@ import com.benjishults.bitnots.tableau.FolTableauNode
 import com.benjishults.bitnots.tableau.step.BetaStep
 import com.benjishults.bitnots.tableau.step.DeltaStep
 import com.benjishults.bitnots.tableau.step.GammaStep
+import com.benjishults.bitnots.util.identity.CommitIdTimeVersioner
+import com.benjishults.bitnots.util.identity.Versioned
 
 open class FolStepStrategy(
     val qLimit: Long = 3
-) : StepStrategy<FolTableau> {
+) : StepStrategy<FolTableau>, Versioned by CommitIdTimeVersioner {
 
     private val nodeFactory = { formula: SignedFormula<*>, tableauNode: FolTableauNode ->
         PropositionalInitializationStrategy.init(

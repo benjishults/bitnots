@@ -1,11 +1,12 @@
 package com.benjishults.bitnots.tableauProver
 
 import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.prover.TimeCommitIdVersionLabelProvider
 import com.benjishults.bitnots.prover.TimedHarness
 import com.benjishults.bitnots.tableau.PropositionalTableau
 import com.benjishults.bitnots.tableau.strategy.PropositionalClosingStrategy
 import com.benjishults.bitnots.tableau.strategy.PropositionalStepStrategy
+import com.benjishults.bitnots.util.identity.CommitIdTimeVersioner
+import com.benjishults.bitnots.util.identity.Versioned
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
@@ -13,16 +14,15 @@ import java.math.RoundingMode
 class PropositionalTableauHarness(
     val stepLimit: Long = -1L,
     override val limitMillis: Long = -1L
-) : TimedHarness<PropositionalTableau, PropositionalFormulaProver> {
+) : TimedHarness<PropositionalTableau, PropositionalFormulaProver>, Versioned by CommitIdTimeVersioner {
 
-    override fun rein(proofInProgress: PropositionalTableau): Boolean {
-        return stepLimit >= 0 && proofInProgress.getSteps() >= stepLimit
+    override suspend fun rein(proofInProgress: PropositionalTableau): Boolean {
+        return stepLimit >= 0 && proofInProgress.steps >= stepLimit
     }
 
     override val prover: PropositionalFormulaProver = PropositionalFormulaProver(
         PropositionalClosingStrategy(),
-        PropositionalStepStrategy(),
-        TimeCommitIdVersionLabelProvider.versionLabel()
+        PropositionalStepStrategy()
     )
 
     override fun initializeProof(formula: Formula): PropositionalTableau =

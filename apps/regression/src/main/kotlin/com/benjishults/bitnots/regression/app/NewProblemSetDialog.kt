@@ -1,6 +1,7 @@
 package com.benjishults.bitnots.regression.app
 
 import com.benjishults.bitnots.jfx.FormBuilder
+import com.benjishults.bitnots.util.file.isValidFileName
 import com.benjishults.bitnots.regression.problem.TptpProblemSetBuilder
 import com.benjishults.bitnots.sexpParser.IprFileRepo
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
@@ -18,18 +19,27 @@ import javafx.collections.ObservableList
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.control.ComboBox
+import javafx.scene.control.Control
 import javafx.scene.control.Dialog
 import javafx.scene.control.Label
+import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 import javafx.scene.layout.VBox
 import javafx.util.Callback
 import javafx.util.StringConverter
 import org.controlsfx.control.CheckComboBox
+import org.controlsfx.validation.ValidationResult
+import org.controlsfx.validation.ValidationSupport
+import org.controlsfx.validation.Validator
 
 class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
 
     // TODO get from config
     private val inputFormats: List<String> = "tptp,ipr,bitnots".split(",")
+
+    private var formSelection: ComboBox<FormulaForm>
+    private var domainSelection: CheckComboBox<TptpDomain>
+    private var formatSelection: ComboBox<String>
 
     private val nameProperty: StringProperty
     private val formatProperty: ObjectProperty<String>
@@ -39,36 +49,22 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
     private var stepLimitProperty: StringProperty
     private var timeLimitProperty: StringProperty
 
+    private val nameField: TextField
+
     init {
         title = "Customize new problem set"
         dialogPane.stylesheets.add("css/ui.css")
+        val createButtonType = ButtonType("Create", ButtonBar.ButtonData.OK_DONE)
         dialogPane.buttonTypes.addAll(
-            ButtonType("Create", ButtonBar.ButtonData.OK_DONE),
+            createButtonType,
             ButtonType.CANCEL
         )
         dialogPane.content = VBox().also { content ->
-            content.children.add(
+            content.children.addAll(
                 FormBuilder().also { builder ->
-                    builder.addLabelAndControl(
-                        Label("name"),
-                        TextField().also { field ->
-                            nameProperty = field.textProperty()
-                            field.requestFocus()
-                        })
-                    builder.addLabelAndControl(
-                        Label("format"),
-                        ComboBox(
-                            FXCollections.unmodifiableObservableList(
-                                FXCollections.observableList(inputFormats)
-                            )
-                        ).also { comboBox ->
-                            comboBox.value = inputFormats.first()
-                            comboBox.isEditable = false
-                            formatProperty = comboBox.valueProperty()
-                        })
-                    builder.addLabelAndControl(
-                        Label("domains"),
-                        CheckComboBox<TptpDomain>(
+
+                    fun addDomainSelection(builder: FormBuilder): CheckComboBox<TptpDomain> {
+                        val checkComboBox = CheckComboBox<TptpDomain>(
                             FXCollections.unmodifiableObservableList(
                                 FXCollections.observableList(TptpDomain.values().asList())
                             )
@@ -86,13 +82,31 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
                                 ): TptpDomain {
                                     return TptpDomain.valueOf(string)
                                 }
-
                             }
-                            domainsProperty = comboBox.checkModel.checkedItems
-                        })
-                    builder.addLabelAndControl(
-                        Label("form"),
-                        ComboBox(
+                        }
+                        return builder.addLabelAndControl(
+                            Label("domains"),
+                            checkComboBox
+                        ) as CheckComboBox<TptpDomain>
+                    }
+
+                    fun addFormatSelection(builder: FormBuilder): ComboBox<String> {
+                        val control = ComboBox(
+                            FXCollections.unmodifiableObservableList(
+                                FXCollections.observableList(inputFormats)
+                            )
+                        ).also { comboBox ->
+                            comboBox.value = inputFormats.first()
+                            comboBox.isEditable = false
+                        }
+                        return builder.addLabelAndControl(
+                            Label("format"),
+                            control
+                        ) as ComboBox<String>
+                    }
+
+                    fun addFormSelection(builder: FormBuilder): ComboBox<FormulaForm> {
+                        val control = ComboBox(
                             FXCollections.unmodifiableObservableList(
                                 FXCollections.observableList(
                                     listOf(FOF.IMPL, CNF.IMPL)
@@ -106,16 +120,42 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
                                 override fun fromString(string: String?): FormulaForm {
                                     TODO("Not yet implemented")
                                 }
-
                             }
-                            formProperty = comboBox.valueProperty()
+                            comboBox.value = comboBox.items.first()
                         }
-                    )
+                        return builder.addLabelAndControl(
+                            Label("form"),
+                            control
+                        ) as ComboBox<FormulaForm>
+                    }
+
+                    nameField = addLabeledTextField(builder, "name")
+                    nameProperty = nameField.textProperty()
+
+                    formatSelection = addFormatSelection(builder)
+                    formatProperty = formatSelection.valueProperty()
+                    domainSelection = addDomainSelection(builder)
+                    domainsProperty = domainSelection.checkModel.checkedItems
+
+                    formSelection = addFormSelection(builder)
+                    formProperty = formSelection.valueProperty()
+
                     qLimitProperty = addLabeledTextField(builder, "qLimit", "3").textProperty()
                     stepLimitProperty = addLabeledTextField(builder, "step limit").textProperty()
                     timeLimitProperty = addLabeledTextField(builder, "time limit millis").textProperty()
+
                 }.form
             )
+            // Platform.runLater {
+            //     configureValidation(
+            //         nameField,
+            //         formSelection,
+            //         domainSelection,
+            //         formatSelection,
+            //         validationMessages,
+            //         createButtonType
+            //     )
+            // }
         }
         resultConverter = Callback { buttonType: ButtonType ->
             when (buttonType.buttonData) {
@@ -141,6 +181,51 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
                 else                         -> null
             }
         }
+    }
+
+    private fun configureValidation(
+        nameField: TextField,
+        formSelection: ComboBox<FormulaForm>,
+        domainsSelection: CheckComboBox<TptpDomain>,
+        formatSelection: ComboBox<String>,
+        messageList: TextArea,
+        createButtonType: ButtonType
+    ) {
+        val validationSupport = ValidationSupport()
+        validationSupport.registerValidator<TextField>(
+            nameField,
+            Validator.createEmptyValidator("Name is required")
+        )
+        validationSupport.registerValidator(nameField) { c: Control, newValue: String ->
+            ValidationResult.fromErrorIf(c, "Disallowed character found in name", !newValue.isValidFileName())
+        }
+
+        validationSupport.registerValidator<ComboBox<String>>(
+            formSelection,
+            Validator.createEmptyValidator("Form selection required")
+        )
+        validationSupport.registerValidator<ComboBox<String>>(
+            formatSelection,
+            Validator.createEmptyValidator("Format selection required")
+        )
+        validationSupport.registerValidator<CheckComboBox<String>>(
+            domainsSelection,
+            Validator.createEmptyValidator("Domains selection required")
+        )
+        // validationSupport
+        //     .validationResultProperty()
+        //     .addListener { _, oldValue, newValue ->
+        //         messageList.text = buildString {
+        //             dialogPane.lookupButton(createButtonType)
+        //                 .disableProperty()
+        //                 .set(newValue.messages.isNotEmpty())
+        //
+        //             newValue.messages.forEach {
+        //                 append(it.text)
+        //                 append('\n')
+        //             }
+        //         }
+        //     }
     }
 
     private fun addLabeledTextField(

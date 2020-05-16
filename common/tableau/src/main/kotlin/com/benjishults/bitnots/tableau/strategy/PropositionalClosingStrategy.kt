@@ -9,8 +9,10 @@ import com.benjishults.bitnots.tableau.TableauNode
 import com.benjishults.bitnots.tableau.closer.BooleanProgressIndicator
 import com.benjishults.bitnots.tableau.closer.BranchCloser
 import com.benjishults.bitnots.tableau.closer.InProgressTableauProgressIndicator
+import com.benjishults.bitnots.util.identity.CommitIdTimeVersioner
+import com.benjishults.bitnots.util.identity.Versioned
 
-open class PropositionalClosingStrategy : TableauClosingStrategy<PropositionalTableau> {
+open class PropositionalClosingStrategy : TableauClosingStrategy<PropositionalTableau>, Versioned by CommitIdTimeVersioner {
 
     /**
      *
