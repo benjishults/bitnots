@@ -9,7 +9,7 @@ import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Sub
 import com.benjishults.bitnots.model.unifier.Substitution
 
-abstract class DeltaFormula<F : VarsBindingFormula>(formula: F, sign: Boolean) : SignedFormula<F>(formula, sign) {
+interface DeltaFormula<F : VarsBindingFormula> : SignedFormula<F> {
     override fun generateChildren(): List<SignedFormula<Formula>> {
         val unboundVars = formula.formula.getFreeVariables()
         val skolems = formula.variables.fold(EmptySub) { s: Substitution, t ->

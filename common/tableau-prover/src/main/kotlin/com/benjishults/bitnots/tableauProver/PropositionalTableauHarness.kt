@@ -4,8 +4,10 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.prover.TimedHarness
 import com.benjishults.bitnots.tableau.PropositionalTableau
 import com.benjishults.bitnots.tableau.strategy.PropositionalClosingStrategy
+import com.benjishults.bitnots.tableau.strategy.PropositionalCriticalPairDetector
 import com.benjishults.bitnots.tableau.strategy.PropositionalStepStrategy
 import com.benjishults.bitnots.util.identity.CommitIdTimeVersioner
+import com.benjishults.bitnots.util.identity.Identified
 import com.benjishults.bitnots.util.identity.Versioned
 import java.math.BigDecimal
 import java.math.MathContext
@@ -14,14 +16,15 @@ import java.math.RoundingMode
 class PropositionalTableauHarness(
     val stepLimit: Long = -1L,
     override val limitMillis: Long = -1L
-) : TimedHarness<PropositionalTableau, PropositionalFormulaProver>, Versioned by CommitIdTimeVersioner {
+) : TimedHarness<PropositionalTableau, PropositionalFormulaProver>, Versioned by CommitIdTimeVersioner,
+    Identified by Identified {
 
     override suspend fun rein(proofInProgress: PropositionalTableau): Boolean {
-        return stepLimit >= 0 && proofInProgress.steps >= stepLimit
+        return stepLimit >= 0 && proofInProgress.count >= stepLimit
     }
 
     override val prover: PropositionalFormulaProver = PropositionalFormulaProver(
-        PropositionalClosingStrategy(),
+        PropositionalClosingStrategy(PropositionalCriticalPairDetector),
         PropositionalStepStrategy()
     )
 

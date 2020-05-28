@@ -2,7 +2,7 @@ package com.benjishults.bitnots.proofService.context
 
 import com.benjishults.bitnots.proofService.context.model.ProvingContext
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
-import com.benjishults.bitnots.util.model.Identifiable
+import com.benjishults.bitnots.util.identity.Identified
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
@@ -16,7 +16,7 @@ fun Routing.contextRouting(): Unit {
     route("/api/context") {
         post("") { descriptor: TptpProblemFileDescriptor ->
             val contextId = UUID.randomUUID().toString()
-            call.respond(HttpStatusCode.Created, object : Identifiable {
+            call.respond(HttpStatusCode.Created, object : Identified {
                 override val id = contextId
             })
         }

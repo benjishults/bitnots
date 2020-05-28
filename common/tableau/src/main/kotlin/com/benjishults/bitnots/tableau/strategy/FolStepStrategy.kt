@@ -8,11 +8,12 @@ import com.benjishults.bitnots.tableau.step.BetaStep
 import com.benjishults.bitnots.tableau.step.DeltaStep
 import com.benjishults.bitnots.tableau.step.GammaStep
 import com.benjishults.bitnots.util.identity.CommitIdTimeVersioner
+import com.benjishults.bitnots.util.identity.Identified
 import com.benjishults.bitnots.util.identity.Versioned
 
 open class FolStepStrategy(
     val qLimit: Long = 3
-) : StepStrategy<FolTableau>, Versioned by CommitIdTimeVersioner {
+) : StepStrategy<FolTableau>, Versioned by CommitIdTimeVersioner, Identified by Identified {
 
     private val nodeFactory = { formula: SignedFormula<*>, tableauNode: FolTableauNode ->
         PropositionalInitializationStrategy.init(
@@ -25,7 +26,7 @@ open class FolStepStrategy(
     private val gammaStep = GammaStep<FolTableau, FolTableauNode>(qLimit, nodeFactory)
 
     override fun step(proofInProgress: FolTableau): Boolean {
-        proofInProgress.incrementSteps()
+        proofInProgress.incrementCount()
         var taken = false
         while (deltaStep.apply(proofInProgress)) {
             taken = true

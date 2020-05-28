@@ -38,7 +38,7 @@ object FalseClaim : ExpectOutcome {
 
 class TrueClaim(private val maxSteps: Long, private val minSteps: Long) : ExpectOutcome {
     override fun validate(proofInProgress: ProofInProgress): Boolean {
-        return proofInProgress.indicator.isDone() && proofInProgress.steps in minSteps..maxSteps
+        return proofInProgress.indicator.isDone() && proofInProgress.count in minSteps..maxSteps
     }
 }
 

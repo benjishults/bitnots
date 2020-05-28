@@ -19,18 +19,18 @@ class GammaStep<T : Tableau<N>, N : TableauNode<N>>(
                 PriorityQueue(
                         Comparator<Pair<GammaFormula<*>, N>> { o1: Pair<GammaFormula<*>, N>?,
                                                                o2: Pair<GammaFormula<*>, N>? ->
-                            o1!!.first.numberOfApplications.compareTo(o2!!.first.numberOfApplications)
+                            o1!!.first.count.compareTo(o2!!.first.count)
                         })
         pip.root.breadthFirst { node ->
             gammas.addAll(node.newFormulas.filterIsInstance<GammaFormula<*>>().filter {
-                it.numberOfApplications <= qLimit
+                it.count <= qLimit
             }.map {
                 it to node
             }) // stop if we get to one that is ready to go
-            && gammas.first().first.numberOfApplications == 0L
+            && gammas.first().first.count == 0L
         }
         return gammas.firstOrNull()?.let { (gamma, node) ->
-            gamma.numberOfApplications++
+            gamma.incrementCount()
             addChildFormulasToNewLeaves(gamma, node)
             true
         } ?: false

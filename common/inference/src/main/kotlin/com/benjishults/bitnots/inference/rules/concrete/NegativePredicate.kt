@@ -1,6 +1,10 @@
 package com.benjishults.bitnots.inference.rules.concrete
 
-import com.benjishults.bitnots.model.formulas.fol.Predicate
+import com.benjishults.bitnots.inference.AbsractSignedFormula
+import com.benjishults.bitnots.inference.NegativeSignedFormula
 import com.benjishults.bitnots.inference.rules.NilOpFormula
+import com.benjishults.bitnots.model.formulas.fol.Predicate
 
-class NegativePredicate(formula: Predicate) : NilOpFormula<Predicate>(formula, false)
+class NegativePredicate(
+    override val formula: Predicate
+) : NilOpFormula<Predicate>, NegativeSignedFormula<Predicate>, AbsractSignedFormula<Predicate>()

@@ -9,6 +9,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.supervisorScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 // import kotlin.coroutines.coroutineContext
 
@@ -31,7 +33,13 @@ class TestNonCoroutineScope {
     // }
 
     fun test4() {
+        val block: () -> String = {
+            "test"
+        }
         suspend {
+            suspendCoroutine<Pair<Result<String>, Long>> { continuation ->
+                continuation.resume(Result.success(block()) to 0L)
+            }
             coroutineScope {
 
             }

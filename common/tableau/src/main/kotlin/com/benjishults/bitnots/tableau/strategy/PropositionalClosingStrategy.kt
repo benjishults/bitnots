@@ -10,9 +10,12 @@ import com.benjishults.bitnots.tableau.closer.BooleanProgressIndicator
 import com.benjishults.bitnots.tableau.closer.BranchCloser
 import com.benjishults.bitnots.tableau.closer.InProgressTableauProgressIndicator
 import com.benjishults.bitnots.util.identity.CommitIdTimeVersioner
+import com.benjishults.bitnots.util.identity.Identified
 import com.benjishults.bitnots.util.identity.Versioned
 
-open class PropositionalClosingStrategy : TableauClosingStrategy<PropositionalTableau>, Versioned by CommitIdTimeVersioner {
+open class PropositionalClosingStrategy(
+    override val criticalPairDetector: CriticalPairDetector<Boolean>
+) : TableauClosingStrategy<PropositionalTableau>, Versioned by CommitIdTimeVersioner, Identified by Identified {
 
     /**
      *
@@ -27,48 +30,48 @@ open class PropositionalClosingStrategy : TableauClosingStrategy<PropositionalTa
 
     @Suppress("USELESS_CAST")
     private fun checkClosed(node: TableauNode<*>): Boolean =
-            with(node) {
-                if (isClosed())
-                    return true
-                // TODO might want to cache these or make them easier to access
-                val posAbove: MutableList<SignedFormula<*>> = mutableListOf()
-                val negAbove: MutableList<SignedFormula<*>> = mutableListOf()
-                newFormulas.filterIsInstance<SimpleSignedFormula<*>>().also { newbies ->
-                    (simpleFormulasAbove + newbies).forEach {
-                        if (it.sign) {
-                            if (it is ClosingFormula) {
-                                branchClosers.add(BranchCloser(pos = it))
-                                return true
-                            } else if (it.formula is PropositionalVariable) {
-                                posAbove.add(it) // could short-circuit this by searching here
-                            }
-                        } else if (it is ClosingFormula) {
-                            branchClosers.add(BranchCloser(neg = it))
+        with(node) {
+            if (isClosed())
+                return true
+            // TODO might want to cache these or make them easier to access
+            val posAbove: MutableList<SignedFormula<*>> = mutableListOf()
+            val negAbove: MutableList<SignedFormula<*>> = mutableListOf()
+            newFormulas.filterIsInstance<SimpleSignedFormula<*>>().also { newbies ->
+                (simpleFormulasAbove + newbies).forEach {
+                    if (it.sign) {
+                        if (it is ClosingFormula) {
+                            branchClosers.add(BranchCloser(pos = it))
                             return true
                         } else if (it.formula is PropositionalVariable) {
-                            negAbove.add(it) // could short-circuit this by searching here
+                            posAbove.add(it) // could short-circuit this by searching here
+                        }
+                    } else if (it is ClosingFormula) {
+                        branchClosers.add(BranchCloser(neg = it))
+                        return true
+                    } else if (it.formula is PropositionalVariable) {
+                        negAbove.add(it) // could short-circuit this by searching here
+                    }
+                }
+            }.any { f ->
+                if (f.sign) {
+                    negAbove.any {
+                        (it.formula == f.formula).apply {
+                            if (this)
+                                branchClosers.add(BranchCloser(f, it))
                         }
                     }
-                }.any { f ->
-                    if (f.sign) {
-                        negAbove.any {
-                            (it.formula == f.formula).apply {
-                                if (this)
-                                    branchClosers.add(BranchCloser(f, it))
-                            }
-                        }
-                    } else {
-                        posAbove.any {
-                            (it.formula == f.formula).apply {
-                                if (this)
-                                    branchClosers.add(BranchCloser(it, f))
-                            }
+                } else {
+                    posAbove.any {
+                        (it.formula == f.formula).apply {
+                            if (this)
+                                branchClosers.add(BranchCloser(it, f))
                         }
                     }
                 }
             }
+        }
 
     override fun initialProgressIndicatorFactory(tableauNode: TableauNode<*>): InProgressTableauProgressIndicator =
-            BooleanProgressIndicator(tableauNode)
+        BooleanProgressIndicator(tableauNode)
 
 }

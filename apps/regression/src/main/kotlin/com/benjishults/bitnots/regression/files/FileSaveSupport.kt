@@ -2,7 +2,6 @@ package com.benjishults.bitnots.regression.files
 
 import com.benjishults.bitnots.regression.problem.ProblemFileSet
 import com.benjishults.bitnots.regression.problemSetsFolder
-import com.benjishults.bitnots.util.identity.id
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -28,33 +27,28 @@ fun ProblemFileSet<*>.writeNewProblemSet() {
     }
     Files.createFile(problemSetFile)
     problemSetFile.toFile().bufferedWriter().use { out ->
-        out.write("name: $name")
-        out.newLine()
-        out.write("problems:")
-        out.newLine()
+        out.write(
+            """
+name: $name
+problems:
+"""
+        )
         this.problemFiles.forEach { row ->
-            out.write("  - form: ${row.fileDescriptor.form.abbreviation}")
-            out.newLine()
-            out.write("    source: ${row.fileDescriptor.source.abbreviation}")
-            out.newLine()
-            out.write("    sourceVersion: ${row.fileDescriptor.source.version}")
-            out.newLine()
-            out.write("    finishingStrategy: ${row.harness.prover.finishingStrategy.id()}")
-            out.newLine()
-            out.write("    finishingStrategyVersion: ${row.harness.prover.finishingStrategy.version}")
-            out.newLine()
-            out.write("    stepStrategy: ${row.harness.prover.stepStrategy.id()}")
-            out.newLine()
-            out.write("    stepStrategyVersion: ${row.harness.prover.stepStrategy.version}")
-            out.newLine()
-            out.write("    prover: ${row.harness.prover.id()}")
-            out.newLine()
-            out.write("    proverVersion: ${row.harness.prover.version}")
-            out.newLine()
-            out.write("    harness: ${row.harness.id()}")
-            out.newLine()
-            out.write("    harnessVersion: ${row.harness.version}")
-            out.newLine()
+            out.write(
+                """
+  - form: ${row.fileDescriptor.form.abbreviation}
+    source: ${row.fileDescriptor.source.abbreviation}
+    sourceVersion: ${row.fileDescriptor.source.version}
+    finishingStrategy: ${row.harness.prover.finishingStrategy.id}
+    finishingStrategyVersion: ${row.harness.prover.finishingStrategy.version}
+    stepStrategy: ${row.harness.prover.stepStrategy.id}
+    stepStrategyVersion: ${row.harness.prover.stepStrategy.version}
+    prover: ${row.harness.prover.id}
+    proverVersion: ${row.harness.prover.version}
+    harness: ${row.harness.id}
+    harnessVersion: ${row.harness.version}
+            """
+            )
         }
     }
 

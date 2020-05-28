@@ -12,6 +12,8 @@ import com.benjishults.bitnots.util.collection.push
 interface TableauClosingStrategy<in T : Tableau<*>> :
         FinishingStrategy<T, ProofProgressIndicator> {
 
+    val criticalPairDetector: CriticalPairDetector<*>
+
     /**
      * Push only if it is InProgressTableauClosedIndicator.
      */

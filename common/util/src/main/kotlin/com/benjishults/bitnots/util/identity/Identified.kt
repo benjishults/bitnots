@@ -1,5 +1,9 @@
 package com.benjishults.bitnots.util.identity
 
-interface Identified
+interface Identified {
+    val id : String
+    companion object: Identified {
+        override val id = this::class.qualifiedName!!
+    }
 
-fun <T : Identified> T.id() = this::class.qualifiedName!!
+}

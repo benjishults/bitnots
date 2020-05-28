@@ -3,9 +3,11 @@ package com.benjishults.bitnots.tableauProver
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.prover.TimedHarness
 import com.benjishults.bitnots.tableau.FolTableau
+import com.benjishults.bitnots.tableau.strategy.FolCriticalPairDetector
 import com.benjishults.bitnots.tableau.strategy.FolStepStrategy
 import com.benjishults.bitnots.tableau.strategy.FolUnificationClosingStrategy
 import com.benjishults.bitnots.util.identity.CommitIdTimeVersioner
+import com.benjishults.bitnots.util.identity.Identified
 import com.benjishults.bitnots.util.identity.Versioned
 import java.math.BigDecimal
 import java.math.MathContext
@@ -15,12 +17,13 @@ class FolTableauHarness(
     val qLimit: Long = 3L,
     val stepLimit: Long = -1L,
     override val limitMillis: Long = -1L
-) : TimedHarness<FolTableau, FolFormulaTableauProver>, Versioned by CommitIdTimeVersioner {
+) : TimedHarness<FolTableau, FolFormulaTableauProver>, Versioned by CommitIdTimeVersioner, Identified by Identified {
 
-    override val prover: FolFormulaTableauProver = FolFormulaTableauProver(FolUnificationClosingStrategy(), FolStepStrategy(qLimit))
+    override val prover: FolFormulaTableauProver =
+        FolFormulaTableauProver(FolUnificationClosingStrategy(FolCriticalPairDetector), FolStepStrategy(qLimit))
 
     override suspend fun rein(proofInProgress: FolTableau): Boolean {
-        return stepLimit >= 0 && proofInProgress.steps >= stepLimit
+        return stepLimit >= 0 && proofInProgress.count >= stepLimit
     }
 
     override fun initializeProof(formula: Formula): FolTableau =

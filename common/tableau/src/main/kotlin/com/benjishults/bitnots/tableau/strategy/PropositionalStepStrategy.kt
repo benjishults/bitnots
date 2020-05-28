@@ -5,10 +5,11 @@ import com.benjishults.bitnots.tableau.PropositionalTableau
 import com.benjishults.bitnots.tableau.PropositionalTableauNode
 import com.benjishults.bitnots.tableau.step.BetaStep
 import com.benjishults.bitnots.util.identity.CommitIdTimeVersioner
+import com.benjishults.bitnots.util.identity.Identified
 import com.benjishults.bitnots.util.identity.Versioned
 
 open class PropositionalStepStrategy(
-) : StepStrategy<PropositionalTableau>, Versioned by CommitIdTimeVersioner {
+) : StepStrategy<PropositionalTableau>, Versioned by CommitIdTimeVersioner, Identified by Identified {
 
     private val betaStep: BetaStep<PropositionalTableau, PropositionalTableauNode> =
         BetaStep { formula, tableauNode ->
@@ -16,7 +17,7 @@ open class PropositionalStepStrategy(
         }
 
     override fun step(proofInProgress: PropositionalTableau): Boolean {
-        proofInProgress.incrementSteps()
+        proofInProgress.incrementCount()
         return betaStep.apply(proofInProgress)
     }
 
