@@ -3,6 +3,10 @@ package com.benjishults.bitnots.model.unifier
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
+import com.benjishults.bitnots.util.ComposableBranchClosureAttempt
+import com.benjishults.bitnots.util.Match
+import com.benjishults.bitnots.util.NoMatch
+import com.benjishults.bitnots.util.PotentialMatch
 import com.benjishults.bitnots.util.collection.pop
 import com.benjishults.bitnots.util.collection.push
 import java.util.*
@@ -12,7 +16,8 @@ operator fun Pair<Variable, Term>.get(v: Variable): Term = second.takeIf { v == 
 /**
  * Idempotent substitution
  */
-sealed class Substitution {
+interface Substitution :
+    ComposableBranchClosureAttempt<Substitution, ComposableBranchClosureAttempt<*, *>> {
 
     // /**
     //  * The composition of [this] and [other]
@@ -27,41 +32,43 @@ sealed class Substitution {
     /**
      * The composition of [this] and [other] but only if the two are compatible
      */
-    abstract operator fun plus(other: Substitution): Substitution
+    override operator fun plus(other: ComposableBranchClosureAttempt<*, *>): Substitution
 
     /**
      * The composition of [this] and [other] but only if the two are compatible
      */
-    abstract operator fun plus(other: Pair<FreeVariable, Term>): Substitution
+    operator fun plus(other: Pair<FreeVariable, Term>): Substitution
 
-    abstract operator fun get(v: Variable): Term
+    operator fun get(v: Variable): Term
 
-    abstract override fun equals(other: Any?): Boolean
+    override fun equals(other: Any?): Boolean
+    override fun hashCode(): Int
 
-    abstract override fun toString(): String
+    override fun toString(): String
 
 }
 
 /**
  * The result of an attempted unification of un-unifiable terms.
  */
-object NotCompatible : Substitution() {
+object NotCompatible : Substitution, NoMatch {
 
     override fun plus(other: Pair<FreeVariable, Term>) = this
 
     override fun get(v: Variable): Term =
-            error("Attempt made to apply a non-existent substitution.")
+        error("Attempt made to apply a non-existent substitution.")
 
     // override fun compose(other: Substitution) = this
     // override fun compose(other: Pair<FreeVariable,  Term) = this
 
-    override fun plus(other: Substitution) = this
+    override fun plus(other: ComposableBranchClosureAttempt<*, *>) = this
 
     override fun equals(other: Any?) = other === this
+    override fun hashCode(): Int = false.hashCode()
     override fun toString() = "\u22A5"
 }
 
-object EmptySub : Substitution() {
+object EmptySub : Substitution, Match {
 
     override fun plus(other: Pair<FreeVariable, Term>) = Sub(other)
 
@@ -70,9 +77,11 @@ object EmptySub : Substitution() {
     // override fun compose(other: Substitution) = other
     // override fun compose(other: Pair<FreeVariable,  Term) = Sub(other)
 
-    override fun plus(other: Substitution) = other
+    override operator fun plus(other: ComposableBranchClosureAttempt<*, *>) = other as Substitution
 
     override fun equals(other: Any?): Boolean = this === other
+    override fun hashCode(): Int = true.hashCode()
+
     override fun toString(): String = "{}"
 
 }
@@ -122,7 +131,9 @@ Would we also need to order terms?
 
  */
 
-class Sub private constructor(private var map: Map<Variable, Term>) : Substitution() {
+class Sub private constructor(
+    private var map: Map<Variable, Term>
+) : Substitution, PotentialMatch<Substitution, ComposableBranchClosureAttempt<*, *>> {
 
     constructor(vararg pairs: Pair<Variable, Term>) : this(mapOf(*pairs))
 
@@ -134,11 +145,11 @@ class Sub private constructor(private var map: Map<Variable, Term>) : Substituti
     }
 
     private fun isIdempotent() =
-            map.values.none { term ->
-                map.keys.any { term.contains(it, EmptySub) }
-            }
+        map.values.none { term ->
+            map.keys.any { term.contains(it, EmptySub) }
+        }
 
-    private fun idempotentVersion(): Map<Variable, Term >{
+    private fun idempotentVersion(): Map<Variable, Term> {
         // require(!isTriviallyInfiniteLoop()) {
         //     "Undefined substitution: $this.  Variable occurs in its own replacement."
         // }
@@ -155,13 +166,13 @@ class Sub private constructor(private var map: Map<Variable, Term>) : Substituti
                     // }?.let { newValue ->
                     listOfTerminalVariables.remove(key)
                     mapVarToSetOfKeysInItsValue[key]?.add(innerKey)
-                    ?: run {
-                        mapVarToSetOfKeysInItsValue[key] = mutableSetOf(innerKey)
-                    }
+                        ?: run {
+                            mapVarToSetOfKeysInItsValue[key] = mutableSetOf(innerKey)
+                        }
                     mapVarToSetOfKeyWhoseValueContainsIt[innerKey]?.add(key)
-                    ?: run {
-                        mapVarToSetOfKeyWhoseValueContainsIt[innerKey] = mutableSetOf(key)
-                    }
+                        ?: run {
+                            mapVarToSetOfKeyWhoseValueContainsIt[innerKey] = mutableSetOf(key)
+                        }
                     // }
                 }
             }
@@ -183,7 +194,8 @@ class Sub private constructor(private var map: Map<Variable, Term>) : Substituti
             }.forEach { terminalVar ->
                 mapVarToSetOfKeyWhoseValueContainsIt[terminalVar]?.forEach { keyWhoseValueContainsTerminalVar ->
                     m[keyWhoseValueContainsTerminalVar] = m[keyWhoseValueContainsTerminalVar]!!.applyPair(
-                            terminalVar to m[terminalVar]!!)
+                        terminalVar to m[terminalVar]!!
+                    )
                     // TODO needed?
                     mapVarToSetOfKeysInItsValue[keyWhoseValueContainsTerminalVar]!!.let {
                         it.remove(terminalVar)
@@ -196,95 +208,100 @@ class Sub private constructor(private var map: Map<Variable, Term>) : Substituti
     }
 
     private fun isTriviallyInfiniteLoop() =
-            map.any { (v, t) ->
-                t.contains(v)
-            }
+        map.any { (v, t) ->
+            t.contains(v)
+        }
 
     // override fun compose(other: Pair<FreeVariable,  Term): Substitution =
     //         this + Sub(other)
 
     override fun get(v: Variable): Term =
-            map[v] ?: v
+        map[v] ?: v
 
     // TODO think about what compatibility means
     /**
      * TODO Do we need to ensure the two are commutative?  Or just that no variable in other is among the keys of this?
      */
 
-    fun compose(other: Substitution): Substitution =
-            when (other) {
-                NotCompatible -> NotCompatible
-                EmptySub      -> this
-                is Sub        -> {
-                    val newMap = mutableMapOf < Variable, Term>()
-                    map.entries.map { (v, term) ->
-                        // apply arg to value in receiver
-                        term.applySub(other).also {
-                            if (it !== v)
-                                newMap[v] = it
-                            else
-                                newMap.remove(v)
-                        }
-                    }
-                    other.map.entries.map { (v, term) ->
-                        // if arg covers more variables, add them
-                        if (v !in newMap.keys) {
-                            newMap.put(v, term)
-                        }
-                    }
-                    Sub(newMap)
-                }
-            }
+    // fun compose(other: Substitution): Substitution =
+    //     when (other) {
+    //         NotCompatible -> NotCompatible
+    //         EmptySub      -> this
+    //         is Sub        -> {
+    //             val newMap = mutableMapOf<Variable, Term>()
+    //             map.entries.map { (v, term) ->
+    //                 // apply arg to value in receiver
+    //                 term.applySub(other).also {
+    //                     if (it !== v)
+    //                         newMap[v] = it
+    //                     else
+    //                         newMap.remove(v)
+    //                 }
+    //             }
+    //             other.map.entries.map { (v, term) ->
+    //                 // if arg covers more variables, add them
+    //                 if (v !in newMap.keys) {
+    //                     newMap.put(v, term)
+    //                 }
+    //             }
+    //             Sub(newMap)
+    //         }
+    //     }
 
-    override fun plus(other: Substitution): Substitution =
-            when (other) {
-                NotCompatible -> NotCompatible
-                EmptySub      -> this
-                is Sub        -> {
-                    val conflictResolutions = mutableListOf<Substitution>()
-                    // look for conflicts
-                    other.map.forEach { (otherKey, otherValue) ->
-                        map[otherKey]?.let { myValue ->
-                            myValue.unifyUncached(otherValue).takeUnless {
-                                it === NotCompatible
-                            }?.let { compatibleSub ->
-                                conflictResolutions.add(compatibleSub)
-                            } ?: return NotCompatible
-                        }
-                    }
-                    val newMap = mutableMapOf < Variable, Term>()
-                    map.entries.map { (v, term) ->
-                        // apply arg to value in receiver
-                        term.applySub(other).also { result ->
-                            if (result !== v)
-                                newMap[v] = result
-                        }
-                    }
-                    other.map.entries.map { (v, term) ->
-                        // if arg covers more variables, add them
-                        if (v !in newMap.keys) {
-                            // TODO do I need to apply anything to term?  What if it contains variables from [this]?
-                            newMap[v] = term
-                        }
-                    }
-                    conflictResolutions.fold(Sub(newMap)) { onGoingSub: Substitution, otherSub ->
-                        onGoingSub + otherSub
+    /**
+     * @throws ClassCastException if [other] is not a Substitution
+     */
+    override operator fun plus(other: ComposableBranchClosureAttempt<*, *>): Substitution =
+        when (other) {
+            NotCompatible -> NotCompatible
+            EmptySub      -> this
+            is Sub        -> {
+                val conflictResolutions = mutableListOf<Substitution>()
+                // look for conflicts
+                other.map.forEach { (otherKey, otherValue) ->
+                    map[otherKey]?.let { myValue ->
+                        myValue.unifyUncached(otherValue).takeUnless {
+                            it === NotCompatible
+                        }?.let { compatibleSub ->
+                            conflictResolutions.add(compatibleSub)
+                        } ?: return NotCompatible
                     }
                 }
+                val newMap = mutableMapOf<Variable, Term>()
+                map.entries.map { (v, term) ->
+                    // apply arg to value in receiver
+                    term.applySub(other).also { result ->
+                        if (result !== v)
+                            newMap[v] = result
+                    }
+                }
+                other.map.entries.map { (v, term) ->
+                    // if arg covers more variables, add them
+                    if (v !in newMap.keys) {
+                        // TODO do I need to apply anything to term?  What if it contains variables from [this]?
+                        newMap[v] = term
+                    }
+                }
+                conflictResolutions.fold(Sub(newMap)) { onGoingSub: Substitution, otherSub ->
+                    onGoingSub + otherSub
+                }
             }
-
-
-    override fun plus(other: Pair<FreeVariable, Term>): Substitution = this.plus(Sub(other))
-
-    override fun hashCode()
-            : Int =
-            map.entries.fold(0) { o, p ->
-                o + p.key.hashCode() + p.value.hashCode()
+            else          -> {
+                throw ClassCastException("Argument other (${other}) was of type ${other::class.qualifiedName}.  Should be a Substitution.")
             }
+        }
 
-    override fun equals(other: Any?
-    )
-            : Boolean {
+
+    override fun plus(other: Pair<FreeVariable, Term>): Substitution = this + Sub(other)
+
+    override fun hashCode(): Int =
+        map.entries.fold(0) { o, p ->
+            o + p.key.hashCode() + p.value.hashCode()
+        }
+
+    override fun equals(
+        other: Any?
+    ): Boolean {
         // return true if each is more general than the other... i.e. if they are *equivalent*.
         other?.let {
             return (other is Sub &&
@@ -298,12 +315,12 @@ class Sub private constructor(private var map: Map<Variable, Term>) : Substituti
     override fun toString(): String = toString(map)
 
     private fun toString(map: Map<Variable, Term>) =
-            buildString {
-                append("{")
-                    .append(map.entries.fold(mutableListOf<String>()) { s, t ->
-                        s.also { it.add("${t.key}\u2005\u21A6\u2005${t.value}") }
-                    }.joinToString(", "))
-                    .append("}")
-            }
+        buildString {
+            append("{")
+                .append(map.entries.fold(mutableListOf<String>()) { s, t ->
+                    s.also { it.add("${t.key}\u2005\u21A6\u2005${t.value}") }
+                }.joinToString(", "))
+                .append("}")
+        }
 
 }

@@ -156,7 +156,8 @@ class TableauStepCountTest {
                         ForSome(x, formula = Q_(x))
                     ),
                     ForSome(y, formula = And(P_(y), Q_(y)))
-                )
+                ),
+                qLimit = 3
             ),
             FalseFolClaim(
                 Implies(
@@ -164,12 +165,12 @@ class TableauStepCountTest {
                     ForAll(x, formula = P_(x))
                 )
             )
-
         )
     }
 
     @Test
-    fun testProps() = testClaims(PROP_CLAIMS)
+    fun testProps() =
+        testClaims(PROP_CLAIMS)
 
 
     @Test

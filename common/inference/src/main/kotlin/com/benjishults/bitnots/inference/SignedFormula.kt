@@ -1,10 +1,11 @@
 package com.benjishults.bitnots.inference
 
 import com.benjishults.bitnots.model.formulas.Formula
+import com.benjishults.bitnots.util.BranchClosureAttempt
 import java.lang.reflect.Constructor
 
 // NOTE these should be immutable
-interface SignedFormula<out F : Formula> {
+interface SignedFormula<out F : Formula>: BranchClosureAttempt {
     val formula: F
     val sign: Boolean
     fun generateChildren(): List<SignedFormula<Formula>>

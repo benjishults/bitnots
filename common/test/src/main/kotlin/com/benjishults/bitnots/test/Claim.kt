@@ -24,7 +24,7 @@ interface ExpectOutcome {
     fun validate(proofInProgress: ProofInProgress): Boolean
 }
 
-interface Claim<T : ProofInProgress, P: Prover<T>> : ExpectOutcome {
+interface Claim<T : ProofInProgress, P : Prover<T>> : ExpectOutcome {
     val formula: Formula
     suspend fun attempt(harness: Harness<T, P>): ProofInProgress
     suspend fun attempt(): ProofInProgress
@@ -61,7 +61,7 @@ abstract class PropositionalClaim(
                 )
             )
         ).also {
-            measureTimeMillis {  }
+            measureTimeMillis { }
             harness.prove(it)
         }
     }
@@ -69,12 +69,13 @@ abstract class PropositionalClaim(
 }
 
 abstract class FolClaim(
-    final override val formula: Formula
+    final override val formula: Formula,
+    open val maxSteps: Long = -1
 ) : Claim<FolTableau, FolFormulaTableauProver> {
     abstract val qLimit: Long
 
     override suspend fun attempt(): ProofInProgress =
-        attempt(FolTableauHarness(qLimit))
+        attempt(FolTableauHarness(qLimit, maxSteps))
 
     override suspend fun attempt(harness: Harness<FolTableau, FolFormulaTableauProver>): ProofInProgress {
         return FolTableau(
@@ -116,9 +117,9 @@ class TruePropClaim(
 class TrueFolClaim(
     formula: Formula,
     override val qLimit: Long = DEFAULT_Q_LIMIT,
-    val maxSteps: Long = DEFAULT_MAX_STEPS,
+    override val maxSteps: Long = DEFAULT_MAX_STEPS,
     val minSteps: Long = 0L
-) : ExpectOutcome by TrueClaim(maxSteps, minSteps), FolClaim(formula) {
+) : ExpectOutcome by TrueClaim(maxSteps, minSteps), FolClaim(formula, maxSteps) {
     override fun toString(): String {
         return "{formula=$formula, minSteps=$minSteps, maxSteps=$maxSteps, qLimit=$qLimit}"
     }

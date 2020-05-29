@@ -2,14 +2,14 @@ package com.benjishults.bitnots.util.collection
 
 interface SkippableIterator<T> : Iterator<T> {
     /**
-     * Skips zero or more elements to get to the next.
+     * Skips zero or more elements to get to the next.  Resets [skipMode] to false.
      */
     fun skipToNext(): T
 
     var skipMode: Boolean
 
     /**
-     * If skip mode is on, behaves like skipToNext()
+     * If skip mode is on, behaves like skipToNext().
      */
     override fun next(): T
     /**

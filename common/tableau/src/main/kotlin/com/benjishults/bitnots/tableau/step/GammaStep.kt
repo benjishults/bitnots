@@ -21,6 +21,7 @@ class GammaStep<T : Tableau<N>, N : TableauNode<N>>(
                                                                o2: Pair<GammaFormula<*>, N>? ->
                             o1!!.first.count.compareTo(o2!!.first.count)
                         })
+        // TODO store gammas separately
         pip.root.breadthFirst { node ->
             gammas.addAll(node.newFormulas.filterIsInstance<GammaFormula<*>>().filter {
                 it.count <= qLimit

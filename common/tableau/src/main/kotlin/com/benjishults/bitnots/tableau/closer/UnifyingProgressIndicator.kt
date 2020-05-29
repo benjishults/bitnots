@@ -33,7 +33,7 @@ open class UnifyingProgressIndicator private constructor(
 
     // TODO maybe get rid of this
     override fun isCompatible(closer: BranchCloser) =
-            closer.sub + substitution
+        substitution + closer.sub
 
     override fun indicatorFactory(
             branchClosers: List<BranchCloser>,

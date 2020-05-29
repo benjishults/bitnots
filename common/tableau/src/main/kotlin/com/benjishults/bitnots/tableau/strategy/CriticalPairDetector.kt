@@ -5,8 +5,10 @@ import com.benjishults.bitnots.inference.PositiveSignedFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.unifier.EmptySub
 import com.benjishults.bitnots.model.unifier.Substitution
+import com.benjishults.bitnots.util.AllOrNothing
+import com.benjishults.bitnots.util.BranchClosureAttempt
 
-interface CriticalPairDetector<out S> {
+interface CriticalPairDetector<out S: BranchClosureAttempt> {
 
     fun criticalPair(
         positiveSignedFormula: PositiveSignedFormula<*>,
@@ -23,10 +25,10 @@ object FolCriticalPairDetector : CriticalPairDetector<Substitution> {
         Formula.unify(positiveSignedFormula.formula, negativeSignedFormula.formula, EmptySub)
 }
 
-object PropositionalCriticalPairDetector : CriticalPairDetector<Boolean> {
+object PropositionalCriticalPairDetector : CriticalPairDetector<AllOrNothing> {
     override fun criticalPair(
         positiveSignedFormula: PositiveSignedFormula<*>,
         negativeSignedFormula: NegativeSignedFormula<*>
     ) =
-        positiveSignedFormula.formula == negativeSignedFormula.formula
+        AllOrNothing.of(positiveSignedFormula.formula == negativeSignedFormula.formula)
 }

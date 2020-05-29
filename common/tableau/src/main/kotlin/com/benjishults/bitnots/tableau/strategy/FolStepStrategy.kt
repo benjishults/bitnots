@@ -31,12 +31,8 @@ open class FolStepStrategy(
         while (deltaStep.apply(proofInProgress)) {
             taken = true
         }
-        return if (!taken) {
-            // TODO if gamma applied, no sense looking for closure unless it produces a SimpleSignedFormula
-            betaStep.apply(proofInProgress) || gammaStep.apply(proofInProgress)
-        } else {
-            true
-        }
+        // TODO if gamma applied, no sense looking for closure unless it produces a SimpleSignedFormula
+        return taken || betaStep.apply(proofInProgress) || gammaStep.apply(proofInProgress)
     }
 
 }

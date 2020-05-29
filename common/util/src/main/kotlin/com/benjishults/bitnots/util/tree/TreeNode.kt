@@ -5,11 +5,11 @@ import com.benjishults.bitnots.util.collection.SkippableIterator
 import java.util.*
 
 @Suppress("UNCHECKED_CAST")
-interface TreeNode<TN: TreeNode<TN>> {
-    var  parent: TN?
+interface TreeNode<TN : TreeNode<TN>> {
+    var parent: TN?
     val children: MutableList<TN>
 
-    fun  toAncestors(function: (TN) -> Unit) {
+    fun toAncestors(function: (TN) -> Unit) {
         function(this as TN)
         parent?.toAncestors(function)
     }
@@ -18,14 +18,14 @@ interface TreeNode<TN: TreeNode<TN>> {
      * Apply [function] breadth-first until it returns [true].
      * @return the node on which [function] returned [true] or [null] if none.
      */
-    fun  breadthFirst(function: (TN) -> Boolean): TN? {
+    fun breadthFirst(function: (TN) -> Boolean): TN? {
         return breadthFirstHelper(Queue<TN>().also {
             it.enqueue(this as TN)
         }, function)
     }
 
     // queue is not empty
-    private tailrec fun  breadthFirstHelper(queue: Queue<TN>, function: (TN) -> Boolean): TN? {
+    private tailrec fun breadthFirstHelper(queue: Queue<TN>, function: (TN) -> Boolean): TN? {
         val node = queue.dequeue()
         if (function(node)) {
             return node
@@ -43,7 +43,7 @@ interface TreeNode<TN: TreeNode<TN>> {
     /**
      * returns a SkippableIterator that iterates through the tree rooted at the receiver but will skip the children of the last node when skip is called.
      */
-    fun  preorderIterator(): SkippableIterator<TN> {
+    fun preorderIterator(): SkippableIterator<TN> {
         return object : SkippableIterator<TN> {
             override var skipMode: Boolean = false
 
@@ -52,22 +52,32 @@ interface TreeNode<TN: TreeNode<TN>> {
              */
             private var prev: TN? = null
 
-            private val stack = Stack<TN>().apply {
-                push(this@TreeNode as TN)
+            /**
+             * The top of this stack is the next value to be returned by [next()], or, if the stack is empty, then the children of [prev] will come next.
+             */
+            private val stack = Stack<TN>().also { stack ->
+                stack.push(this@TreeNode as TN)
+            }
+
+            override fun hasNext(): Boolean {
+                if (skipMode)
+                    return hasSkipToNext()
+                return stack.isNotEmpty() || prev.let { prev ->
+                    prev !== null && prev.children.isNotEmpty()
+                }
             }
 
             override fun next(): TN {
                 if (skipMode)
                     return skipToNext()
                 else
-                    prev?.let {p ->
-                        if (p.children.isNotEmpty()) {
-                            p.children.forEach {
-                                stack.push(it)
-                            }
+                    prev?.let { p ->
+                        p.children.forEach {
+                            stack.push(it)
                         }
-                    } ?: if (stack.isEmpty())
-                        error("No next element")
+                    }
+                if (stack.isEmpty())
+                    error("No next element")
                 return stack.pop().also {
                     prev = it
                 }
@@ -77,35 +87,28 @@ interface TreeNode<TN: TreeNode<TN>> {
                 return stack.isNotEmpty()
             }
 
-            override fun hasNext(): Boolean {
-                if (skipMode) return hasSkipToNext()
-                return stack.isNotEmpty() || prev.let {
-                    it !== null &&
-                            it.children.isNotEmpty()
-                }
-            }
-
             override fun skipToNext(): TN {
                 return stack.pop().also {
                     prev = it
+                    skipMode = false
                 }
             }
         }
     }
 
     fun preorderSequence() =
-            generateSequence {
-                val stack = Stack<TN>().apply {
-                    add(this as TN)
-                }
-                stack.pop().also {pop ->
-                    pop.children.forEach {
-                        stack.push(it)
-                    }
+        generateSequence {
+            val stack = Stack<TN>().apply {
+                add(this as TN)
+            }
+            stack.pop().also { pop ->
+                pop.children.forEach {
+                    stack.push(it)
                 }
             }
+        }
 
-    fun  preOrder(function: (TN) -> Boolean): TN? {
+    fun preOrder(function: (TN) -> Boolean): TN? {
 
         if (function(this as TN)) {
             return this
@@ -117,10 +120,10 @@ interface TreeNode<TN: TreeNode<TN>> {
         return null
     }
 
-    fun  preOrderWithPath(function: (TN, List<Int>) -> Boolean): TN? =
-            preOrderWithPathHelper(function, listOf(0))
+    fun preOrderWithPath(function: (TN, List<Int>) -> Boolean): TN? =
+        preOrderWithPathHelper(function, listOf(0))
 
-    private fun  preOrderWithPathHelper(function: (TN, List<Int>) -> Boolean, path: List<Int>): TN? {
+    private fun preOrderWithPathHelper(function: (TN, List<Int>) -> Boolean, path: List<Int>): TN? {
         if (function(this as TN, path)) {
             return this
         } else {
@@ -133,7 +136,7 @@ interface TreeNode<TN: TreeNode<TN>> {
         return null
     }
 
-    fun  allLeaves(): List<TN> {
+    fun allLeaves(): List<TN> {
         val value: MutableList<TN> = mutableListOf()
         breadthFirstHelper(Queue<TN>().also {
             it.enqueue(this as TN)
