@@ -3,8 +3,8 @@ package com.benjishults.bitnots.tableau
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.Predicate
 import com.benjishults.bitnots.model.formulas.propositional.And
-import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
+import com.benjishults.bitnots.model.formulas.propositional.implies
 import com.benjishults.bitnots.model.terms.Function
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
 import com.benjishults.bitnots.theory.formula.FolAnnotatedFormula
@@ -86,7 +86,7 @@ class TptpSynTest {
                         Assertions.assertTrue(runBlocking {
                             prover.prove(
                                 hypothesis?.let {
-                                    Implies(it, target)
+                                    it implies target
                                 } ?: target
                             ).indicator.isDone()
                         })

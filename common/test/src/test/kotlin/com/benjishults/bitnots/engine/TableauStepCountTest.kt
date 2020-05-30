@@ -5,13 +5,15 @@ import com.benjishults.bitnots.model.formulas.fol.ForSome
 import com.benjishults.bitnots.model.formulas.fol.Pred
 import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.Falsity
-import com.benjishults.bitnots.model.formulas.propositional.Iff
 import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
-import com.benjishults.bitnots.model.formulas.propositional.Or
 import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
 import com.benjishults.bitnots.model.formulas.propositional.Tfae
 import com.benjishults.bitnots.model.formulas.propositional.Truth
+import com.benjishults.bitnots.model.formulas.propositional.and
+import com.benjishults.bitnots.model.formulas.propositional.iff
+import com.benjishults.bitnots.model.formulas.propositional.implies
+import com.benjishults.bitnots.model.formulas.propositional.or
 import com.benjishults.bitnots.model.terms.BoundVariable
 import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.test.Claim
@@ -41,51 +43,92 @@ class TableauStepCountTest {
         val R = PropositionalVariable.intern("R")
 
         val PROP_CLAIMS = arrayOf(
-            TruePropClaim(Implies(Tfae(A, B, C), Implies(B, A)), maxSteps = 1),
+            TruePropClaim(
+                Tfae(A, B, C) implies (B implies A),
+                maxSteps = 1
+            ),
             TruePropClaim(Tfae(P, P, P), maxSteps = 2),
-            TruePropClaim(Implies(And(A, B), Iff(A, B)), maxSteps = 1),
-            TruePropClaim(Or(Iff(A, B), A, B), maxSteps = 1),
-            TruePropClaim(Implies(Implies(A, B), Implies(A, B)), maxSteps = 1),
-            TruePropClaim(Implies(Falsity, P), maxSteps = 0),
-            TruePropClaim(Implies(P, P), maxSteps = 0),
-            TruePropClaim(Or(P, Not(P)), maxSteps = 0),
-            TruePropClaim(And(Truth, Truth), maxSteps = 1),
-            TruePropClaim(Implies(Falsity, Falsity), maxSteps = 0),
-            TruePropClaim(Implies(Falsity, Truth), maxSteps = 0),
-            TruePropClaim(Implies(Truth, Truth), maxSteps = 0),
+            TruePropClaim(
+                (A and B) implies (A iff B),
+                maxSteps = 1
+            ),
+            TruePropClaim(
+                (A iff B) or A or B,
+                maxSteps = 1
+            ),
+            TruePropClaim(
+                (A implies B) implies (A implies B),
+                maxSteps = 1
+            ),
+            TruePropClaim(
+                Falsity implies P,
+                maxSteps = 0
+            ),
+            TruePropClaim(
+                P implies P,
+                maxSteps = 0
+            ),
+            TruePropClaim(
+                P or Not(P),
+                maxSteps = 0
+            ),
+            TruePropClaim(
+                Truth and Truth,
+                maxSteps = 1
+            ),
+            TruePropClaim(
+                Falsity implies Falsity,
+                maxSteps = 0
+            ),
+            TruePropClaim(
+                Falsity implies Truth,
+                maxSteps = 0
+            ),
+            TruePropClaim(
+                Truth implies Truth,
+                maxSteps = 0
+            ),
             TruePropClaim(Truth, maxSteps = 0),
-            TruePropClaim(Implies(Implies(Truth, Falsity), Falsity), maxSteps = 1),
+            TruePropClaim(
+                (Truth implies Falsity) implies Falsity,
+                maxSteps = 1
+            ),
             FalsePropClaim(Tfae(A, B, C)),
-            FalsePropClaim(Implies(Or(R, P), Or(And(P, Q), R))),
             FalsePropClaim(
-                Implies(
-                    And(
-                        Implies(And(A, B), C),
-                        Implies(Truth, A)
-                    ), C
-                )
+                (R or P) implies ((P and Q) or R)
             ),
             FalsePropClaim(
-                Implies(
-                    And(
-                        Implies(And(A, B), C),
-                        Implies(And(A1, A2), A),
-                        Implies(And(A11, A12), A1),
-                        Implies(Truth, A11),
-                        Implies(Truth, A12),
-                        Implies(Truth, A2),
-                        Implies(And(B1, B2), B),
-                        Implies(Truth, B1),
-                        Implies(And(E, F), C)
-                    ),
-                    C
-                )
+                (((A and B) implies C) and (Truth implies A) implies C)
             ),
-            FalsePropClaim(Implies(A, Or(C, B))),
-            FalsePropClaim(Implies(Or(A, B), Or(C, B))),
-            FalsePropClaim(Implies(Or(A, B), Or(C, B))),
-            FalsePropClaim(Implies(Or(A, B), Implies(A, B))),
-            FalsePropClaim(And(Truth, Falsity)),
+            FalsePropClaim(
+                And(
+                    (A and B) implies C,
+                    (A1 and A2) implies A,
+                    (A11 and A12) implies A1,
+                    Truth implies A11,
+                    Truth implies A12,
+                    Truth implies A2,
+                    (B1 and B2) implies B,
+                    Truth implies B1,
+                    (E and F) implies C
+                ) implies
+                        C
+            ),
+            FalsePropClaim(
+                A implies (C or B)
+            ),
+            FalsePropClaim(
+                (A or B) implies (C or B)
+            ),
+            FalsePropClaim(
+                (A or B) implies (C or B)
+            ),
+            FalsePropClaim(
+                (A or B) implies (A implies B)
+            ),
+            FalsePropClaim(
+                Truth and Falsity
+            ),
             FalsePropClaim(Falsity)
         )
 
@@ -109,13 +152,12 @@ class TableauStepCountTest {
 
         val FOL_CLAIMS = arrayOf(
             TrueFolClaim(
-                Implies(
-                    And(
-                        ForAll(x, formula = Implies(P_(x), Q_(x))),
-                        ForSome(y, formula = Implies(Q_(y), R_(y)))
-                    ),
-                    ForSome(z, formula = Implies(P_(z), R_(z)))
-                ),
+                (
+                        ForAll(x, formula = Implies(P_(x), Q_(x))) and
+                                ForSome(y, formula = Implies(Q_(y), R_(y)))
+                        ) implies
+                        ForSome(z, formula = Implies(P_(z), R_(z)))
+                ,
                 minSteps = 5,
                 maxSteps = 12
             ),
@@ -124,25 +166,16 @@ class TableauStepCountTest {
                     a,
                     formula = ForSome(
                         x, x2, x3, x4, y,
-                        formula = Implies(
-                            And(
-                                P_(a),
-                                E_(a),
-                                Implies(
-                                    E_(x),
-                                    Or(G(x), S(x, f(x)))
-                                ),
-                                Implies(
-                                    E_(x2),
-                                    Or(G(x2), C_(f(x2)))
-                                ),
-                                Implies(S(a, y), P_(y))
-                            ),
-                            Or(
-                                And(P_(x3), G(x3)),
-                                And(P_(x4), C_(x4))
-                            )
-                        )
+                        formula =
+                        And(
+                            P_(a),
+                            E_(a),
+                            E_(x) implies (G(x) or S(x, f(x))),
+                            E_(x2) implies (G(x2) or C_(f(x2))),
+                            S(a, y) implies P_(y)
+                        ) implies (
+                                (P_(x3) and G(x3))
+                                        or (P_(x4) and C_(x4)))
                     )
                 ),
                 minSteps = 1,
@@ -150,20 +183,17 @@ class TableauStepCountTest {
             ),
 
             FalseFolClaim(
-                Implies(
-                    And(
-                        ForSome(x, formula = P_(x)),
-                        ForSome(x, formula = Q_(x))
-                    ),
-                    ForSome(y, formula = And(P_(y), Q_(y)))
-                ),
+
+                (ForSome(x, formula = P_(x)) and
+                        ForSome(x, formula = Q_(x)))
+                        implies
+                        ForSome(y, formula = And(P_(y), Q_(y)))
+                ,
                 qLimit = 3
             ),
             FalseFolClaim(
-                Implies(
-                    ForSome(x, formula = P_(x)),
-                    ForAll(x, formula = P_(x))
-                )
+                ForSome(x, formula = P_(x)) implies
+                        ForAll(x, formula = P_(x))
             )
         )
     }
