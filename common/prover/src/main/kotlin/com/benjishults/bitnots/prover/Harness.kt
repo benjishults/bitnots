@@ -2,7 +2,7 @@ package com.benjishults.bitnots.prover
 
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.propositional.Implies
-import com.benjishults.bitnots.model.formulas.util.toConjunct
+import com.benjishults.bitnots.model.formulas.toConjunct
 import com.benjishults.bitnots.prover.finish.ProofInProgress
 import com.benjishults.bitnots.util.identity.Identified
 import com.benjishults.bitnots.util.identity.Versioned

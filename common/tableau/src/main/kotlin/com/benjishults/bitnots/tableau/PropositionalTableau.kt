@@ -1,6 +1,6 @@
 package com.benjishults.bitnots.tableau
 
-import com.benjishults.bitnots.inference.createSignedFormula
+import com.benjishults.bitnots.inference.SignedFormulaFactory
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.tableau.strategy.PropositionalInitializationStrategy
 
@@ -11,7 +11,9 @@ open class PropositionalTableau(
     constructor(formula: Formula) : this(
         PropositionalInitializationStrategy.init(
             PropositionalTableauNode(
-                mutableListOf(formula.createSignedFormula())
+                mutableListOf(
+                    SignedFormulaFactory.createSignedFormula(formula)
+                )
             )
         )
     )

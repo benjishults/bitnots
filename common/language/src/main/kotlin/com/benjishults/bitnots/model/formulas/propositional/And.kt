@@ -5,3 +5,5 @@ import com.benjishults.bitnots.model.formulas.PropositionalFormulaConstructor
 
 class And(vararg conjuncts: Formula): VarArgPropositionalFormula(
         PropositionalFormulaConstructor.intern(LogicalOperator.and.name), *conjuncts)
+
+infix fun Formula.and(conjunct: Formula) = And(this, conjunct)

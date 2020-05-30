@@ -3,8 +3,8 @@ package com.benjishults.bitnots.tptp.parser
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.formulas.propositional.Or
-import com.benjishults.bitnots.model.formulas.util.isAtomic
-import com.benjishults.bitnots.model.formulas.util.isLiteral
+import com.benjishults.bitnots.model.formulas.isAtomic
+import com.benjishults.bitnots.model.formulas.isLiteral
 import com.benjishults.bitnots.parser.Tokenizer
 import com.benjishults.bitnots.theory.formula.CNF
 import com.benjishults.bitnots.theory.formula.CnfAnnotatedFormula

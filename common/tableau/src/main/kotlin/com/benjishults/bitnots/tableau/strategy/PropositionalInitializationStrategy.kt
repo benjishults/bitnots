@@ -5,6 +5,7 @@ import com.benjishults.bitnots.inference.SimpleSignedFormula
 import com.benjishults.bitnots.inference.rules.AlphaFormula
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.tableau.TableauNode
+import com.benjishults.bitnots.theory.Theory
 
 object PropositionalInitializationStrategy {
 
@@ -15,7 +16,7 @@ object PropositionalInitializationStrategy {
         return node
     }
 
-    private fun <T : TableauNode<*>> applyAllAlphas(node: T) {
+    private fun <T : TableauNode<*>> applyAllAlphas(node: T, theory: Theory = Theory) {
         with(node) {
             while (true) {
                 val toAdd: MutableList<SignedFormula<Formula>> = mutableListOf()
@@ -24,7 +25,7 @@ object PropositionalInitializationStrategy {
                         val current = it.next()
                         if (current is AlphaFormula) {
                             it.remove()
-                            toAdd.addAll(current.generateChildren());
+                            toAdd.addAll(current.generateChildren(theory));
                         }
                     }
                 }

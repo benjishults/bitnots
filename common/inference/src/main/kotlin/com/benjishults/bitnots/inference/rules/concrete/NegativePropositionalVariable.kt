@@ -5,7 +5,7 @@ import com.benjishults.bitnots.inference.NegativeSignedFormula
 import com.benjishults.bitnots.inference.rules.NilOpFormula
 import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
 
-class NegativePropositionalVariable(
+data class NegativePropositionalVariable(
     override val formula: PropositionalVariable
 ) : NilOpFormula<PropositionalVariable>,
     NegativeSignedFormula<PropositionalVariable>,

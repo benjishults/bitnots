@@ -1,42 +1,43 @@
 package com.benjishults.bitnots.util.intern
 
-open class InternTableWithOther<C, O>(val makeNew: (String, O) -> C) {
+import java.util.regex.Pattern
 
-    protected val table = mutableMapOf<String, Pair<O, C>>()
+open class InternTableWithOther<C, O>(val factory: (String, O) -> C) {
+
+    protected val table = mutableMapOf<Pair<String, O>, C>()
+
+    companion object {
+        val similarPattern: Pattern = Pattern.compile("^(.*_)([0-9]+)$")
+    }
 
     fun clear() {
         table.clear()
     }
 
-    fun exists(name: String): Boolean = table.containsKey(name)
-    fun existsWith(name: String, other: O): Boolean = table.get(name)?.second == other
+    fun existsWith(name: String, other: O): Boolean = table.containsKey(name to other)
 
-    fun intern(name: String, other: O): C {
-        table.get(name)?.let {
-            if (it.first != other) {
-                return newSimilar(name, other)
-            }
-            return it.second
-        } ?: return makeNew(name, other).also {
-            table.put(name, other to it)
+    fun intern(name: String, other: O): C =
+        table[name to other] ?: factory(name, other).also { new ->
+            table[name to other] = new
         }
-    }
 
-    tailrec fun newSimilar(baseName: String, other: O): C {
-        if (table.get(baseName) !== null) {
-            val index = baseName.lastIndexOf('-')
-            if (index >= 0) {
-                val trailingInt = baseName.substring(index + 1).toIntOrNull()
-                if (trailingInt === null) {
-                    return newSimilar(baseName + "-0", other)
-                } else {
-                    return newSimilar("${baseName.substring(0, index)}-${trailingInt + 1}", other)
-                }
+    tailrec fun newSimilar(baseName: String, other: O): C =
+        if (table.containsKey(baseName to other)) {
+            val matcher = similarPattern.matcher(baseName)
+            if (matcher.find()) {
+                newSimilar(
+                    matcher.appendTail(StringBuilder().also { sb ->
+                        matcher.appendReplacement(
+                            sb,
+                            matcher.group(1) + (matcher.group(2).toLong() + 1)
+                        )
+                    }).toString(),
+                    other
+                )
             } else {
-                return newSimilar(baseName + "-0", other)
+                newSimilar("${baseName}_0", other)
             }
         } else
-            return intern(baseName, other)
-    }
+            intern(baseName, other)
 
 }

@@ -6,6 +6,6 @@ import com.benjishults.bitnots.inference.rules.GammaFormula
 import com.benjishults.bitnots.model.formulas.fol.ForAll
 import com.benjishults.bitnots.util.Counter
 
-class PositiveForAll(
+data class PositiveForAll(
     override val formula: ForAll
 ) : GammaFormula<ForAll>, PositiveSignedFormula<ForAll>, Counter by Counter(), AbsractSignedFormula<ForAll>()

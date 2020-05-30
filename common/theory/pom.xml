@@ -18,6 +18,11 @@
             <artifactId>language</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.benjishults.bitnots</groupId>
+            <artifactId>util</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -39,11 +44,6 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.benjishults.bitnots</groupId>
-            <artifactId>util</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

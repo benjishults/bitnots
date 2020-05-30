@@ -8,24 +8,24 @@ import com.benjishults.bitnots.util.intern.InternTable
 sealed class Variable(name: TermConstructor) : Term(name) {
 
     override fun applySub(substitution: Substitution): Term =
-            substitution[this]
+        substitution[this]
 
     override fun applyPair(pair: Pair<Variable, Term>): Term =
-            pair[this]
+        pair[this]
 
     override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> =
-            if (this in boundVars)
-                setOf()
-            else
-                setOf(this)
+        if (this in boundVars)
+            setOf()
+        else
+            setOf(this)
 
     override fun toString(): String = cons.name
 
     override fun hashCode(): Int = cons.name.hashCode()
 
     override fun equals(other: Any?): Boolean =
-            other !== null && other::class === this::class &&
-            cons.name.equals((other as Variable).cons.name)
+        other !== null && other::class === this::class &&
+                cons.name.equals((other as Variable).cons.name)
 
 }
 
@@ -38,10 +38,10 @@ class BoundVariable private constructor(name: String) : Variable(BVConstructor(n
     class BVConstructor(name: String) : TermConstructor(name)
 
     override fun unifyUncached(other: Term, sub: Substitution): Substitution =
-            if (other === this)
-                sub
-            else
-                NotCompatible
+        if (other === this)
+            sub
+        else
+            NotCompatible
 
     override fun getFreeVariables(): Set<FreeVariable> = emptySet()
     //    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf()
@@ -59,13 +59,13 @@ class FreeVariable private constructor(name: String) : Variable(FVConstructor(na
      * @param variable must not be bound by [sub]
      */
     override fun containsInternal(variable: Variable, sub: Substitution): Boolean =
-            if (this === variable)
-                true
-            else {
-                sub[this].let {
-                    it !== this && it.containsInternal(variable, sub)
-                }
+        if (this === variable)
+            true
+        else {
+            sub[this].let {
+                it !== this && it.containsInternal(variable, sub)
             }
+        }
 
     class FVConstructor(name: String) : TermConstructor(name)
 
@@ -97,7 +97,9 @@ class FreeVariable private constructor(name: String) : Variable(FVConstructor(na
     override fun getFreeVariables(): Set<FreeVariable> = setOf(this)
     //    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> = mutableMapOf(this.to(1))
 
-    companion object : InternTable<FreeVariable>({ name -> FreeVariable(name) })
+    companion object : InternTable<FreeVariable>({ name ->
+                                                     FreeVariable(name)
+                                                 })
 
 }
 

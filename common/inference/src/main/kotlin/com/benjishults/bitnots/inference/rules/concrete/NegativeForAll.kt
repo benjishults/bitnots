@@ -5,4 +5,4 @@ import com.benjishults.bitnots.inference.NegativeSignedFormula
 import com.benjishults.bitnots.inference.rules.DeltaFormula
 import com.benjishults.bitnots.model.formulas.fol.ForAll
 
-class NegativeForAll(override val formula: ForAll) : DeltaFormula<ForAll>, NegativeSignedFormula<ForAll>, AbsractSignedFormula<ForAll>()
+data class NegativeForAll(override val formula: ForAll) : DeltaFormula<ForAll>, NegativeSignedFormula<ForAll>, AbsractSignedFormula<ForAll>()

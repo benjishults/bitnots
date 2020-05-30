@@ -1,6 +1,6 @@
 package com.benjishults.bitnots.tableau
 
-import com.benjishults.bitnots.inference.createSignedFormula
+import com.benjishults.bitnots.inference.SignedFormulaFactory
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.tableau.strategy.PropositionalInitializationStrategy
 
@@ -10,7 +10,7 @@ class FolTableau(
 
     constructor(formula: Formula) : this(
         PropositionalInitializationStrategy.init(
-            FolTableauNode(mutableListOf(formula.createSignedFormula()))
+            FolTableauNode(mutableListOf(SignedFormulaFactory.createSignedFormula(formula)))
         )
     )
 

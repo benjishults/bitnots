@@ -1,8 +1,8 @@
 package com.benjishults.bitnots.test
 
-import com.benjishults.bitnots.inference.createSignedFormula
+import com.benjishults.bitnots.inference.SignedFormulaFactory
 import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.formulas.util.isPropositional
+import com.benjishults.bitnots.model.formulas.isPropositional
 import com.benjishults.bitnots.prover.Harness
 import com.benjishults.bitnots.prover.Prover
 import com.benjishults.bitnots.prover.finish.ProofInProgress
@@ -57,7 +57,9 @@ abstract class PropositionalClaim(
         return PropositionalTableau(
             PropositionalInitializationStrategy.init(
                 PropositionalTableauNode(
-                    mutableListOf(formula.createSignedFormula())
+                    mutableListOf(
+                        SignedFormulaFactory.createSignedFormula(formula)
+                    )
                 )
             )
         ).also {
@@ -80,7 +82,7 @@ abstract class FolClaim(
     override suspend fun attempt(harness: Harness<FolTableau, FolFormulaTableauProver>): ProofInProgress {
         return FolTableau(
             PropositionalInitializationStrategy.init(
-                FolTableauNode(mutableListOf(formula.createSignedFormula()))
+                FolTableauNode(mutableListOf(SignedFormulaFactory.createSignedFormula(formula)))
             )
         ).also { harness.prove(it) }
     }

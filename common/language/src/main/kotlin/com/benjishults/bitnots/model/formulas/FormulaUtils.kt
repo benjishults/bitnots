@@ -1,8 +1,5 @@
-package com.benjishults.bitnots.model.formulas.util
+package com.benjishults.bitnots.model.formulas
 
-import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.formulas.FormulaWithSubformulas
-import com.benjishults.bitnots.model.formulas.PropositionalFormulaConstructor
 import com.benjishults.bitnots.model.formulas.fol.Predicate
 import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.formulas.propositional.AtomicPropositionalFormula

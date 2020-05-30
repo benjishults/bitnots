@@ -1,7 +1,7 @@
 package com.benjishults.bitnots.theory.formula
 
 import com.benjishults.bitnots.model.formulas.Formula
-import com.benjishults.bitnots.model.formulas.util.isCnf
+import com.benjishults.bitnots.model.formulas.isCnf
 
 class CnfAnnotatedFormula(
     name: String,

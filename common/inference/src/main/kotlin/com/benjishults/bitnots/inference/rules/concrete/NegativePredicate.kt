@@ -5,6 +5,6 @@ import com.benjishults.bitnots.inference.NegativeSignedFormula
 import com.benjishults.bitnots.inference.rules.NilOpFormula
 import com.benjishults.bitnots.model.formulas.fol.Predicate
 
-class NegativePredicate(
+data class NegativePredicate(
     override val formula: Predicate
 ) : NilOpFormula<Predicate>, NegativeSignedFormula<Predicate>, AbsractSignedFormula<Predicate>()

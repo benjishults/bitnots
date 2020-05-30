@@ -11,9 +11,13 @@ import com.benjishults.bitnots.util.intern.InternTableWithOther
  * @param arity the arity of the function
  * @return a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.
  */
-fun Fn(name: String, arity: Int = 1): FunctionConstructor {
+fun Fn(
+    name: String,
+    arity: Int = 1,
+    table: InternTableWithOther<FunctionConstructor, Int> = FunctionConstructor
+): FunctionConstructor {
     require(arity > 0)
-    return FunctionConstructor.intern(name, arity)
+    return table.intern(name, arity)
 }
 
 /**
@@ -22,9 +26,11 @@ fun Fn(name: String, arity: Int = 1): FunctionConstructor {
  * @param arity the arity of the function
  * @return a FunctionConstructor with the given arity and a unique name similar to [name].
  */
-fun FnU(name: String, arity: Int = 1): FunctionConstructor {
+fun FnU(name: String,
+        arity: Int = 1,
+         table: InternTableWithOther<FunctionConstructor, Int> = FunctionConstructor): FunctionConstructor {
     require(arity > 0)
-    return FunctionConstructor.newSimilar(name, arity)
+    return table.newSimilar(name, arity)
 }
 
 /**
@@ -32,16 +38,18 @@ fun FnU(name: String, arity: Int = 1): FunctionConstructor {
  * @param name the name of the constant
  * @return a Function of no arguments with the given name.  If a constant already exists with this name, that one is returned.
  */
-fun Const(name: String) =
-        FunctionConstructor.intern(name, 0)(emptyList())
+fun Const(name: String,
+          table: InternTableWithOther<FunctionConstructor, Int> = FunctionConstructor) =
+    table.intern(name, 0)(emptyList())
 
 /**
  * Returns a Function of no arguments with a unique name similar to the given name.
  * @param name the name of the constant
  * @return a Function of no arguments with a unique name similar to the given name.
  */
-fun ConstU(name: String) =
-        FunctionConstructor.newSimilar(name, 0)(emptyList())
+fun ConstU(name: String,
+           table: InternTableWithOther<FunctionConstructor, Int> = FunctionConstructor) =
+    table.newSimilar(name, 0)(emptyList())
 
 /**
  * Represents a simple function term in the language.  A constant is represented by a function of no arguments.
@@ -49,22 +57,22 @@ fun ConstU(name: String) =
  * @param arguments the arguments in the function term
  */
 class Function private constructor(
-        name: FunctionConstructor,
-        var arguments: List<Term>
+    name: FunctionConstructor,
+    var arguments: List<Term>
 ) : Term(name) {
 
     private val freeVars by lazy { mutableSetOf<FreeVariable>() }
     private var dirtyFreeVars = true
 
     class FunctionConstructor private constructor(
-            name: String,
-            val arity: Int = 0
+        name: String,
+        val arity: Int = 0
     ) : TermConstructor(name) {
 
         companion object : InternTableWithOther<FunctionConstructor, Int>(
-                { name, arity ->
-                    FunctionConstructor(name, arity)
-                })
+            { name, arity ->
+                FunctionConstructor(name, arity)
+            })
 
         override operator fun invoke(arguments: List<Term>): Function {
             check(arguments.size == arity)
@@ -98,38 +106,38 @@ class Function private constructor(
     }
 
     override fun containsInternal(variable: Variable, sub: Substitution): Boolean =
-            getFreeVariables().any {
-                it.containsInternal(variable, sub)
-            }
+        getFreeVariables().any {
+            it.containsInternal(variable, sub)
+        }
 
     override fun unifyUncached(other: Term, sub: Substitution): Substitution =
-            if (sub === NotCompatible)
-                sub
-            else if (other is Function) {
-                if (other.cons === cons) {
-                    arguments.foldIndexed(sub) { i, s, t ->
-                        Term.unify(t, other.arguments[i], s).takeIf {
-                            it !== NotCompatible
-                        } ?: return NotCompatible
-                    }
-                } else {
-                    NotCompatible
+        if (sub === NotCompatible)
+            sub
+        else if (other is Function) {
+            if (other.cons === cons) {
+                arguments.foldIndexed(sub) { i, s, t ->
+                    Term.unify(t, other.arguments[i], s).takeIf {
+                        it !== NotCompatible
+                    } ?: return NotCompatible
                 }
-            } else if (other is FreeVariable)
-                Term.unify(other, this, sub)
-            else
+            } else {
                 NotCompatible
+            }
+        } else if (other is FreeVariable)
+            Term.unify(other, this, sub)
+        else
+            NotCompatible
 
     override fun getFreeVariables(): Set<FreeVariable> =
-            if (dirtyFreeVars)
-                arguments.fold(freeVars.also {
-                    dirtyFreeVars = false
-                }) { s: MutableSet<FreeVariable>, t ->
-                    s += t.getFreeVariables()
-                    s
-                }
-            else
-                freeVars
+        if (dirtyFreeVars)
+            arguments.fold(freeVars.also {
+                dirtyFreeVars = false
+            }) { s: MutableSet<FreeVariable>, t ->
+                s += t.getFreeVariables()
+                s
+            }
+        else
+            freeVars
 
     //    override fun getFreeVariablesAndCounts(): MutableMap<FreeVariable, Int> =
     //            arguments.fold(mutableMapOf<FreeVariable, Int>()) { s, t ->
@@ -143,24 +151,24 @@ class Function private constructor(
 
     // simultaneous substitution
     override fun applySub(substitution: Substitution) =
-            cons(arguments.map {
-                it.applySub(substitution)
-            })
+        cons(arguments.map {
+            it.applySub(substitution)
+        })
 
     override fun applyPair(pair: Pair<Variable, Term>) =
-            cons(arguments.map {
-                it.applyPair(pair)
-            })
+        cons(arguments.map {
+            it.applyPair(pair)
+        })
 
     override fun getVariablesUnboundExcept(boundVars: List<Variable>) =
-            arguments.fold(mutableSetOf<Variable>()) { s, t ->
-                s.also {
-                    it.addAll(t.getVariablesUnboundExcept(boundVars))
-                }
+        arguments.fold(mutableSetOf<Variable>()) { s, t ->
+            s.also {
+                it.addAll(t.getVariablesUnboundExcept(boundVars))
             }
+        }
 
     override fun toString() =
-            "(${cons.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
+        "(${cons.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
 
     override fun equals(other: Any?): Boolean {
         if (other === null)
@@ -176,6 +184,6 @@ class Function private constructor(
     }
 
     override fun hashCode(): Int =
-            arguments.toTypedArray().contentHashCode() + cons.name.hashCode()
+        arguments.toTypedArray().contentHashCode() + cons.name.hashCode()
 
 }

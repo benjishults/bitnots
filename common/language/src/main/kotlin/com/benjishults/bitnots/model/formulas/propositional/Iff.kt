@@ -58,3 +58,5 @@ data class Iff(val first: Formula, val second: Formula) :
     }
 
 }
+
+infix fun Formula.iff(other: Formula) = Iff(this, other)

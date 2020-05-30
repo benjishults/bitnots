@@ -47,3 +47,5 @@ data class Implies(
     override fun toString() = "(${constructor.name} ${antecedent} ${consequent})"
 
 }
+
+infix fun Formula.implies(other: Formula) = Implies(this, other)

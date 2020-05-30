@@ -1,21 +1,29 @@
 package com.benjishults.bitnots.theory
 
-class Theory(val axioms: List<Axiom>) {
-    /**
-     * the theories known terms
-     */
-    val termConstructorTable: Map<String, TermConstructorInfo> = mutableMapOf()
+import com.benjishults.bitnots.model.formulas.fol.Predicate
+import com.benjishults.bitnots.model.terms.Function
+import com.benjishults.bitnots.util.intern.InternTableWithOther
+
+interface Theory {
+    val axioms: List<Axiom>
+
     /**
      * the theories known formulas
      */
-    val formConstructorTable: Map<String, FormulaConstructorInfo> = mutableMapOf()
+    val predicateConstructorTable: InternTableWithOther<Predicate.PredicateConstructor, Int>
 
-}
+    /**
+     * the theories known terms
+     */
+    val functionConstructorTable: InternTableWithOther<Function.FunctionConstructor, Int>
 
-interface FormulaConstructorInfo {
-    val arity : Long
-}
+    companion object : Theory {
+        override val axioms: List<Axiom> =
+            emptyList()
+        override val predicateConstructorTable: InternTableWithOther<Predicate.PredicateConstructor, Int> =
+            Predicate.PredicateConstructor
+        override val functionConstructorTable: InternTableWithOther<Function.FunctionConstructor, Int> =
+            Function.FunctionConstructor
+    }
 
-interface TermConstructorInfo {
-    val arity : Long
 }

@@ -32,8 +32,8 @@ interface Formula {
     fun contains(variable: Variable, sub: Substitution): Boolean
 
     // override fun toString() = "(${constructor.name})"
-    // override fun equals(other: Any?): Boolean
-    // override fun hashCode(): Int
+    override fun equals(other: Any?): Boolean
+    override fun hashCode(): Int
 }
 
 abstract class FormulaWithSubformulas(

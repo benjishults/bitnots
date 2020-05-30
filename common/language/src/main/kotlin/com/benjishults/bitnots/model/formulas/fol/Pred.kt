@@ -17,9 +17,10 @@ import com.benjishults.bitnots.util.intern.InternTableWithOther
  * @param arity the arity of the predicate. Must be > 0.  Otherwise, you want a PropositionalVariable.
  * @return a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.
  */
-fun Pred(name: String, arity: Int = 1): PredicateConstructor {
+fun Pred(name: String, arity: Int = 1,
+table: InternTableWithOther<PredicateConstructor, Int> = PredicateConstructor): PredicateConstructor {
     require(arity > 0)
-    return PredicateConstructor.intern(name, arity)
+    return table.intern(name, arity)
 }
 
 /**
@@ -28,9 +29,10 @@ fun Pred(name: String, arity: Int = 1): PredicateConstructor {
  * @param arity the arity of the predicate. Must be > 0.  Otherwise, you want a PropositionalVariable.
  * @return a PredicateConstructor with a unique name close to the given name.
  */
-fun PredU(name: String, arity: Int = 1): PredicateConstructor {
+fun PredU(name: String, arity: Int = 1,
+          table: InternTableWithOther<PredicateConstructor, Int> = PredicateConstructor): PredicateConstructor {
     require(arity > 0)
-    return PredicateConstructor.newSimilar(name, arity)
+    return table.newSimilar(name, arity)
 }
 
 /**
