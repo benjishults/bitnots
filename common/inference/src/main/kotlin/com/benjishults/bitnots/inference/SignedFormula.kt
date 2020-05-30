@@ -166,7 +166,8 @@ object SignedFormulaFactory {
         }
     }
 
-    fun registerBuilder(formulaClass: KClass<Formula>, factory: (Formula, Boolean) -> SignedFormula<*>) {
+    fun <F : Formula> registerBuilder(formulaClass: KClass<F>, factory: (Formula, Boolean) -> SignedFormula<*>) {
+        require(!classToSignedFormulaFactory.containsKey(formulaClass)) { "The class ${formulaClass} is already registered with a signed formula factory." }
         classToSignedFormulaFactory[formulaClass] = factory
     }
 
@@ -174,7 +175,8 @@ object SignedFormulaFactory {
      * For each concrete subtype "T" of Formula, there must be subclasses of SignedFormula with names NegativeT and PositiveT.
      * These SignedFormula classes must have a constructor that takes no arguments or one that takes a single Formula argument.
      */
-    fun createSignedFormula(formula: Formula,
+    fun createSignedFormula(
+        formula: Formula,
         sign: Boolean = false
     ): SignedFormula<*> =
         classToSignedFormulaFactory[formula::class]!!(formula, sign)
