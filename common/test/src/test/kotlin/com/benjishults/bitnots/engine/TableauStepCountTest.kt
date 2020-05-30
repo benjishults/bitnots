@@ -9,10 +9,10 @@ import com.benjishults.bitnots.model.formulas.propositional.Iff
 import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.formulas.propositional.Or
-import com.benjishults.bitnots.model.formulas.propositional.Prop
+import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
 import com.benjishults.bitnots.model.formulas.propositional.Tfae
 import com.benjishults.bitnots.model.formulas.propositional.Truth
-import com.benjishults.bitnots.model.terms.BV
+import com.benjishults.bitnots.model.terms.BoundVariable
 import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.test.Claim
 import com.benjishults.bitnots.test.FalseFolClaim
@@ -25,20 +25,20 @@ import org.junit.jupiter.api.Test
 class TableauStepCountTest {
 
     companion object {
-        val A = Prop("A")
-        val A1 = Prop("A1")
-        val A2 = Prop("A2")
-        val A11 = Prop("A11")
-        val A12 = Prop("A12")
-        val B = Prop("B")
-        val B1 = Prop("B1")
-        val B2 = Prop("B2")
-        val C = Prop("C")
-        val E = Prop("E")
-        val F = Prop("F")
-        val P = Prop("P")
-        val Q = Prop("Q")
-        val R = Prop("R")
+        val A = PropositionalVariable.intern("A")
+        val A1 = PropositionalVariable.intern("A1")
+        val A2 = PropositionalVariable.intern("A2")
+        val A11 = PropositionalVariable.intern("A11")
+        val A12 = PropositionalVariable.intern("A12")
+        val B = PropositionalVariable.intern("B")
+        val B1 = PropositionalVariable.intern("B1")
+        val B2 = PropositionalVariable.intern("B2")
+        val C = PropositionalVariable.intern("C")
+        val E = PropositionalVariable.intern("E")
+        val F = PropositionalVariable.intern("F")
+        val P = PropositionalVariable.intern("P")
+        val Q = PropositionalVariable.intern("Q")
+        val R = PropositionalVariable.intern("R")
 
         val PROP_CLAIMS = arrayOf(
             TruePropClaim(Implies(Tfae(A, B, C), Implies(B, A)), maxSteps = 1),
@@ -89,13 +89,13 @@ class TableauStepCountTest {
             FalsePropClaim(Falsity)
         )
 
-        val a = BV("a")
-        val x4 = BV("x4")
-        val x3 = BV("x3")
-        val y = BV("y")
-        val z = BV("z")
-        val x2 = BV("x2")
-        val x = BV("x")
+        val a = BoundVariable.intern("a")
+        val x4 = BoundVariable.intern("x4")
+        val x3 = BoundVariable.intern("x3")
+        val y = BoundVariable.intern("y")
+        val z = BoundVariable.intern("z")
+        val x2 = BoundVariable.intern("x2")
+        val x = BoundVariable.intern("x")
 
         val f = Fn("f")
 

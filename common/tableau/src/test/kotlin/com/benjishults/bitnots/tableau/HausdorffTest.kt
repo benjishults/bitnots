@@ -1,7 +1,7 @@
 package com.benjishults.bitnots.tableau
 
 import com.benjishults.bitnots.model.formulas.fol.Pred
-import com.benjishults.bitnots.model.terms.BV
+import com.benjishults.bitnots.model.terms.BoundVariable
 import com.benjishults.bitnots.model.terms.Fn
 
 class HausdorffTest {
@@ -15,23 +15,23 @@ class HausdorffTest {
 
     val Member = Pred("Member", 2)
 
-/*
-(def-predicate (closed-in a b)
-  (open-in (the-set-difference-of b a) b)
-  (format "~a is a closed subset of ~a"))
+    /*
+    (def-predicate (closed-in a b)
+      (open-in (the-set-difference-of b a) b)
+      (format "~a is a closed subset of ~a"))
 
-    (def-predicate (a-hausdorff-top-space x)
-      (forall ((a) (b))
-        (implies (and (a-member-of a (coerce-to-class x))
-              (a-member-of b (coerce-to-class x))
-              (not (= a b)))
-          (for-some ((g1) (g2))
-        (and (open-in g1 x) (open-in g2 x)
-             (a-member-of a g1) (a-member-of b g2)
-             (disjoint g1 g2)))))
-      (string "the definition of a Hausdorff space")
-      (format "~a is a Hausdorff space"))
-    */
+        (def-predicate (a-hausdorff-top-space x)
+          (forall ((a) (b))
+            (implies (and (a-member-of a (coerce-to-class x))
+                  (a-member-of b (coerce-to-class x))
+                  (not (= a b)))
+              (for-some ((g1) (g2))
+            (and (open-in g1 x) (open-in g2 x)
+                 (a-member-of a g1) (a-member-of b g2)
+                 (disjoint g1 g2)))))
+          (string "the definition of a Hausdorff space")
+          (format "~a is a Hausdorff space"))
+        */
     val diagonalTop = Fn("diagonalTop", 1)
     val graphOf = Fn("graphOf", 1)
     val domain = Fn("domain", 1)
@@ -41,46 +41,46 @@ class HausdorffTest {
     val pair = Fn("pair", 2)
     val toClass = Fn("toClass", 1)
 
-    val y = BV("y")
-    val x = BV("x")
-    val a = BV("a")
-    val b = BV("b")
-    val g = BV("g")
+    val y = BoundVariable.intern("y")
+    val x = BoundVariable.intern("x")
+    val a = BoundVariable.intern("a")
+    val b = BoundVariable.intern("b")
+    val g = BoundVariable.intern("g")
 
-/*    var claim = Claim(Implies(
-            And(
-                    //(def-theorem closed-subset-thm
-//(implies (forall ((y)) (implies (and (a-member-of y (coerce-to-class x))
-//                   (not (a-member-of y a)))
-//           (for-some ((g))
-//             (and (a-member-of y g)
-//              (open-in g x)
-//              (disjoint g a)))))
-//(closed-in a x))
-//(string "a simple theorem about closed sets"))
-                    ForAll(a, formula = Implies(ForAll(y, formula = Implies(
-                            And(
-                                    Member(y, toClass(x)),
-                                    Not(Member(y, a))),
-                            ForSome(g, formula = And(
-                                    Member(y, g),
-                                    OpenIn(g, x),
-                                    Disjoint(g, a))))),
-                            ClosedIn(a, x))),
-                    ForAll(x, formula = Implies(
-                            Hausdorff(x),
-                            ForAll(a, b, formula = Implies(
-                                    And(
-                                            Member(a, toClass(x)),
-                                            Member(b, toClass(x)))
-                            )
-                            )
-                    ),
-                            )
+    /*    var claim = Claim(Implies(
+                And(
+                        //(def-theorem closed-subset-thm
+    //(implies (forall ((y)) (implies (and (a-member-of y (coerce-to-class x))
+    //                   (not (a-member-of y a)))
+    //           (for-some ((g))
+    //             (and (a-member-of y g)
+    //              (open-in g x)
+    //              (disjoint g a)))))
+    //(closed-in a x))
+    //(string "a simple theorem about closed sets"))
+                        ForAll(a, formula = Implies(ForAll(y, formula = Implies(
+                                And(
+                                        Member(y, toClass(x)),
+                                        Not(Member(y, a))),
+                                ForSome(g, formula = And(
+                                        Member(y, g),
+                                        OpenIn(g, x),
+                                        Disjoint(g, a))))),
+                                ClosedIn(a, x))),
+                        ForAll(x, formula = Implies(
+                                Hausdorff(x),
+                                ForAll(a, b, formula = Implies(
+                                        And(
+                                                Member(a, toClass(x)),
+                                                Member(b, toClass(x)))
+                                )
+                                )
+                        ),
+                                )
 
 
-            ))
-*/
+                ))
+    */
 }
 /*
 

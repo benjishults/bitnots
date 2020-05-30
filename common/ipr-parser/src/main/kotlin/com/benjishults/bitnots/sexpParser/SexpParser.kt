@@ -11,14 +11,13 @@ import com.benjishults.bitnots.model.formulas.propositional.Iff
 import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.formulas.propositional.Or
-import com.benjishults.bitnots.model.formulas.propositional.Prop
+import com.benjishults.bitnots.model.formulas.propositional.PropositionalVariable
 import com.benjishults.bitnots.model.formulas.propositional.Tfae
 import com.benjishults.bitnots.model.formulas.propositional.Truth
-import com.benjishults.bitnots.model.terms.BV
 import com.benjishults.bitnots.model.terms.BoundVariable
 import com.benjishults.bitnots.model.terms.Const
-import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn
+import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.parser.Parser
 import com.benjishults.bitnots.parser.Tokenizer
@@ -124,7 +123,7 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer> {
         SexpTokenizer.ensure(tokenizer.popToken(), "(")?.let { error(tokenizer.finishMessage(it)) }
         return tokenizer.popToken().let {
             if (it.first().isLetter()) {
-                BV(it)
+                BoundVariable.intern(it)
             } else
                 error(tokenizer.finishMessage("Expected variable-name but got '$it'"))
         }.also {
@@ -160,7 +159,7 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer> {
                 }
             }.toList().let { terms ->
                 if (terms.isEmpty()) {
-                    Prop(functor)
+                    PropositionalVariable.intern(functor)
                 } else {
                     Pred(functor, terms.size)(terms)
                 }
@@ -174,9 +173,9 @@ object SexpParser : Parser<FolAnnotatedFormula, SexpTokenizer> {
             when (first.first()) {
                 in 'a'..'z', in 'A'..'Z' -> {
                     if (first in bvs.map { it.cons.name }) {
-                        BV(first)
+                        BoundVariable.intern(first)
                     } else {
-                        FV(first)
+                        FreeVariable.intern(first)
                     }
                 }
                 '('                      -> {

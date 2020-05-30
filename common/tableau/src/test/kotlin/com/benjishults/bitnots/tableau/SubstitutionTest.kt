@@ -4,7 +4,6 @@ import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.fol.Pred
 import com.benjishults.bitnots.model.formulas.propositional.And
 import com.benjishults.bitnots.model.terms.Const
-import com.benjishults.bitnots.model.terms.FV
 import com.benjishults.bitnots.model.terms.Fn
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Function.FunctionConstructor
@@ -30,17 +29,17 @@ class SubstitutionTest {
     val f1 by lazy { Fn("f1", 3) }
     val f2 by lazy { Fn("f2", 4) }
 
-    val u by lazy { FV("u") }
-    val w by lazy { FV("w") }
-    val x by lazy { FV("x") }
-    val y by lazy { FV("y") }
-    val z by lazy { FV("z") }
+    val u by lazy { FreeVariable.intern("u") }
+    val w by lazy { FreeVariable.intern("w") }
+    val x by lazy { FreeVariable.intern("x") }
+    val y by lazy { FreeVariable.intern("y") }
+    val z by lazy { FreeVariable.intern("z") }
 
-    val x1 by lazy { FV("x1") }
-    val x2 by lazy { FV("x2") }
-    val x3 by lazy { FV("x3") }
-    val x4 by lazy { FV("x4") }
-    val x5 by lazy { FV("x5") }
+    val x1 by lazy { FreeVariable.intern("x1") }
+    val x2 by lazy { FreeVariable.intern("x2") }
+    val x3 by lazy { FreeVariable.intern("x3") }
+    val x4 by lazy { FreeVariable.intern("x4") }
+    val x5 by lazy { FreeVariable.intern("x5") }
 
     val P = Pred("P", 2)
     val Q = Pred("Q", 2)

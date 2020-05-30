@@ -50,9 +50,6 @@ class BoundVariable private constructor(name: String) : Variable(BVConstructor(n
 
 }
 
-fun BV(name: String): BoundVariable = BoundVariable.intern(name)
-fun BVU(name: String): BoundVariable = BoundVariable.newSimilar(name)
-
 class FreeVariable private constructor(name: String) : Variable(FVConstructor(name)) {
 
     /**
@@ -102,6 +99,3 @@ class FreeVariable private constructor(name: String) : Variable(FVConstructor(na
                                                  })
 
 }
-
-fun FV(name: String): FreeVariable = FreeVariable.intern(name)
-fun FVU(name: String): FreeVariable = FreeVariable.newSimilar(name)

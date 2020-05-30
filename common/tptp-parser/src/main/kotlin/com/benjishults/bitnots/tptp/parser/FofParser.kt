@@ -12,7 +12,6 @@ import com.benjishults.bitnots.model.formulas.propositional.Implies
 import com.benjishults.bitnots.model.formulas.propositional.Not
 import com.benjishults.bitnots.model.formulas.propositional.Or
 import com.benjishults.bitnots.model.formulas.propositional.Truth
-import com.benjishults.bitnots.model.terms.BV
 import com.benjishults.bitnots.model.terms.BoundVariable
 import com.benjishults.bitnots.parser.Tokenizer
 import com.benjishults.bitnots.theory.formula.FOF
@@ -173,7 +172,7 @@ object TptpFofParser : AbstractTptpParser<FOF, FolAnnotatedFormula>() {
     private fun parseBoundVar(tokenizer: TptpTokenizer): BoundVariable =
             tokenizer.popToken().let {
                 if (it.first().isUpperCase()) {
-                    BV(it)
+                    BoundVariable.intern(it)
                 } else
                     error(tokenizer.finishMessage("Expected upper-case word but got '$it'"))
             }
