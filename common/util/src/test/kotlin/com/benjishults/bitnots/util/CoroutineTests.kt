@@ -6,7 +6,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.opentest4j.AssertionFailedError
+import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
@@ -44,6 +50,49 @@ class TestNonCoroutineScope {
 
             }
             coroutineContext
+        }
+    }
+
+    @Test
+    fun `the loop takes less than 800 ms`() {
+        Assertions.assertTimeoutPreemptively(Duration.ofMillis(800L)) {
+            runBlocking {
+                repeat(5) {
+                    launch(Dispatchers.Default) {
+                        Thread.sleep(500L)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `the loop takes at least 500 ms`() {
+        Assertions.assertThrows(AssertionFailedError::class.java) {
+            Assertions.assertTimeoutPreemptively(Duration.ofMillis(500L)) {
+                runBlocking {
+                    repeat(5) {
+                        launch(Dispatchers.Default) {
+                            Thread.sleep(500L)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `the loop takes at least 1500 ms`() {
+        Assertions.assertThrows(AssertionFailedError::class.java) {
+            Assertions.assertTimeoutPreemptively(Duration.ofMillis(1500L)) {
+                runBlocking {
+                    repeat(5) {
+                        launch {
+                            Thread.sleep(500L)
+                        }
+                    }
+                }
+            }
         }
     }
 

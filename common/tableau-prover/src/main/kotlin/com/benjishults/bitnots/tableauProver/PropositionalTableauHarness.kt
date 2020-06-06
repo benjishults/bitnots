@@ -19,7 +19,7 @@ class PropositionalTableauHarness(
 ) : TimedHarness<PropositionalTableau, PropositionalFormulaProver>, Versioned by CommitIdTimeVersioner,
     Identified by Identified {
 
-    override suspend fun rein(proofInProgress: PropositionalTableau): Boolean {
+    override fun rein(proofInProgress: PropositionalTableau): Boolean {
         return stepLimit >= 0 && proofInProgress.count >= stepLimit
     }
 

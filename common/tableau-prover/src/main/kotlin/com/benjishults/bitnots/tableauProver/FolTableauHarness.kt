@@ -22,7 +22,7 @@ class FolTableauHarness(
     override val prover: FolFormulaTableauProver =
         FolFormulaTableauProver(FolUnificationClosingStrategy(FolCriticalPairDetector), FolStepStrategy(qLimit))
 
-    override suspend fun rein(proofInProgress: FolTableau): Boolean {
+    override fun rein(proofInProgress: FolTableau): Boolean {
         return stepLimit >= 0 && proofInProgress.count >= stepLimit
     }
 

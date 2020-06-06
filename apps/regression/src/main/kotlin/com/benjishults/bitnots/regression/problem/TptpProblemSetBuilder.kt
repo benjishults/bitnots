@@ -5,6 +5,10 @@ import com.benjishults.bitnots.tptp.TptpFileRepo
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 data class TptpProblemSetBuilder(
     val name: String,
@@ -13,16 +17,25 @@ data class TptpProblemSetBuilder(
     val defaultHarness: FolTableauHarness = FolTableauHarness()
 ) {
 
-    suspend fun build(): ProblemFileSet<TptpFileRepo> =
+    @ExperimentalCoroutinesApi
+    fun build(): ProblemFileSet<TptpFileRepo> =
         ProblemFileSet(
             name,
-            domains.flatMap { domain ->
-                TptpFileFetcher.findAllDescriptors(domain, form)
-            }.map { fileDescriptor ->
-                ProblemFileSetRow(
-                    fileDescriptor,
-                    defaultHarness
-                )
+            mutableListOf<ProblemFileSetRow<*, TptpFileRepo>>().also { list ->
+                runBlocking {
+                    domains.forEach { domain ->
+                        launch(Dispatchers.IO) {
+                            TptpFileFetcher.findAllDescriptors(domain, form).onEach { fileDescriptor ->
+                                list.add(
+                                    ProblemFileSetRow(
+                                        fileDescriptor,
+                                        defaultHarness
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
             }
         )
 }

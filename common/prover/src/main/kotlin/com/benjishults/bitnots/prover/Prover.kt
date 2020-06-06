@@ -7,7 +7,7 @@ import com.benjishults.bitnots.prover.strategy.StepStrategy
 import com.benjishults.bitnots.util.identity.Identified
 import com.benjishults.bitnots.util.identity.Versioned
 
-interface Prover<in T : ProofInProgress>: Versioned, Identified {
+interface Prover<in T : ProofInProgress> : Versioned, Identified {
 
     val finishingStrategy: FinishingStrategy<T, *>
     val stepStrategy: StepStrategy<T>
@@ -18,13 +18,13 @@ interface Prover<in T : ProofInProgress>: Versioned, Identified {
      */
     // TODO probably want to make this a suspend function so that I can check for cancellation
     //      more frequently than once per step
-    fun step(proofInProgress: T): Boolean = stepStrategy.step(proofInProgress)
+    suspend fun step(proofInProgress: T): Boolean = stepStrategy.step(proofInProgress)
 
     /**
      * Check whether the proof is finished.
      * @return an object that indicates how much, if any, work remains to be done.
      */
-    fun checkProgress(proofInProgress: T): ProofProgressIndicator {
+    suspend fun checkProgress(proofInProgress: T): ProofProgressIndicator {
         return finishingStrategy.checkProgress(proofInProgress)
     }
 

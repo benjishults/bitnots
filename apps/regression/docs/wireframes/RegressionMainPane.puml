@@ -3,7 +3,7 @@
 !unquoted procedure SALT($x)
 "{{
 salt
-%invoke_void_func("_"+$x)
+%invoke_procedure("_"+$x)
 }}" as $x
 note top: $x
 !endprocedure
@@ -12,7 +12,7 @@ note top: $x
 {+
 {* File | Help
  File | New | Open | Recent > }
-{ [ Save ] | [ Delete Problem Set ] }
+{ [  Save ] | [ Delete Problem Set ] }
 "No problem set selected"
 {S
 {#
@@ -21,6 +21,10 @@ File Name | Source | Harness | Last Run
 . | . | . | .
 . | . | . | .
 }
+} | {#
+<&trash>
+<&pencil>
+<&media-play>
 }
 { [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] }
 }
@@ -39,7 +43,7 @@ form | ^ FOF ^
 !procedure _new_fetch()
 {+
 {* File | Help }
-{ [ Save ] | [ Delete Problem Set ] }
+{ [  Save ] | [ Delete Problem Set ] }
 "My name for problem set"
 {S
 {#
@@ -47,7 +51,11 @@ File Name | Source | Harness | Last Run
 multi-selectable | TPTP | q=6 to=30 sl=5 | .
 list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
-}
+} | {#
+ <&trash>
+ <&pencil>
+ <&media-play>
+ }
 { [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] }
 }
 !endprocedure
@@ -63,6 +71,10 @@ File Name | Source | Harness | Last Run
 multi-selectable | TPTP | q=6 to=30 sl=5 | .
 list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
+} | {#
+ <&trash>
+ <&pencil>
+ <&media-play>
 }
 { [ <&lock-unlocked> Save and Lock ] | [ Delete Problem ] | [ Undo ] | [ Reset ] }
 }
@@ -88,6 +100,10 @@ File Name | Source | Harness | Last Run
 multi-selectable | TPTP | q=6 to=30 sl=5 | .
 list of problem files | TPTP | q=6 to=30 sl=5 | .
 }
+} | {#
+ <&trash>
+ <&pencil>
+ <&media-play>
 }
 { [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] }
 }

@@ -16,8 +16,10 @@
     <name>BITNOTS :: Services</name>
 
     <modules>
+<!--
         <module>proof-service</module>
         <module>problem-service</module>
+-->
     </modules>
 
 </project>

@@ -68,4 +68,19 @@ data class TptpProblemFileDescriptor(
             append(".p")
         }
 
+    override fun extraPropertiesToYamlString(indentSpaces: Int): String {
+        val indentation = " ".repeat(indentSpaces)
+        return         buildString {
+            append(indentation)
+            appendln("domain: ${domain}")
+            append(indentation)
+            appendln("size: ${size}")
+            append(indentation)
+            appendln("number: ${number}")
+            append(indentation)
+            appendln("version: ${version}")
+        }
+
+    }
+
 }

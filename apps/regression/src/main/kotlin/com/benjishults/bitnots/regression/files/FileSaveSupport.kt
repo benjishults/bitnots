@@ -49,6 +49,7 @@ problems:
     harnessVersion: ${row.harness.version}
             """
             )
+            out.write(row.fileDescriptor.extraPropertiesToYamlString(4))
         }
     }
 

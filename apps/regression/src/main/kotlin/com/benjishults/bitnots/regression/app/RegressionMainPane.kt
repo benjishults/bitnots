@@ -16,11 +16,17 @@ import com.benjishults.bitnots.tptp.files.TptpFileFetcher
 import com.benjishults.bitnots.tptp.files.TptpFormulaForm
 import com.benjishults.bitnots.tptp.files.TptpProblemFileDescriptor
 import com.benjishults.bitnots.tptp.formula.TptpFormulaClassifier
+import de.jensd.fx.glyphs.GlyphsBuilder
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.application.Platform
 import javafx.beans.property.ReadOnlyObjectWrapper
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.event.ActionEvent
+import javafx.geometry.Insets
+import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
@@ -30,17 +36,24 @@ import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
 import javafx.scene.control.ScrollPane
+import javafx.scene.control.SelectionMode
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
+import javafx.scene.layout.Border
 import javafx.scene.layout.BorderPane
+import javafx.scene.layout.BorderStroke
+import javafx.scene.layout.BorderWidths
 import javafx.scene.layout.FlowPane
 import javafx.scene.layout.VBox
+import javafx.stage.FileChooser
+import javafx.util.Callback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.javafx.JavaFx
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.io.File
+import java.nio.file.Path
 import java.util.*
-import kotlin.coroutines.CoroutineContext
 
 class RegressionMainPane(
     private val uiProperties: Properties,
@@ -48,12 +61,15 @@ class RegressionMainPane(
     height: Double,
     menuBar: MenuBar = MenuBar(),
     pane: BorderPane = BorderPane()
-) : Scene(VBox(menuBar, pane), width, height), CoroutineScope {
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.JavaFx
+) : Scene(VBox(menuBar, pane), width, height) {
 
     private val problemSetName = SimpleStringProperty("No problem set selected")
+
+    private val problemSetFile = SimpleObjectProperty<File>(null)
+
+    private val currentJob = SimpleObjectProperty<Job>(null)
+
+    private val runButton = Button("Run")
 
     @Volatile
     private var problemFileSet: ProblemFileSet<*> = ProblemFileSet.EMPTY
@@ -73,30 +89,53 @@ class RegressionMainPane(
         top(pane)
 
         table = problemTable()
-        pane.center = ScrollPane(table)
-
+        pane.center = buildCenter()
+        configureRunButton()
         bottom(pane)
     }
 
+    private fun buildCenter(): BorderPane {
+        val trash = Button(
+            null,
+            GlyphsBuilder
+                .create(FontAwesomeIconView::class.java)
+                .glyph(FontAwesomeIcon.TRASH)
+                .build()
+        ).also { trashButton ->
+            trashButton.setOnAction { _ ->
+                table.items.removeAll(table.selectionModel.selectedItems)
+            }
+        }
+        val edit = Button(
+            null,
+            GlyphsBuilder.create(FontAwesomeIconView::class.java)
+                .glyph(FontAwesomeIcon.EDIT)
+                .build()
+        )
+        return BorderPane(
+            ScrollPane(table),
+            null,
+            VBox(
+                5.0,
+                trash,
+                edit
+            ).also { vBox ->
+                vBox.alignmentProperty().value = Pos.TOP_CENTER
+                vBox.borderProperty().value = Border(BorderStroke(null, null, null, BorderWidths(5.0, 5.0, 5.0, 5.0)))
+            },
+            null,
+            null
+        )
+    }
+
     private fun top(pane: BorderPane) {
-        pane.top = VBox().also { vbox ->
+        pane.top = VBox(5.0).also { vbox ->
             vbox.children.addAll(
                 FlowPane().also { bottomPane ->
+                    bottomPane.hgap = 5.0
+                    bottomPane.padding = Insets(5.0)
                     bottomPane.children.addAll(
-                        Button("Save").also { saveButton ->
-                            saveButton.setOnAction { _ ->
-                                if (problemSetName.get().willOverwriteExistingProblemSet()) {
-                                    Alert(
-                                        Alert.AlertType.WARNING,
-                                        "This will overwrite an existing problem set configuration and its history.  Are you sure?"
-                                    ).showAndWait()
-                                        .filter { it === ButtonType.OK }
-                                        .ifPresent { problemFileSet.writeNewProblemSet() }
-                                } else {
-                                    problemFileSet.writeNewProblemSet()
-                                }
-                            }
-                        },
+                        saveButton(),
                         Button("Delete Problem Set").also { deleteButton ->
                             deleteButton.setOnAction { _ ->
                                 TODO("Implement")
@@ -110,6 +149,22 @@ class RegressionMainPane(
             )
         }
     }
+
+    private fun saveButton() =
+        Button("Save").also { saveButton ->
+            saveButton.setOnAction { _ ->
+                if (problemSetName.get().willOverwriteExistingProblemSet()) {
+                    Alert(
+                        Alert.AlertType.WARNING,
+                        "This will overwrite an existing problem set configuration and its history.  Are you sure?"
+                    ).showAndWait()
+                        .filter { it === ButtonType.OK }
+                        .ifPresent { problemFileSet.writeNewProblemSet() }
+                } else {
+                    problemFileSet.writeNewProblemSet()
+                }
+            }
+        }
 
     private fun menu(menuBar: MenuBar) {
         val fileMenu = Menu("File")
@@ -125,11 +180,12 @@ class RegressionMainPane(
 
     private fun bottom(pane: BorderPane) {
         pane.bottom = FlowPane().also { bottomPane ->
+            bottomPane.hgap = 5.0
+            bottomPane.padding = Insets(5.0)
             bottomPane.children.addAll(
-                runButton(),
-                Button("See History").apply
-                {
-                    setOnAction { _ ->
+                runButton,
+                Button("See History").also { historyButton ->
+                    historyButton.setOnAction { _ ->
                         TODO("Implement")
                         // loadFile("problem")?.let {
                         //     // TODO set as current problem
@@ -137,9 +193,8 @@ class RegressionMainPane(
                         // }
                     }
                 },
-                Button("Unlock").apply
-                {
-                    setOnAction { _ ->
+                Button("Unlock").also { unlockButton ->
+                    unlockButton.setOnAction { _ ->
                         TODO("Implement")
                         // loadFile("theory")?.let {
                         //     // TODO add to theories loaded
@@ -149,24 +204,64 @@ class RegressionMainPane(
         }
     }
 
-    private fun runButton() =
-        Button("Run").also { runButton ->
-            runButton.setOnAction {
-                // TODO extract this to be testable
-                // val toParser: (FormulaForm) -> Parser<*, *> = this::toParser
-
-
+    private fun configureRunButton() =
+        runButton.setOnAction {
+            // TODO extract this to be testable
+            // val toParser: (FormulaForm) -> Parser<*, *> = this::toParser
+            if (currentJob.value !== null) {
                 val fileFetcher = TptpFileFetcher
-                problemFileSet.problemFiles.forEach { problemFileDescriptor ->
+                problemFileSet.problemFiles.forEach { (fileDescriptor, harness) ->
                     // val onProof: (ProofInProgress) -> Unit = { pip -> updateTableItem(problemRun, pip) }
-                    val (fileDescriptor, harness) = problemFileDescriptor
+                    // val (fileDescriptor, harness) = problemFileDescriptor
                     fileDescriptor.parser<FolAnnotatedFormula>().parseAndClassify(
                         TptpFormulaClassifier(),
                         fileDescriptor as TptpProblemFileDescriptor,
                         fileFetcher as FileFetcher<*, TptpFormulaForm, FileDescriptor<TptpFormulaForm, *>>
                     ).let { (hyps, targets) ->
-                        this.launch {
+                        onJobStarted()
+                        currentJob.value = CoroutineScope(Dispatchers.Default).launch {
                             // TODO extract data for table
+                            // TODO maybe spinny gif in each row when waiting
+                            harness.proveAllTargets(hyps, targets)
+                        }.also { job ->
+                            job.invokeOnCompletion { e ->
+                                onJobFinished(e)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    private fun onJobStarted() {
+        runButton.disableProperty().value = true
+    }
+
+    private fun onJobFinished(e: Throwable?) {
+        e?.printStackTrace()
+        Platform.runLater {
+            runButton.disableProperty().value = false
+        }
+
+    }
+
+    private fun stopButton() =
+        Button("Stop All").also { runButton ->
+            runButton.setOnAction {
+                // TODO extract this to be testable
+                // val toParser: (FormulaForm) -> Parser<*, *> = this::toParser
+                val fileFetcher = TptpFileFetcher
+                problemFileSet.problemFiles.forEach { (fileDescriptor, harness) ->
+                    // val onProof: (ProofInProgress) -> Unit = { pip -> updateTableItem(problemRun, pip) }
+                    // val (fileDescriptor, harness) = problemFileDescriptor
+                    fileDescriptor.parser<FolAnnotatedFormula>().parseAndClassify(
+                        TptpFormulaClassifier(),
+                        fileDescriptor as TptpProblemFileDescriptor,
+                        fileFetcher as FileFetcher<*, TptpFormulaForm, FileDescriptor<TptpFormulaForm, *>>
+                    ).let { (hyps, targets) ->
+                        // TODO extract data for table
+                        // TODO maybe spinny gif in each row when waiting
+                        CoroutineScope(Dispatchers.Default).launch {
                             harness.proveAllTargets(hyps, targets)
                         }
                     }
@@ -188,24 +283,28 @@ class RegressionMainPane(
         )
     }
 
-    private fun problemTable(): TableView<ProblemFileSetRow<*,*>> {
-        val table = TableView<ProblemFileSetRow<*,*>>()
-        val fileNameCol = TableColumn<ProblemFileSetRow<*,*>, String>("File")
+    private fun problemTable(): TableView<ProblemFileSetRow<*, *>> {
+        val table = TableView<ProblemFileSetRow<*, *>>()
+        val fileNameCol = TableColumn<ProblemFileSetRow<*, *>, String>("File")
         fileNameCol.setCellValueFactory { column ->
             ReadOnlyObjectWrapper(column.value.fileDescriptor.toFileName())
         }
-        val sourceCol = TableColumn<ProblemFileSetRow<*,*>, String>("Source")
+        val sourceCol = TableColumn<ProblemFileSetRow<*, *>, String>("Source")
         sourceCol.setCellValueFactory { _ ->
             ReadOnlyObjectWrapper(TptpFileRepo.abbreviation)
         }
-        val harnessCol = TableColumn<ProblemFileSetRow<*,*>, Harness<*, *>>("Harness")
+        val harnessCol = TableColumn<ProblemFileSetRow<*, *>, Harness<*, *>>("Harness")
         harnessCol.setCellValueFactory { column ->
             ReadOnlyObjectWrapper(column.value.harness)
         }
-        val statusCol = TableColumn<ProblemFileSetRow<*,*>, ProblemRunStatus>("Last Run")
+        val statusCol = TableColumn<ProblemFileSetRow<*, *>, ProblemRunStatus>("Last Run")
         statusCol.setCellValueFactory { column ->
             ReadOnlyObjectWrapper(if (column.value is ProblemFileSetRow) column.value.status else null)
         }
+        table.columnResizePolicy = Callback { _ ->
+            true
+        }
+        table.selectionModelProperty().value.selectionMode = SelectionMode.MULTIPLE
         table.columns.addAll(
             fileNameCol,
             sourceCol,
@@ -217,7 +316,25 @@ class RegressionMainPane(
 
     private fun recentProblemSetsMenu() = Menu("Recent")
 
-    private fun openProblemSetMenuItem() = MenuItem("Open...")
+    private fun openProblemSetMenuItem() = MenuItem("Open...").also { open ->
+        open.setOnAction { e: ActionEvent ->
+            FileChooser().also { fileChooser ->
+                fileChooser.title = "Open problem set"
+                fileChooser.extensionFilters.addAll(
+                    FileChooser.ExtensionFilter("Yaml Files", "*.yml"),
+                    FileChooser.ExtensionFilter("All Files", "*.*")
+                )
+                val file = fileChooser.showOpenDialog(window);
+                Path.of(file.absolutePath).let { path ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        // TODO save directory to user properties
+                        // TODO populate
+
+                    }
+                }
+            }
+        }
+    }
 
     private fun newProblemSetMenuItem(): MenuItem {
         return MenuItem("New").also { new ->
@@ -226,17 +343,15 @@ class RegressionMainPane(
                     .showAndWait()
                     .ifPresentOrElse(
                         { builder ->
-                            launch(Dispatchers.JavaFx.immediate) {
-                                // Popup().also { popup ->
-                                //     popup.content.add(Text("Initializing Problem Set '${builder.name}'"))
-                                //     popup.show(this.window)
-                                problemFileSet = builder.build()
-                                table.items = FXCollections.observableList(
-                                    problemFileSet.problemFiles
-                                )
-                                // popup.hide()
-                                // }
-                            }
+                            // Popup().also { popup ->
+                            //     popup.content.add(Text("Initializing Problem Set '${builder.name}'"))
+                            //     popup.show(this.window)
+                            problemFileSet = builder.build()
+                            table.items = FXCollections.observableList(
+                                problemFileSet.problemFiles
+                            )
+                            // popup.hide()
+                            // }
                         }
                     ) {
                         // do nothing

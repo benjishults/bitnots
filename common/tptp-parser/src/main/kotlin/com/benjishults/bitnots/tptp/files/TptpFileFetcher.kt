@@ -31,32 +31,39 @@ object TptpFileFetcher : FileFetcher<TptpDomain, TptpFormulaForm, TptpProblemFil
         form: TptpFormulaForm
     ): List<Path> = withContext(Dispatchers.IO) {
         val pattern = problemPattern(domain, form)
-        return@withContext Files.newDirectoryStream(findProblemFolder(domain)).filter {
-            pattern.matcher(it.fileName.toString()).matches()
-        }.toList()
+        return@withContext Files.newDirectoryStream(findProblemFolder(domain)).use { directoryStream ->
+            directoryStream.filter {
+                pattern.matcher(it.fileName.toString()).matches()
+            }.toList()
+        }
     }
 
-    override suspend fun findAllDescriptors(
+    override fun findAllDescriptors(
         domain: TptpDomain,
         form: TptpFormulaForm
-    ): List<TptpProblemFileDescriptor> = withContext(Dispatchers.IO) {
-        val pattern = problemPattern(domain, form)
-        return@withContext Files.newDirectoryStream(findProblemFolder(domain))
-            .map { path ->
-                pattern.matcher(path.fileName.toString())
+    ): List<TptpProblemFileDescriptor> =
+        mutableListOf<TptpProblemFileDescriptor>().also { list ->
+            val pattern = problemPattern(domain, form)
+            Files.newDirectoryStream(findProblemFolder(domain)).use { directoryStream ->
+                directoryStream
+                    .map { path ->
+                        pattern.matcher(path.fileName.toString())
+                    }
+                    .filter(Matcher::matches)
+                    .forEach { matcher ->
+                        list.add(
+                            TptpProblemFileDescriptor(
+                                domain,
+                                form,
+                                matcher.group("number").toLong(10),
+                                matcher.group("version").toLong(10),
+                                matcher.group("size")?.toLong(10) ?: -1
+                            )
+                        )
+                    }
             }
-            .filter(Matcher::matches)
-            .map { matcher ->
-                TptpProblemFileDescriptor(
-                    domain,
-                    form,
-                    matcher.group("number").toLong(10),
-                    matcher.group("version").toLong(10),
-                    matcher.group("size")?.toLong(10) ?: -1
-                )
-            }
-            .toList()
-    }
+        }
+
 
     // TODO memoize
     private fun problemPattern(

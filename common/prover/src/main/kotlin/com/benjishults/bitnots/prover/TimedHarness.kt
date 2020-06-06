@@ -6,7 +6,7 @@ import com.benjishults.bitnots.util.Timed
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 
-interface TimedHarness<T : ProofInProgress, P : Prover<T>> : Harness<T, P> {
+interface TimedHarness<T : ProofInProgress, P : Prover<T>> : CancellableHarness<T, P> {
 
     val limitMillis: Long
 

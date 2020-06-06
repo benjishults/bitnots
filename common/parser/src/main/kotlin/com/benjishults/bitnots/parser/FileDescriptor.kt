@@ -10,6 +10,8 @@ interface FileDescriptor<F : FormulaForm, S : ProblemSource> {
 
     fun toFileName(): String
 
+    fun extraPropertiesToYamlString(indentSpaces: Int): String
+
     fun <AF : AnnotatedFormula> parser(): Parser< AF, *> =
         source.parser(form)
 

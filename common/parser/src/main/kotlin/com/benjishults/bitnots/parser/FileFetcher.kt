@@ -4,7 +4,7 @@ import com.benjishults.bitnots.theory.DomainCategory
 import com.benjishults.bitnots.theory.formula.FormulaForm
 import java.nio.file.Path
 
-interface FileFetcher<in D: DomainCategory, F :FormulaForm, FD: FileDescriptor<F, *>> {
+interface FileFetcher<in D : DomainCategory, F : FormulaForm, FD : FileDescriptor<F, *>> {
 
     fun findProblemFolder(domain: D): Path
 
@@ -13,7 +13,7 @@ interface FileFetcher<in D: DomainCategory, F :FormulaForm, FD: FileDescriptor<F
         form: F
     ): List<Path>
 
-    suspend fun findAllDescriptors(
+    fun findAllDescriptors(
         domain: D,
         form: F
     ): List<FD>
