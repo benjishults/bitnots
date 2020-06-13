@@ -1,9 +1,7 @@
 package com.benjishults.bitnots.theory.formula
 
 interface CNF : FormulaForm {
-    companion object {
-        val IMPL = object : CNF {
+    companion object : CNF {
             override val abbreviation: String = "CNF"
-        }
     }
 }

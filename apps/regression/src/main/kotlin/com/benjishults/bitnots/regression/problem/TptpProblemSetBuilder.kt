@@ -18,7 +18,7 @@ data class TptpProblemSetBuilder(
 ) {
 
     @ExperimentalCoroutinesApi
-    fun build(): ProblemFileSet<TptpFileRepo> =
+    fun buildNew(): ProblemFileSet<TptpFileRepo> =
         ProblemFileSet(
             name,
             mutableListOf<ProblemFileSetRow<*, TptpFileRepo>>().also { list ->

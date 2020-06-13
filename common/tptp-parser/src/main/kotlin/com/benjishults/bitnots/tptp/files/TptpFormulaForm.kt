@@ -15,6 +15,10 @@ sealed class TptpFormulaForm(val representation: Char) : FormulaForm {
 
     companion object {
         private val map = mutableMapOf<Char, TptpFormulaForm>()
+        val abbreviationToInstanceMap = mapOf(
+            CNF.abbreviation to TptpCnf,
+            FOF.abbreviation to TptpFof
+        )
 
         // fun values() = map.values
 
@@ -22,11 +26,13 @@ sealed class TptpFormulaForm(val representation: Char) : FormulaForm {
             map.getOrElse(representation) { throw IllegalArgumentException("Unknown representation: '$representation'") }
     }
 
+    override fun toString(): String = this::class.simpleName!!
+
 }
 
-object TptpCnf : TptpFormulaForm('-'), CNF by CNF.IMPL
+object TptpCnf : TptpFormulaForm('-'), CNF by CNF
 
-object TptpFof : TptpFormulaForm('+'), FOF by FOF.IMPL
+object TptpFof : TptpFormulaForm('+'), FOF by FOF
 
 object TptpTff : TptpFormulaForm('_'), FormulaForm by TFF
 

@@ -10,34 +10,85 @@ note top: $x
 
 !procedure _empty()
 {+
-{* File | Help
- File | New | Open | Recent > }
-{ [  Save File Set ] | [ Delete File Set ] }
-"No problem set selected"
-{S
-{#
-File Name | Source | Harness | Last Run
-. | . | . | .
-. | . | . | .
-. | . | . | .
+{* File | Help }
+{+
+Source: | ^TPTP^
+Version: | "1.7.0"
+Location: | "/usr/local/share/tptp"
+[ Fetch ]
 }
-} | {#
-<&trash>
- <&plus>
-<&pencil>
-<&media-play>
-}
-{ [ Run ] | [ See History ] | [ <&lock-locked> Unlock ] }
 }
 !endprocedure
 
-!procedure _new()
+!procedure _folders()
 {+
-name problem set: | "My name for problem set"
-source | ^tptp^
-domains | ^"AGT, SYN     "^
-form | ^ FOF ^
-[ Fetch ]
+{* File | Help }
+{
+{S
+{#
+# | Name | Form
+. | PRA | DIR
+. | SYN | DIR
+. | TOP | DIR
+}
+} | {#
+<&trash>
+<&plus>
+<&pencil>
+<&media-play>
+}
+}
+}
+!endprocedure
+
+!procedure _TOP()
+{+
+{* File | Help }
+{ [ Filter ] }
+{{S
+{#
+# | Name | Form
+. | TOP001-1.p | CNF
+. | TOP001-2.p | CNF
+. | TOP002-1.p | CNF
+}
+} | {#
+<&trash>
+<&plus>
+<&pencil>
+<&media-play>
+}
+}
+}
+!endprocedure
+
+!procedure _filter()
+{+
+{
+Form: | ^FOF^
+}
+{ [ Cancel ] | [ OK ] }
+}
+!endprocedure
+
+!procedure _filtered()
+{+
+{* File | Help }
+{ [ Filter ] | [ Clear Filters ] }
+{{S
+{#
+# | Name | Form
+. | TOP020+1.p | FOF
+. | TOP021+1.p | FOF
+. | TOP022+1.p | FOF
+}
+} | {#
+<&trash>
+<&plus>
+<&pencil>
+<&media-play>
+}
+}
 }
 !endprocedure
 
@@ -115,10 +166,9 @@ list of problem files | TPTP | q=6 to=30 sl=5 | .
 !endprocedure
 
 (*) -> SALT(empty) : first run
-empty -right-> SALT(new)
-new --> SALT(new_fetch) : require and new name
-new_fetch -left-> SALT(unlock)
-unlock --> SALT(lock_warning)
-lock_warning -right-> SALT(run)
+empty -right-> SALT(folders)
+folders -right-> SALT(TOP)
+TOP --> SALT(filter)
+filter -left-> SALT(filtered)
 
 @enduml

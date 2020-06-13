@@ -2,6 +2,7 @@ package com.benjishults.bitnots.tptp.files
 
 import com.benjishults.bitnots.parser.FileDescriptor
 import com.benjishults.bitnots.tptp.TptpFileRepo
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.regex.Pattern
 
 data class TptpProblemFileDescriptor(
@@ -12,6 +13,7 @@ data class TptpProblemFileDescriptor(
     val size: Long = -1L
 ) : FileDescriptor<TptpFormulaForm, TptpFileRepo> {
 
+    @JsonIgnore
     override val source: TptpFileRepo = TptpFileRepo
 
     companion object {
@@ -68,19 +70,18 @@ data class TptpProblemFileDescriptor(
             append(".p")
         }
 
-    override fun extraPropertiesToYamlString(indentSpaces: Int): String {
-        val indentation = " ".repeat(indentSpaces)
-        return         buildString {
-            append(indentation)
-            appendln("domain: ${domain}")
-            append(indentation)
-            appendln("size: ${size}")
-            append(indentation)
-            appendln("number: ${number}")
-            append(indentation)
-            appendln("version: ${version}")
-        }
-
-    }
+    // override fun extraPropertiesToYamlString(indentSpaces: Int): String {
+    //     val indentation = " ".repeat(indentSpaces)
+    //     return         buildString {
+    //         append(indentation)
+    //         appendln("domain: ${domain}")
+    //         append(indentation)
+    //         appendln("size: ${size}")
+    //         append(indentation)
+    //         appendln("number: ${number}")
+    //         append(indentation)
+    //         appendln("version: ${version}")
+    //     }
+    // }
 
 }

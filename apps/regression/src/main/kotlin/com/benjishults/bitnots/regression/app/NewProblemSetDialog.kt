@@ -1,7 +1,6 @@
 package com.benjishults.bitnots.regression.app
 
 import com.benjishults.bitnots.jfx.FormBuilder
-import com.benjishults.bitnots.util.file.isValidFileName
 import com.benjishults.bitnots.regression.problem.TptpProblemSetBuilder
 import com.benjishults.bitnots.sexpParser.IprFileRepo
 import com.benjishults.bitnots.tableauProver.FolTableauHarness
@@ -12,6 +11,7 @@ import com.benjishults.bitnots.tptp.TptpFileRepo
 import com.benjishults.bitnots.tptp.files.TptpCnf
 import com.benjishults.bitnots.tptp.files.TptpDomain
 import com.benjishults.bitnots.tptp.files.TptpFof
+import com.benjishults.bitnots.util.file.isValidFileName
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.StringProperty
 import javafx.collections.FXCollections
@@ -109,7 +109,7 @@ class NewProblemSetDialog() : Dialog<TptpProblemSetBuilder>() {
                         val control = ComboBox(
                             FXCollections.unmodifiableObservableList(
                                 FXCollections.observableList(
-                                    listOf(FOF.IMPL, CNF.IMPL)
+                                    listOf(FOF, CNF)
                                 )
                             )
                         ).also { comboBox ->

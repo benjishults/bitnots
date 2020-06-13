@@ -74,3 +74,32 @@ class FxApplication : Application() {
     }
 
 }
+
+// internal fun buildConfig(): Config {
+//     val resource = Source.from.yaml.resource("legacy-event-service.yml")
+//     val appConfigFile = Source.from.yaml.file(
+//         System.getProperty("app.config")
+//             ?: System.getenv("APP_CONFIG")
+//             ?: "/opt/legacyevent/conf/legacy-event-service.yml",
+//         true
+//     )
+//     return buildBaseConfig()
+//         .withSource(
+//             resource +
+//                     appConfigFile +
+//                     Source.from.env() +
+//                     Source.from.systemProperties()
+//         )
+// }
+
+// private fun buildBaseConfig(): BaseConfig {
+//     return BaseConfig(
+//         specsInLayer = mutableListOf(ConfigSpec("")),
+//         mapper = ObjectMapper()
+//             .registerKotlinModule()
+//             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+//     )
+// }
+
+// internal fun buildServiceConfig(config: Config) =
+//     config.toValue<LegacyEventServiceConfig>()

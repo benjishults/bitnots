@@ -206,7 +206,7 @@ class RegressionMainPane(
 
     private fun configureRunButton() =
         runButton.setOnAction {
-            // TODO extract this to be testable
+            // TODO this should query for harness configuration
             // val toParser: (FormulaForm) -> Parser<*, *> = this::toParser
             if (currentJob.value !== null) {
                 val fileFetcher = TptpFileFetcher
@@ -222,7 +222,7 @@ class RegressionMainPane(
                         currentJob.value = CoroutineScope(Dispatchers.Default).launch {
                             // TODO extract data for table
                             // TODO maybe spinny gif in each row when waiting
-                            harness.proveAllTargets(hyps, targets)
+                            // harness.proveAllTargets(hyps, targets)
                         }.also { job ->
                             job.invokeOnCompletion { e ->
                                 onJobFinished(e)
@@ -346,7 +346,7 @@ class RegressionMainPane(
                             // Popup().also { popup ->
                             //     popup.content.add(Text("Initializing Problem Set '${builder.name}'"))
                             //     popup.show(this.window)
-                            problemFileSet = builder.build()
+                            problemFileSet = builder.buildNew()
                             table.items = FXCollections.observableList(
                                 problemFileSet.problemFiles
                             )
