@@ -10,16 +10,15 @@
 mvn clean install
 ```
 
-### Build without TPTP tests
+### Build with TPTP tests
 
-If you want to run tests against [TPTP](http://www.cs.miami.edu/~tptp/), you must 
+If you want to run tests against [TPTP](http://www.cs.miami.edu/~tptp/), you must have
 
-1. have the  [TPTP](http://www.cs.miami.edu/~tptp/) library
-installed locally
+1. the  [TPTP](http://www.cs.miami.edu/~tptp/) library installed locally
 2. the `tptp.base.folder` system property must be defined when you run tests
    1. an easy way to have the property defined is to set it in [this file](config/tptp.properties)
    2. you can store that `tptp.properties` configuration file elsewhere by redefining the system property
-   `config` to point to the folder containing that file.
+      `config` to point to the folder containing that file.
 
 Once that's ready, run
 
