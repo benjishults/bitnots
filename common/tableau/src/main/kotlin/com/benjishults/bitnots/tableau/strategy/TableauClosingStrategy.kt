@@ -88,7 +88,7 @@ interface TableauClosingStrategy<in T : Tableau<*>> :
         val posAboveOrHere: MutableList<PositiveSignedFormula<*>> = mutableListOf()
         val negAboveOrHere: MutableList<NegativeSignedFormula<*>> = mutableListOf()
         node.newFormulas.filterIsInstance<SimpleSignedFormula<*>>().also { newSimpleFormulasHere ->
-            (node.simpleFormulasAbove + newSimpleFormulasHere).forEach { signedFormula ->
+            (node.simpleFormulasAbove + newSimpleFormulasHere).forEach { (cons, formList) ->
                 when (signedFormula) {
                     is ClosingFormula        -> {
                         node.branchClosers.add(

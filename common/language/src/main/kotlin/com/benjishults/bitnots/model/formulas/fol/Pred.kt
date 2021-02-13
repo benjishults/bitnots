@@ -3,6 +3,7 @@ package com.benjishults.bitnots.model.formulas.fol
 import com.benjishults.bitnots.model.formulas.Formula
 import com.benjishults.bitnots.model.formulas.FormulaConstructor
 import com.benjishults.bitnots.model.formulas.fol.Predicate.PredicateConstructor
+import com.benjishults.bitnots.model.formulas.propositional.AtomicFormula
 import com.benjishults.bitnots.model.terms.FreeVariable
 import com.benjishults.bitnots.model.terms.Term
 import com.benjishults.bitnots.model.terms.Variable
@@ -17,8 +18,10 @@ import com.benjishults.bitnots.util.intern.InternTableWithOther
  * @param arity the arity of the predicate. Must be > 0.  Otherwise, you want a PropositionalVariable.
  * @return a FunctionConstructor with the given name and arity.  If one already exists with this name, that one is returned.
  */
-fun Pred(name: String, arity: Int = 1,
-table: InternTableWithOther<PredicateConstructor, Int> = PredicateConstructor): PredicateConstructor {
+fun Pred(
+    name: String, arity: Int = 1,
+    table: InternTableWithOther<PredicateConstructor, Int> = PredicateConstructor
+): PredicateConstructor {
     require(arity > 0)
     return table.intern(name, arity)
 }
@@ -29,8 +32,10 @@ table: InternTableWithOther<PredicateConstructor, Int> = PredicateConstructor): 
  * @param arity the arity of the predicate. Must be > 0.  Otherwise, you want a PropositionalVariable.
  * @return a PredicateConstructor with a unique name close to the given name.
  */
-fun PredU(name: String, arity: Int = 1,
-          table: InternTableWithOther<PredicateConstructor, Int> = PredicateConstructor): PredicateConstructor {
+fun PredU(
+    name: String, arity: Int = 1,
+    table: InternTableWithOther<PredicateConstructor, Int> = PredicateConstructor
+): PredicateConstructor {
     require(arity > 0)
     return table.newSimilar(name, arity)
 }
@@ -40,8 +45,9 @@ fun PredU(name: String, arity: Int = 1,
  * @param name the PredicateConstructor for the predicate
  * @param arguments the arguments in the function predicate
  */
-class Predicate private constructor(override val constructor: PredicateConstructor, var arguments: List<Term>) :
-        Formula {
+class Predicate private constructor(
+    override val constructor: PredicateConstructor, var arguments: List<Term>
+) : AtomicFormula {
 
     override fun getVariablesUnboundExcept(boundVars: List<Variable>): Set<Variable> {
         TODO()
@@ -52,7 +58,7 @@ class Predicate private constructor(override val constructor: PredicateConstruct
 
     open class PredicateConstructor(name: String, val arity: Int = 1) : FormulaConstructor(name) {
         companion object :
-                InternTableWithOther<PredicateConstructor, Int>({ name, arity -> PredicateConstructor(name, arity) })
+            InternTableWithOther<PredicateConstructor, Int>({ name, arity -> PredicateConstructor(name, arity) })
 
         operator fun invoke(arguments: List<Term>): Predicate {
             check(arguments.size == arity)
@@ -121,17 +127,17 @@ class Predicate private constructor(override val constructor: PredicateConstruct
     }
 
     override fun applySub(substitution: Substitution) =
-            constructor(arguments.map {
-                it.applySub(substitution)
-            })
+        constructor(arguments.map {
+            it.applySub(substitution)
+        })
 
     override fun applyPair(pair: Pair<Variable, Term>) =
-            constructor(arguments.map {
-                it.applyPair(pair)
-            })
+        constructor(arguments.map {
+            it.applyPair(pair)
+        })
 
     override fun toString() =
-            "(${constructor.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
+        "(${constructor.name}${if (arguments.size == 0) "" else " "}${arguments.joinToString(" ")})"
 
     override fun equals(other: Any?): Boolean {
         if (other === null) return false

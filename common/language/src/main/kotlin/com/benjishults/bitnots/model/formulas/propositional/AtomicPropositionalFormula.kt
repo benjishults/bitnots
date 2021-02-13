@@ -8,9 +8,11 @@ import com.benjishults.bitnots.model.terms.Variable
 import com.benjishults.bitnots.model.unifier.NotCompatible
 import com.benjishults.bitnots.model.unifier.Substitution
 
+interface AtomicFormula: Formula
+
 abstract class AtomicPropositionalFormula(
         override val constructor: PropositionalFormulaConstructor
-) : Formula {
+) : AtomicFormula {
 
     override fun unifyUncached(other: Formula, sub: Substitution): Substitution =
             if (this == other)
