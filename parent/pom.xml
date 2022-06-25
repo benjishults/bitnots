@@ -65,7 +65,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.version>1.3.71</kotlin.version>
+        <kotlin.version>1.6.0</kotlin.version>
         <java.version>11</java.version>
         <openjfx.version>14</openjfx.version>
         <reactor.version>3.1.0.RELEASE</reactor.version>
