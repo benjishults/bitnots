@@ -70,8 +70,13 @@
         <openjfx.version>14</openjfx.version>
         <reactor.version>3.1.0.RELEASE</reactor.version>
         <dokka.version>0.9.15</dokka.version>
+
         <jackson.version>2.13.4.2</jackson.version>
-        <camel.version>3.0.1</camel.version>
+
+
+
+        <camel.version>3.2.0</camel.version>
+
         <ktor.version>1.3.0</ktor.version>
         <boot.version>2.2.1.RELEASE</boot.version>
         <log4j.version>2.17.1</log4j.version>
