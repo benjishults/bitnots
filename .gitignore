@@ -12,3 +12,7 @@ common/test/src/test/resources/accepted/*
 **/dependency-reduced-pom.xml
 /local/
 dependency-reduced-pom.xml
+
+.gradle/
+.mvn/
+buildSrc/
